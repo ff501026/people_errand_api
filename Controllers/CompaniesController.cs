@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using People_errand_api.Models;
 
@@ -27,12 +28,12 @@ namespace People_errand_api.Controllers
             return await _context.Companies.ToListAsync();
         }
 
-        // GET: api/Companies/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Company>> GetCompany(string id)
+        // GET: api/Companies/company_hash
+        [HttpGet("{company_hash}")]
+        public async Task<ActionResult<Company>> GetCompany(string company_hash)
         {
             var company = await _context.Companies
-                .Where(o => o.CompanyHash == id)
+                .Where(o => o.CompanyHash == company_hash)
                 .Select(o => o).FirstOrDefaultAsync();
                        
 
@@ -75,29 +76,24 @@ namespace People_errand_api.Controllers
             return NoContent();
         }
 
-        // POST: api/Companies
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Company>> PostCompany(Company company)
-        {
-            _context.Companies.Add(company);
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException)
-            {
-                if (CompanyExists(company.CompanyHash))
-                {
-                    return Conflict();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+      
 
-            return CreatedAtAction("GetCompany", new { id = company.CompanyHash }, company);
+        // POST: api/Companies/regist_company
+        [HttpPost("regist_company")]
+        public async Task<ActionResult<bool>> regist_company(string company_name)
+        {
+            var parameters = new[]
+            {
+                new SqlParameter("@company_name",System.Data.SqlDbType.NVarChar)
+                {
+                    Direction = System.Data.ParameterDirection.Input,
+                    Value = company_name
+                }
+            };
+
+            var result = _context.Database.ExecuteSqlRaw("exec regist_company @company_name", parameters: parameters);
+            //輸出成功與否
+            return result != 0 ? true : false;
         }
 
         // DELETE: api/Companies/5

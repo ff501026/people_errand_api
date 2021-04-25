@@ -22,7 +22,7 @@ namespace People_errand_api.Models
         public string EmployeeId { get; set; }
         public string HashAccount { get; set; }
         public string Name { get; set; }
-        public string Password { get; set; }
+        public string PhoneCode { get; set; }
         public int RoleId { get; set; }
         public string CompanyHash { get; set; }
         public DateTime CreatedTime { get; set; }

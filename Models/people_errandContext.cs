@@ -108,7 +108,6 @@ namespace People_errand_api.Models
                     .HasColumnName("hash_account");
 
                 entity.Property(e => e.CompanyHash)
-                    .IsRequired()
                     .HasMaxLength(256)
                     .IsUnicode(false)
                     .HasColumnName("company_hash");
@@ -131,17 +130,16 @@ namespace People_errand_api.Models
                     .HasMaxLength(30)
                     .HasColumnName("name");
 
-                entity.Property(e => e.Password)
+                entity.Property(e => e.PhoneCode)
                     .IsRequired()
-                    .HasMaxLength(32)
-                    .HasColumnName("password");
+                    .HasMaxLength(17)
+                    .HasColumnName("phone_code");
 
                 entity.Property(e => e.RoleId).HasColumnName("role_id");
 
                 entity.HasOne(d => d.CompanyHashNavigation)
                     .WithMany(p => p.Employees)
                     .HasForeignKey(d => d.CompanyHash)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_employee_company");
 
                 entity.HasOne(d => d.Role)
