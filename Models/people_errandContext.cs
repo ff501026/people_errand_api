@@ -126,13 +126,12 @@ namespace People_errand_api.Models
                     .IsFixedLength(true);
 
                 entity.Property(e => e.Name)
-                    .IsRequired()
                     .HasMaxLength(30)
                     .HasColumnName("name");
 
                 entity.Property(e => e.PhoneCode)
                     .IsRequired()
-                    .HasMaxLength(17)
+                    .HasMaxLength(128)
                     .HasColumnName("phone_code");
 
                 entity.Property(e => e.RoleId).HasColumnName("role_id");
@@ -291,6 +290,10 @@ namespace People_errand_api.Models
                 entity.ToTable("employee_workRecords");
 
                 entity.Property(e => e.WorkRecordsId).HasColumnName("workRecords_id");
+
+                entity.Property(e => e.CoordinateX).HasColumnName("coordinate_X");
+
+                entity.Property(e => e.CoordinateY).HasColumnName("coordinate_Y");
 
                 entity.Property(e => e.CreatedTime)
                     .HasColumnType("datetime")

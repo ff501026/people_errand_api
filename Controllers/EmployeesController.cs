@@ -21,20 +21,21 @@ namespace People_errand_api.Controllers
             _context = context;
         }
 
-        // GET: api/Employees
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Employee>>> GetEmployees()
-        {
-            return await _context.Employees.ToListAsync();
-        }
+        //// GET: api/Employees
+        //[HttpGet]
+        //public async Task<ActionResult<IEnumerable<Employee>>> GetEmployees()
+        //{
+        //    return await _context.Employees.ToListAsync();
+        //}
 
         // GET: api/Employees/phone_code
         [HttpGet("{phone_code}")]
         public async Task<ActionResult<Employee>> GetEmployee(string phone_code)
         {
+            //去employee資料表比對phone_code，並回傳資料行
             var employee = await _context.Employees
-                .Where(o => o.PhoneCode == phone_code)
-                .Select(o => o).FirstOrDefaultAsync();
+                .Where(db_employee => db_employee.PhoneCode == phone_code)
+                .Select(db_employee => db_employee).FirstOrDefaultAsync();
 
             if (phone_code == null)
             {
@@ -75,17 +76,14 @@ namespace People_errand_api.Controllers
             return NoContent();
         }
 
-        //POST: api/Employees/regist_company
-        [HttpPost("regist_company")]
-        public async Task<ActionResult<bool>> regist_employee(string employee_name , string phone_code)
+
+        // POST: api/Employees/regist_employees
+        [HttpPost("regist_employee")]
+        public async Task<ActionResult<bool>> regist_employee(string phone_code)
         {
+            //設定放入查詢的值
             var parameters = new[]
             {
-                new SqlParameter("@employee_name",System.Data.SqlDbType.NVarChar)
-                {
-                    Direction = System.Data.ParameterDirection.Input,
-                    Value = employee_name
-                },
                 new SqlParameter("@phone_code",System.Data.SqlDbType.NVarChar)
                 {
                     Direction = System.Data.ParameterDirection.Input,
@@ -93,7 +91,7 @@ namespace People_errand_api.Controllers
                 }
             };
 
-            var result = _context.Database.ExecuteSqlRaw("exec regist_employee @employee_name , @phone_code", parameters: parameters);
+            var result = _context.Database.ExecuteSqlRaw("exec regist_employee @phone_code", parameters: parameters);
             //輸出成功與否
             return result != 0 ? true : false;
         }

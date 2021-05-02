@@ -21,20 +21,21 @@ namespace People_errand_api.Controllers
             _context = context;
         }
 
-        // GET: api/Companies
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Company>>> GetCompanies()
-        {
-            return await _context.Companies.ToListAsync();
-        }
+        //// GET: api/Companies
+        //[HttpGet]
+        //public async Task<ActionResult<IEnumerable<Company>>> GetCompanies()
+        //{
+        //    return await _context.Companies.ToListAsync();
+        //}
 
         // GET: api/Companies/company_hash
-        [HttpGet("{company_hash}")]
-        public async Task<ActionResult<Company>> GetCompany(string company_hash)
+        [HttpGet("{company_code}")]
+        public async Task<ActionResult<Company>> GetCompany(string company_code)
         {
+            //去company資料表比對company_code，並回傳資料行
             var company = await _context.Companies
-                .Where(o => o.CompanyHash == company_hash)
-                .Select(o => o).FirstOrDefaultAsync();
+                .Where(db_company => db_company.Code == company_code)
+                .Select(db_company => db_company).FirstOrDefaultAsync();
                        
 
             if (company == null)
@@ -82,6 +83,7 @@ namespace People_errand_api.Controllers
         [HttpPost("regist_company")]
         public async Task<ActionResult<bool>> regist_company(string company_name)
         {
+            //設定放入查詢的值
             var parameters = new[]
             {
                 new SqlParameter("@company_name",System.Data.SqlDbType.NVarChar)
