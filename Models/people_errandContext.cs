@@ -190,7 +190,8 @@ namespace People_errand_api.Models
 
                 entity.Property(e => e.CreatedTime)
                     .HasColumnType("datetime")
-                    .HasColumnName("created_time");
+                    .HasColumnName("created_time")
+                    .HasDefaultValueSql("(getdate())");
 
                 entity.Property(e => e.EmployeeHash)
                     .IsRequired()
@@ -235,7 +236,8 @@ namespace People_errand_api.Models
 
                 entity.Property(e => e.CreatedTime)
                     .HasColumnType("datetime")
-                    .HasColumnName("created_time");
+                    .HasColumnName("created_time")
+                    .HasDefaultValueSql("(getdate())");
 
                 entity.Property(e => e.HashAccount)
                     .IsRequired()
@@ -297,7 +299,8 @@ namespace People_errand_api.Models
 
                 entity.Property(e => e.CreatedTime)
                     .HasColumnType("datetime")
-                    .HasColumnName("created_time");
+                    .HasColumnName("created_time")
+                    .HasDefaultValueSql("(getdate())");
 
                 entity.Property(e => e.HashAccount)
                     .IsRequired()
@@ -358,7 +361,8 @@ namespace People_errand_api.Models
 
                 entity.Property(e => e.CreatedTime)
                     .HasColumnType("datetime")
-                    .HasColumnName("created_time");
+                    .HasColumnName("created_time")
+                    .HasDefaultValueSql("(getdate())");
 
                 entity.Property(e => e.EmployeeHash)
                     .IsRequired()
