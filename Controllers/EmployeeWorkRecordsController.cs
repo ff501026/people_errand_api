@@ -29,11 +29,11 @@ namespace People_errand_api.Controllers
         //}
 
         // GET: api/EmployeeWorkRecords/hash_account
-        [HttpGet("{hash_account}")]
+        [HttpGet("{hash_account}")] //(用來看最後一筆是上班還下班)
         public async Task<ActionResult<EmployeeWorkRecord>> GetEmployeeWorkRecords(string hash_account)
         {
             //去employee_work_record資料表比對hash_account，並回傳資料行
-            //找到使用者最後一筆資料列，用來看最後一筆是上班還下班
+            //找到使用者最後一筆資料
             var employee_work_record = await _context.EmployeeWorkRecords
                 .Where(db_employee_work_record => db_employee_work_record.HashAccount == hash_account)
                 .OrderBy(db_employee_work_record => db_employee_work_record.WorkRecordsId)
@@ -92,20 +92,10 @@ namespace People_errand_api.Controllers
             return NoContent();
         }
 
-        //// POST: api/EmployeeWorkRecords
-        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPost]
-        //public async Task<ActionResult<EmployeeWorkRecord>> PostEmployeeWorkRecord(EmployeeWorkRecord employeeWorkRecord)
-        //{
-        //    _context.EmployeeWorkRecords.Add(employeeWorkRecord);
-        //    await _context.SaveChangesAsync();
-
-        //    return CreatedAtAction("GetEmployeeWorkRecord", new { id = employeeWorkRecord.WorkRecordsId }, employeeWorkRecord);
-        //}
 
         // POST: api/EmployeeWorkRecords/add_workRecord
         [HttpPost("add_workRecord")]
-        public async Task<ActionResult<bool>> add_workRecord(string hash_account,int work_type_id, double coordinate_X,double coordinate_Y)
+        public async Task<ActionResult<bool>> add_workRecord(string hashAccount,int workTypeId, double coordinateX,double coordinateY)
         {
             //設定放入查詢的值
             var parameters = new[]
@@ -113,22 +103,22 @@ namespace People_errand_api.Controllers
                 new SqlParameter("@hash_account",System.Data.SqlDbType.VarChar)
                 {
                     Direction = System.Data.ParameterDirection.Input,
-                    Value = hash_account
+                    Value = hashAccount
                 },
                 new SqlParameter("@work_type_id",System.Data.SqlDbType.Int)
                 {
                     Direction = System.Data.ParameterDirection.Input,
-                    Value = work_type_id
+                    Value = workTypeId
                 },
                 new SqlParameter("@coordinate_X",System.Data.SqlDbType.Float)
                 {
                     Direction = System.Data.ParameterDirection.Input,
-                    Value = coordinate_X
+                    Value = coordinateX
                 },
                 new SqlParameter("@coordinate_Y",System.Data.SqlDbType.Float)
                 {
                     Direction = System.Data.ParameterDirection.Input,
-                    Value = coordinate_Y
+                    Value = coordinateY
                 }
             };
 
