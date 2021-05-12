@@ -66,6 +66,10 @@ namespace People_errand_api.Models
                     .HasDefaultValueSql("([dbo].[add_company]())")
                     .IsFixedLength(true);
 
+                entity.Property(e => e.CoordinateX).HasColumnName("coordinate_X");
+
+                entity.Property(e => e.CoordinateY).HasColumnName("coordinate_Y");
+
                 entity.Property(e => e.CreateTime)
                     .HasColumnType("datetime")
                     .HasColumnName("create_time")
@@ -131,8 +135,10 @@ namespace People_errand_api.Models
 
                 entity.Property(e => e.PhoneCode)
                     .IsRequired()
-                    .HasMaxLength(128)
-                    .HasColumnName("phone_code");
+                    .HasMaxLength(36)
+                    .IsUnicode(false)
+                    .HasColumnName("phone_code")
+                    .IsFixedLength(true);
 
                 entity.Property(e => e.RoleId).HasColumnName("role_id");
 

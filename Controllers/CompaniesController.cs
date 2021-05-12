@@ -30,20 +30,26 @@ namespace People_errand_api.Controllers
 
         // GET: api/Companies/company_hash
         [HttpGet("{company_code}")]
-        public async Task<ActionResult<Company>> GetCompany(string company_code)
+        public async Task<ActionResult<string>> GetCompany(string company_code)
         {
             //去company資料表比對company_code，並回傳資料行
-            var company = await _context.Companies
+            var company_hash = await _context.Companies
                 .Where(db_company => db_company.Code == company_code)
-                .Select(db_company => db_company).FirstOrDefaultAsync();
-                       
+                .Select(db_company => db_company.CompanyHash).FirstOrDefaultAsync();
+            var coordinate_X = await _context.Companies
+                .Where(db_company => db_company.Code == company_code)
+                .Select(db_company => db_company.CoordinateX).FirstOrDefaultAsync();
+            var coordinate_Y = await _context.Companies
+                .Where(db_company => db_company.Code == company_code)
+                .Select(db_company => db_company.CoordinateY).FirstOrDefaultAsync();
 
-            if (company == null)
+
+            if (company_hash == null)
             {
                 return NotFound();
             }
 
-            return company;
+            return company_hash+"\n"+coordinate_X+"\n"+coordinate_Y;
         }
 
         // PUT: api/Companies/5

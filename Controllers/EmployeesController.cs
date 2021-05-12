@@ -30,12 +30,12 @@ namespace People_errand_api.Controllers
 
         // GET: api/Employees/phone_code
         [HttpGet("{phone_code}")]
-        public async Task<ActionResult<Employee>> GetEmployee(string phone_code)
+        public async Task<ActionResult<string>> GetEmployee(string phone_code)
         {
             //去employee資料表比對phone_code，並回傳資料行
             var employee = await _context.Employees
                 .Where(db_employee => db_employee.PhoneCode == phone_code)
-                .Select(db_employee => db_employee).FirstOrDefaultAsync();
+                .Select(db_employee => db_employee.HashAccount).FirstOrDefaultAsync();
 
             if (phone_code == null)
             {
@@ -79,7 +79,7 @@ namespace People_errand_api.Controllers
 
         // POST: api/Employees/regist_employees
         [HttpPost("regist_employee")]
-        public async Task<ActionResult<bool>> regist_employee(string phone_code)
+        public async Task<ActionResult<bool>> regist_employee(string phone_code,string company_hash)
         {
             //設定放入查詢的值
             var parameters = new[]
@@ -88,10 +88,15 @@ namespace People_errand_api.Controllers
                 {
                     Direction = System.Data.ParameterDirection.Input,
                     Value = phone_code
+                },
+                new SqlParameter("@company_hash",System.Data.SqlDbType.NVarChar)
+                {
+                    Direction = System.Data.ParameterDirection.Input,
+                    Value = company_hash
                 }
             };
 
-            var result = _context.Database.ExecuteSqlRaw("exec regist_employee @phone_code", parameters: parameters);
+            var result = _context.Database.ExecuteSqlRaw("exec regist_employee @phone_code,@company_hash", parameters: parameters);
             //輸出成功與否
             return result != 0 ? true : false;
         }
