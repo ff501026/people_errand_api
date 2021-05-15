@@ -87,21 +87,34 @@ namespace People_errand_api.Controllers
 
         // POST: api/Companies/regist_company
         [HttpPost("regist_company")]
-        public async Task<ActionResult<bool>> regist_company(string company_name)
+        public ActionResult<bool> regist_company([FromBody] List<Company> companies)
         {
-            //設定放入查詢的值
-            var parameters = new[]
+            bool result = true;
+            try
             {
-                new SqlParameter("@company_name",System.Data.SqlDbType.NVarChar)
+                foreach (Company company in companies)
                 {
-                    Direction = System.Data.ParameterDirection.Input,
-                    Value = company_name
+                        //設定放入查詢的值
+                        var parameters = new[]
+                    {
+                        new SqlParameter("@company_name",System.Data.SqlDbType.NVarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = company.Name
+                        }
+                    };
+                    result = _context.Database.ExecuteSqlRaw("exec regist_company @company_name", parameters: parameters) != 0 ? true : false;
                 }
-            };
+            }
+            catch (Exception)
+            {
+                result = false;
+                throw;
+            }
 
-            var result = _context.Database.ExecuteSqlRaw("exec regist_company @company_name", parameters: parameters);
+            
             //輸出成功與否
-            return result != 0 ? true : false;
+            return result ;
         }
 
         // DELETE: api/Companies/5

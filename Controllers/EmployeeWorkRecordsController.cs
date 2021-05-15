@@ -47,6 +47,29 @@ namespace People_errand_api.Controllers
             return employee_work_record;
         }
 
+        // GET: api/EmployeeWorkRecords/GetEmployeeAllWorkRecords/hash_account
+        [HttpGet("GetEmployeeAllWorkRecords/{hash_account}")] //(用來看全部的上班下班)
+        public async Task<ActionResult<IEnumerable<EmployeeWorkRecord>>> GetEmployeeAllWorkRecords(string hash_account)
+        {
+            //去employee_work_record資料表比對hash_account，並回傳資料行
+            //找到使用者最後一筆資料
+            var employee_work_record = await _context.EmployeeWorkRecords
+                .Where(db_employee_work_record => db_employee_work_record.HashAccount == hash_account)
+                .OrderBy(db_employee_work_record => db_employee_work_record.WorkRecordsId)
+                .Select(db_employee_work_record => db_employee_work_record).ToListAsync();
+
+            if (hash_account == null)
+            {
+                return NotFound();
+            }
+            if (employee_work_record.Count == 0)
+            {
+                return NotFound();
+            }
+
+            return employee_work_record;
+        }
+
         //// GET: api/EmployeeWorkRecords/5
         //[HttpGet("{id}")]
         //public async Task<ActionResult<EmployeeWorkRecord>> GetEmployeeWorkRecord(int id)
@@ -93,38 +116,52 @@ namespace People_errand_api.Controllers
         }
 
 
+
         // POST: api/EmployeeWorkRecords/add_workRecord
         [HttpPost("add_workRecord")]
-        public async Task<ActionResult<bool>> add_workRecord(string hashAccount,int workTypeId, double coordinateX,double coordinateY)
+        public ActionResult<bool> add_workRecord([FromBody]List<EmployeeWorkRecord> workRecords)
         {
-            //設定放入查詢的值
-            var parameters = new[]
+            bool result = true;
+            try
             {
-                new SqlParameter("@hash_account",System.Data.SqlDbType.VarChar)
+                foreach (EmployeeWorkRecord workRecord in workRecords)
                 {
-                    Direction = System.Data.ParameterDirection.Input,
-                    Value = hashAccount
-                },
-                new SqlParameter("@work_type_id",System.Data.SqlDbType.Int)
-                {
-                    Direction = System.Data.ParameterDirection.Input,
-                    Value = workTypeId
-                },
-                new SqlParameter("@coordinate_X",System.Data.SqlDbType.Float)
-                {
-                    Direction = System.Data.ParameterDirection.Input,
-                    Value = coordinateX
-                },
-                new SqlParameter("@coordinate_Y",System.Data.SqlDbType.Float)
-                {
-                    Direction = System.Data.ParameterDirection.Input,
-                    Value = coordinateY
-                }
-            };
+                    //設定放入查詢的值
+                    var parameters = new[]
+                    {
+                        new SqlParameter("@hash_account",System.Data.SqlDbType.VarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = workRecord.HashAccount
+                        },
+                        new SqlParameter("@work_type_id",System.Data.SqlDbType.Int)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = workRecord.WorkTypeId
+                        },
+                        new SqlParameter("@coordinate_X",System.Data.SqlDbType.Float)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = workRecord.CoordinateX
+                        },
+                        new SqlParameter("@coordinate_Y",System.Data.SqlDbType.Float)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = workRecord.CoordinateY
+                        }
+                    };
 
-            var result = _context.Database.ExecuteSqlRaw("exec add_workRecord @hash_account,@work_type_id,@coordinate_X,@coordinate_Y", parameters: parameters);
+                    result = _context.Database.ExecuteSqlRaw("exec add_workRecord @hash_account,@work_type_id,@coordinate_X,@coordinate_Y", parameters: parameters) != 0 ? true : false;
+                }
+            }
+            catch (Exception)
+            {
+                result = false;
+                throw;
+            }
+
             //輸出成功與否
-            return result != 0 ? true : false;
+            return result;
         }
 
         // DELETE: api/EmployeeWorkRecords/5

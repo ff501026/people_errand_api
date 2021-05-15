@@ -79,26 +79,38 @@ namespace People_errand_api.Controllers
 
         // POST: api/Employees/regist_employees
         [HttpPost("regist_employee")]
-        public async Task<ActionResult<bool>> regist_employee(string phone_code,string company_hash)
+        public ActionResult<bool> regist_employee([FromBody] List<Employee> employees)
         {
-            //設定放入查詢的值
-            var parameters = new[]
+            bool result = true;
+            try
             {
-                new SqlParameter("@phone_code",System.Data.SqlDbType.NVarChar)
+                foreach (Employee employee in employees)
                 {
-                    Direction = System.Data.ParameterDirection.Input,
-                    Value = phone_code
-                },
-                new SqlParameter("@company_hash",System.Data.SqlDbType.NVarChar)
-                {
-                    Direction = System.Data.ParameterDirection.Input,
-                    Value = company_hash
+                    //設定放入查詢的值
+                    var parameters = new[]
+                    {
+                        new SqlParameter("@phone_code",System.Data.SqlDbType.NVarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employee.PhoneCode
+                        },
+                        new SqlParameter("@company_hash",System.Data.SqlDbType.NVarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employee.CompanyHash
+                        }
+                    };
+                    result = _context.Database.ExecuteSqlRaw("exec regist_employee @phone_code,@company_hash", parameters: parameters) != 0 ? true : false;
                 }
-            };
+            }
+            catch (Exception)
+            {
+                result = false;
+                throw;
+            }
 
-            var result = _context.Database.ExecuteSqlRaw("exec regist_employee @phone_code,@company_hash", parameters: parameters);
             //輸出成功與否
-            return result != 0 ? true : false;
+            return result;
         }
 
         // DELETE: api/Employees/5
