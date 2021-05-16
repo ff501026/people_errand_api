@@ -20,6 +20,8 @@ namespace People_errand_api.Models
         public virtual DbSet<Company> Companies { get; set; }
         public virtual DbSet<Employee> Employees { get; set; }
         public virtual DbSet<EmployeeInformation> EmployeeInformations { get; set; }
+        public virtual DbSet<EmployeeLeaveRecord> EmployeeLeaveRecords { get; set; }
+        public virtual DbSet<EmployeeLeaveType> EmployeeLeaveTypes { get; set; }
         public virtual DbSet<EmployeeSchedule> EmployeeSchedules { get; set; }
         public virtual DbSet<EmployeeTripRecord> EmployeeTripRecords { get; set; }
         public virtual DbSet<EmployeeTripType> EmployeeTripTypes { get; set; }
@@ -186,6 +188,60 @@ namespace People_errand_api.Models
                     .HasConstraintName("FK_employee_information_employee");
             });
 
+            modelBuilder.Entity<EmployeeLeaveRecord>(entity =>
+            {
+                entity.HasKey(e => e.LeaveRecordsId);
+
+                entity.ToTable("employee_leaveRecords");
+
+                entity.Property(e => e.LeaveRecordsId).HasColumnName("leaveRecords_id");
+
+                entity.Property(e => e.CreatedTime)
+                    .HasColumnType("datetime")
+                    .HasColumnName("created_time")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.HashAccount)
+                    .IsRequired()
+                    .HasMaxLength(256)
+                    .IsUnicode(false)
+                    .HasColumnName("hash_account");
+
+                entity.Property(e => e.LeaveTypeId).HasColumnName("leave_type_id");
+
+                entity.Property(e => e.Reason)
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .HasColumnName("reason");
+
+                entity.HasOne(d => d.HashAccountNavigation)
+                    .WithMany(p => p.EmployeeLeaveRecords)
+                    .HasForeignKey(d => d.HashAccount)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_employee_leaveRecords_employee");
+
+                entity.HasOne(d => d.LeaveType)
+                    .WithMany(p => p.EmployeeLeaveRecords)
+                    .HasForeignKey(d => d.LeaveTypeId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_employee_leaveRecords_employee_leave_type");
+            });
+
+            modelBuilder.Entity<EmployeeLeaveType>(entity =>
+            {
+                entity.HasKey(e => e.LeaveTypeId);
+
+                entity.ToTable("employee_leave_type");
+
+                entity.Property(e => e.LeaveTypeId).HasColumnName("leave_type_id");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("name");
+            });
+
             modelBuilder.Entity<EmployeeSchedule>(entity =>
             {
                 entity.HasKey(e => e.ScheduleId);
@@ -234,9 +290,10 @@ namespace People_errand_api.Models
 
             modelBuilder.Entity<EmployeeTripRecord>(entity =>
             {
-                entity.HasKey(e => e.TripRecordsId);
+                entity.HasKey(e => e.TripRecordsId)
+                    .HasName("PK_employee_trip_records");
 
-                entity.ToTable("employee_trip_records");
+                entity.ToTable("employee_tripRecords");
 
                 entity.Property(e => e.TripRecordsId).HasColumnName("tripRecords_id");
 
