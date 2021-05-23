@@ -12,6 +12,7 @@ namespace People_errand_api.Models
         public int WorkTypeId { get; set; }
         public double CoordinateX { get; set; }
         public double CoordinateY { get; set; }
+        public bool Enabler { get; set; }
         public DateTime CreatedTime { get; set; }
 
         public virtual Employee HashAccountNavigation { get; set; }

@@ -9,6 +9,8 @@ namespace People_errand_api.Models
     {
         public int LeaveRecordsId { get; set; }
         public string HashAccount { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
         public int LeaveTypeId { get; set; }
         public string Reason { get; set; }
         public DateTime CreatedTime { get; set; }

@@ -201,6 +201,10 @@ namespace People_errand_api.Models
                     .HasColumnName("created_time")
                     .HasDefaultValueSql("(getdate())");
 
+                entity.Property(e => e.EndDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("end_date");
+
                 entity.Property(e => e.HashAccount)
                     .IsRequired()
                     .HasMaxLength(256)
@@ -213,6 +217,10 @@ namespace People_errand_api.Models
                     .IsRequired()
                     .HasMaxLength(200)
                     .HasColumnName("reason");
+
+                entity.Property(e => e.StartDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("start_date");
 
                 entity.HasOne(d => d.HashAccountNavigation)
                     .WithMany(p => p.EmployeeLeaveRecords)
@@ -302,6 +310,10 @@ namespace People_errand_api.Models
                     .HasColumnName("created_time")
                     .HasDefaultValueSql("(getdate())");
 
+                entity.Property(e => e.EndDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("end_date");
+
                 entity.Property(e => e.HashAccount)
                     .IsRequired()
                     .HasMaxLength(256)
@@ -317,6 +329,10 @@ namespace People_errand_api.Models
                     .IsRequired()
                     .HasMaxLength(200)
                     .HasColumnName("reason");
+
+                entity.Property(e => e.StartDate)
+                    .HasColumnType("datetime")
+                    .HasColumnName("start_date");
 
                 entity.Property(e => e.TripTypeId).HasColumnName("trip_type_id");
 
@@ -364,6 +380,8 @@ namespace People_errand_api.Models
                     .HasColumnType("datetime")
                     .HasColumnName("created_time")
                     .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.Enabler).HasColumnName("enabler");
 
                 entity.Property(e => e.HashAccount)
                     .IsRequired()

@@ -9,6 +9,8 @@ namespace People_errand_api.Models
     {
         public int TripRecordsId { get; set; }
         public string HashAccount { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
         public int TripTypeId { get; set; }
         public string Location { get; set; }
         public string Reason { get; set; }

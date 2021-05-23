@@ -47,7 +47,6 @@ namespace People_errand_api.Controllers
         public async Task<ActionResult<IEnumerable<EmployeeLeaveRecord>>> GetEmployeeAllLeaveRecords(string hash_account)
         {
             //去employee_leave_record資料表比對hash_account，並回傳資料行
-            //找到使用者最後一筆資料
             var employee_leave_record = await _context.EmployeeLeaveRecords
                 .Where(db_employee_leave_record => db_employee_leave_record.HashAccount == hash_account)
                 .OrderBy(db_employee_leave_record => db_employee_leave_record.LeaveRecordsId)
@@ -114,6 +113,16 @@ namespace People_errand_api.Controllers
                             Direction = System.Data.ParameterDirection.Input,
                             Value = leaveRecord.HashAccount
                         },
+                        new SqlParameter("@start_date",System.Data.SqlDbType.DateTime)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = leaveRecord.StartDate
+                        },
+                        new SqlParameter("@end_date",System.Data.SqlDbType.DateTime)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = leaveRecord.EndDate
+                        },
                         new SqlParameter("@leave_type_id",System.Data.SqlDbType.Int)
                         {
                             Direction = System.Data.ParameterDirection.Input,
@@ -126,7 +135,7 @@ namespace People_errand_api.Controllers
                         }
                     };
                     //執行預存程序
-                    result = _context.Database.ExecuteSqlRaw("exec add_leaveRecord @hash_account,@leave_type_id,@reason", parameters: parameters) != 0 ? true : false;
+                    result = _context.Database.ExecuteSqlRaw("exec add_leaveRecord @hash_account,@start_date,@end_date,@leave_type_id,@reason", parameters: parameters) != 0 ? true : false;
                 }
             }
             catch (Exception)
