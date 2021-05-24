@@ -29,7 +29,8 @@ namespace People_errand_api.Controllers
             //去employee_work_record資料表比對hash_account，並回傳資料行
             //找到使用者最後一筆資料
             var employee_work_record = await _context.EmployeeWorkRecords
-                .Where(db_employee_work_record => db_employee_work_record.HashAccount == hash_account)
+                .Where(db_employee_work_record => db_employee_work_record.HashAccount == hash_account
+                && db_employee_work_record.Enabler.Equals(true))
                 .OrderBy(db_employee_work_record => db_employee_work_record.WorkRecordsId)
                 .Select(db_employee_work_record => db_employee_work_record).LastOrDefaultAsync();
 
