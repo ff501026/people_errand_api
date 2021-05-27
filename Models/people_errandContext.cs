@@ -24,7 +24,6 @@ namespace People_errand_api.Models
         public virtual DbSet<EmployeeLeaveType> EmployeeLeaveTypes { get; set; }
         public virtual DbSet<EmployeeSchedule> EmployeeSchedules { get; set; }
         public virtual DbSet<EmployeeTripRecord> EmployeeTripRecords { get; set; }
-        public virtual DbSet<EmployeeTripType> EmployeeTripTypes { get; set; }
         public virtual DbSet<EmployeeWorkRecord> EmployeeWorkRecords { get; set; }
         public virtual DbSet<EmployeeWorkType> EmployeeWorkTypes { get; set; }
         public virtual DbSet<Role> Roles { get; set; }
@@ -334,34 +333,11 @@ namespace People_errand_api.Models
                     .HasColumnType("datetime")
                     .HasColumnName("start_date");
 
-                entity.Property(e => e.TripTypeId).HasColumnName("trip_type_id");
-
                 entity.HasOne(d => d.HashAccountNavigation)
                     .WithMany(p => p.EmployeeTripRecords)
                     .HasForeignKey(d => d.HashAccount)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_employee_trip_records_employee");
-
-                entity.HasOne(d => d.TripType)
-                    .WithMany(p => p.EmployeeTripRecords)
-                    .HasForeignKey(d => d.TripTypeId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_employee_trip_records_employee_trip_type");
-            });
-
-            modelBuilder.Entity<EmployeeTripType>(entity =>
-            {
-                entity.HasKey(e => e.TripTypeId);
-
-                entity.ToTable("employee_trip_type");
-
-                entity.Property(e => e.TripTypeId).HasColumnName("trip_type_id");
-
-                entity.Property(e => e.Name)
-                    .IsRequired()
-                    .HasMaxLength(8)
-                    .IsUnicode(false)
-                    .HasColumnName("name");
             });
 
             modelBuilder.Entity<EmployeeWorkRecord>(entity =>
@@ -381,7 +357,7 @@ namespace People_errand_api.Models
                     .HasColumnName("created_time")
                     .HasDefaultValueSql("(getdate())");
 
-                entity.Property(e => e.Enabler).HasColumnName("enabler");
+                entity.Property(e => e.Enabled).HasColumnName("enabled");
 
                 entity.Property(e => e.HashAccount)
                     .IsRequired()

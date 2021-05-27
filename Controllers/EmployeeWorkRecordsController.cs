@@ -30,7 +30,7 @@ namespace People_errand_api.Controllers
             //找到使用者最後一筆資料
             var employee_work_record = await _context.EmployeeWorkRecords
                 .Where(db_employee_work_record => db_employee_work_record.HashAccount == hash_account
-                && db_employee_work_record.Enabler.Equals(true))
+                && db_employee_work_record.Enabled.Equals(true))
                 .OrderBy(db_employee_work_record => db_employee_work_record.WorkRecordsId)
                 .Select(db_employee_work_record => db_employee_work_record).LastOrDefaultAsync();
 
@@ -49,7 +49,7 @@ namespace People_errand_api.Controllers
             //去employee_work_record資料表比對hash_account，並回傳資料行
             var employee_work_record = await _context.EmployeeWorkRecords
                 .Where(db_employee_work_record =>db_employee_work_record.HashAccount == hash_account
-                && db_employee_work_record.Enabler.Equals(true))
+                && db_employee_work_record.Enabled.Equals(true))
                 .OrderBy(db_employee_work_record => db_employee_work_record.WorkRecordsId)
                 .Select(db_employee_work_record => db_employee_work_record).ToListAsync();
 
@@ -132,14 +132,14 @@ namespace People_errand_api.Controllers
                             Direction = System.Data.ParameterDirection.Input,
                             Value = workRecord.CoordinateY
                         },
-                         new SqlParameter("enabler",System.Data.SqlDbType.Bit)
+                         new SqlParameter("enabled",System.Data.SqlDbType.Bit)
                         {
                             Direction = System.Data.ParameterDirection.Input,
-                            Value = workRecord.Enabler
+                            Value = workRecord.Enabled
                         }
                     };
 
-                    result = _context.Database.ExecuteSqlRaw("exec add_workRecord @hash_account,@work_type_id,@coordinate_X,@coordinate_Y,@enabler", parameters: parameters) != 0 ? true : false;
+                    result = _context.Database.ExecuteSqlRaw("exec add_workRecord @hash_account,@work_type_id,@coordinate_X,@coordinate_Y,@enabled", parameters: parameters) != 0 ? true : false;
                 }
             }
             catch (Exception)
