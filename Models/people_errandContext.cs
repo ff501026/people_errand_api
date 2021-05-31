@@ -329,6 +329,8 @@ namespace People_errand_api.Models
                     .HasMaxLength(200)
                     .HasColumnName("reason");
 
+                entity.Property(e => e.Review).HasColumnName("review");
+
                 entity.Property(e => e.StartDate)
                     .HasColumnType("datetime")
                     .HasColumnName("start_date");
