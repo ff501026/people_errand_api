@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -29,31 +30,49 @@ namespace People_errand_api.Controllers
         }
 
 
-        // GET: api/EmployeeInformations/hash_account
+        //// GET: api/EmployeeInformations/hash_account
+        //[HttpGet("{hash_account}")]
+        //public IEnumerable<Employee> GetEmployeeInformation(string hash_account)
+        //{
+
+        //    List<Employee> employee;
+
+        //    var parameters = new[]
+        //    {
+        //        new SqlParameter("@hash_account",System.Data.SqlDbType.VarChar)
+        //        {
+        //            Direction = System.Data.ParameterDirection.Input,
+        //            Value = hash_account,
+        //        }
+        //    };
+
+        //    employee = _context.Employees.FromSqlRaw("exec get_employeeInformaion @hash_account", parameters).ToList();
+
+        //    return employee;
+        //}
+
+
         [HttpGet("{hash_account}")]
-        public IEnumerable<Employee> GetEmployeeInformation(string hash_account)
+        public async Task<IEnumerable> GetEmployeeInformation(string hash_account)
         {
 
-            List<Employee> employee;
-            
-            var parameters = new[]
-            {
-                new SqlParameter("@hash_account",System.Data.SqlDbType.VarChar)
-                {
-                    Direction = System.Data.ParameterDirection.Input,
-                    Value = hash_account,
-                }
-            };
-
-            employee = _context.Employees.FromSqlRaw("exec get_employeeInformaion @hash_account",parameters).ToList();
-
-
-
-            return employee;
+            var Employee_information = await (from t in _context.Employees
+                                              join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
+                                              join b in _context.EmployeeDepartmentTypes on a.DepartmentId equals b.DepartmentId
+                                              join c in _context.EmployeeJobtitleTypes on a.JobtitleId equals c.JobtitleId
+                                              where t.HashAccount == hash_account
+                                              select new
+                                              {
+                                                  name = a.Name,
+                                                  department = b.Name,
+                                                  jobtitle = c.Name,
+                                                  phone = a.Phone,
+                                                  email = a.Email,
+                                              }).ToListAsync();
+            return Employee_information;
         }
 
 
-        
 
         // PUT: api/update_information
         [HttpPut("update_information")]
