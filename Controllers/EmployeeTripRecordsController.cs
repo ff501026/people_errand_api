@@ -27,8 +27,8 @@ namespace People_errand_api.Controllers
         [HttpGet("{hash_account}")]
         public async Task<ActionResult<IEnumerable<EmployeeTripRecord>>> GetEmployeeTripRecord(string hash_account)
         {
-            var employeeTripRecord = await _context.EmployeeTripRecords.
-                Where(db_employeeTripRecord => db_employeeTripRecord.HashAccount == hash_account)
+            var employeeTripRecord = await _context.EmployeeTripRecords
+                .Where(db_employeeTripRecord => db_employeeTripRecord.HashAccount == hash_account)
                 .Select(db_employeeTripRecord => db_employeeTripRecord).ToListAsync();
 
             if (hash_account == null)
@@ -78,10 +78,12 @@ namespace People_errand_api.Controllers
         [HttpPost("add_tripRecord")]
         public ActionResult<bool> add_tripRecord([FromBody] List<EmployeeTripRecord> tripRecords)
         {
+            //[FromBody] List<EmployeeTripRecord> tripRecords => JSON
             bool result = true;
             try
             {
                 foreach (EmployeeTripRecord tripRecord in tripRecords)
+                    //foreach用來讀取多筆資料，假設一個JSON有很多{}
                 {
                     //設定放入查詢的值
                     var parameters = new[]

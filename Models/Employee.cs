@@ -22,7 +22,6 @@ namespace People_errand_api.Models
 
         public string EmployeeId { get; set; }
         public string HashAccount { get; set; }
-        public string Name { get; set; }
         public string PhoneCode { get; set; }
         public int RoleId { get; set; }
         public string CompanyHash { get; set; }
@@ -39,5 +38,7 @@ namespace People_errand_api.Models
         public virtual ICollection<EmployeeWorkRecord> EmployeeWorkRecords { get; set; }
         public virtual ICollection<SalaryRecord> SalaryRecordEmployeeHashNavigations { get; set; }
         public virtual ICollection<SalaryRecord> SalaryRecordManagerHashNavigations { get; set; }
+
+
     }
 }

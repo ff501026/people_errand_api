@@ -19,7 +19,9 @@ namespace People_errand_api.Models
 
         public virtual DbSet<Company> Companies { get; set; }
         public virtual DbSet<Employee> Employees { get; set; }
+        public virtual DbSet<EmployeeDepartmentType> EmployeeDepartmentTypes { get; set; }
         public virtual DbSet<EmployeeInformation> EmployeeInformations { get; set; }
+        public virtual DbSet<EmployeeJobtitleType> EmployeeJobtitleTypes { get; set; }
         public virtual DbSet<EmployeeLeaveRecord> EmployeeLeaveRecords { get; set; }
         public virtual DbSet<EmployeeLeaveType> EmployeeLeaveTypes { get; set; }
         public virtual DbSet<EmployeeSchedule> EmployeeSchedules { get; set; }
@@ -130,10 +132,6 @@ namespace People_errand_api.Models
                     .HasDefaultValueSql("([dbo].[add_employee]())")
                     .IsFixedLength(true);
 
-                entity.Property(e => e.Name)
-                    .HasMaxLength(30)
-                    .HasColumnName("name");
-
                 entity.Property(e => e.PhoneCode)
                     .IsRequired()
                     .HasMaxLength(36)
@@ -155,6 +153,20 @@ namespace People_errand_api.Models
                     .HasConstraintName("FK_employee_role");
             });
 
+            modelBuilder.Entity<EmployeeDepartmentType>(entity =>
+            {
+                entity.HasKey(e => e.DepartmentId);
+
+                entity.ToTable("employee_department_type");
+
+                entity.Property(e => e.DepartmentId).HasColumnName("department_id");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnName("name");
+            });
+
             modelBuilder.Entity<EmployeeInformation>(entity =>
             {
                 entity.HasKey(e => e.InformationId);
@@ -163,8 +175,9 @@ namespace People_errand_api.Models
 
                 entity.Property(e => e.InformationId).HasColumnName("information_id");
 
+                entity.Property(e => e.DepartmentId).HasColumnName("department_id");
+
                 entity.Property(e => e.Email)
-                    .IsRequired()
                     .HasMaxLength(128)
                     .HasColumnName("email");
 
@@ -174,17 +187,52 @@ namespace People_errand_api.Models
                     .IsUnicode(false)
                     .HasColumnName("hash_account");
 
+                entity.Property(e => e.Img)
+                    .HasMaxLength(256)
+                    .HasColumnName("img");
+
+                entity.Property(e => e.JobtitleId).HasColumnName("jobtitle_id");
+
+                entity.Property(e => e.Name)
+                    .HasMaxLength(50)
+                    .HasColumnName("name");
+
                 entity.Property(e => e.Phone)
-                    .IsRequired()
                     .HasMaxLength(12)
                     .IsUnicode(false)
                     .HasColumnName("phone");
+
+                entity.HasOne(d => d.Department)
+                    .WithMany(p => p.EmployeeInformations)
+                    .HasForeignKey(d => d.DepartmentId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_employee_information_employee_department_type");
 
                 entity.HasOne(d => d.HashAccountNavigation)
                     .WithMany(p => p.EmployeeInformations)
                     .HasForeignKey(d => d.HashAccount)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_employee_information_employee");
+
+                entity.HasOne(d => d.Jobtitle)
+                    .WithMany(p => p.EmployeeInformations)
+                    .HasForeignKey(d => d.JobtitleId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_employee_information_employee_jobtitle_type");
+            });
+
+            modelBuilder.Entity<EmployeeJobtitleType>(entity =>
+            {
+                entity.HasKey(e => e.JobtitleId);
+
+                entity.ToTable("employee_jobtitle_type");
+
+                entity.Property(e => e.JobtitleId).HasColumnName("jobtitle_id");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnName("name");
             });
 
             modelBuilder.Entity<EmployeeLeaveRecord>(entity =>
