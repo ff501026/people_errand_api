@@ -90,6 +90,11 @@ namespace People_errand_api.Controllers
                             Direction = System.Data.ParameterDirection.Input,
                             Value = employeeInformation.HashAccount
                         },
+                        new SqlParameter("@name",System.Data.SqlDbType.NVarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employeeInformation.Name
+                        },
                         new SqlParameter("@phone",System.Data.SqlDbType.VarChar)
                         {
                             Direction = System.Data.ParameterDirection.Input,
@@ -99,10 +104,15 @@ namespace People_errand_api.Controllers
                         {
                             Direction = System.Data.ParameterDirection.Input,
                             Value = employeeInformation.Email
+                        },
+                        new SqlParameter("@img",System.Data.SqlDbType.NVarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employeeInformation.Img
                         }
                     };
 
-                    result = _context.Database.ExecuteSqlRaw("exec update_information @hash_account,@phone,@email", parameters: parameters) != 0 ? true : false;
+                    result = _context.Database.ExecuteSqlRaw("exec update_information @hash_account,@name,@phone,@email,@img", parameters: parameters) != 0 ? true : false;
                 }
 
             }
