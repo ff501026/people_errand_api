@@ -38,7 +38,5 @@ namespace People_errand_api.Models
         public virtual ICollection<EmployeeWorkRecord> EmployeeWorkRecords { get; set; }
         public virtual ICollection<SalaryRecord> SalaryRecordEmployeeHashNavigations { get; set; }
         public virtual ICollection<SalaryRecord> SalaryRecordManagerHashNavigations { get; set; }
-
-
     }
 }
