@@ -212,7 +212,7 @@ namespace People_errand_api.Models
                     .WithMany(p => p.EmployeeInformations)
                     .HasForeignKey(d => d.HashAccount)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_employee_information_employee");
+                    .HasConstraintName("FK_employee_information_employee1");
 
                 entity.HasOne(d => d.Jobtitle)
                     .WithMany(p => p.EmployeeInformations)

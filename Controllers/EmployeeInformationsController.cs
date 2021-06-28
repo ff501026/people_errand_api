@@ -125,11 +125,9 @@ namespace People_errand_api.Controllers
             return result;
         }
 
-      
-
         // POST: api/add_information
-        [HttpPost("add_information")]
-        public ActionResult<bool> add_information([FromBody]List<EmployeeInformation> employeeInformations)
+        [HttpPut("set_information")]
+        public ActionResult<bool> set_information([FromBody] List<EmployeeInformation> employeeInformations)
         {
             bool result = true;
             try
@@ -154,7 +152,45 @@ namespace People_errand_api.Controllers
                             Value = employeeInformation.JobtitleId
                         }
                     };
-                    result = _context.Database.ExecuteSqlRaw("exec add_information @hash_account,@department_id,@jobtitle_id",parameters:parameters) != 0 ? true : false;
+                    result = _context.Database.ExecuteSqlRaw("exec set_information @hash_account,@department_id,@jobtitle_id", parameters: parameters) != 0 ? true : false;
+                }
+            }
+            catch (Exception)
+            {
+                result = false;
+                throw;
+            }
+            return result;
+        }
+
+        // POST: api/add_information
+        [HttpPost("add_information")]
+        public ActionResult<bool> add_information([FromBody]List<EmployeeInformation> employeeInformations)
+        {
+            bool result = true;
+            try
+            {
+                foreach (EmployeeInformation employeeInformation in employeeInformations)
+                {
+                    var parameters = new[]
+                    {
+                        new SqlParameter("@hash_account",System.Data.SqlDbType.VarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employeeInformation.HashAccount
+                        },
+                        new SqlParameter("@name",System.Data.SqlDbType.NVarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employeeInformation.Name
+                        },
+                        new SqlParameter("@email",System.Data.SqlDbType.NVarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employeeInformation.Email
+                        }
+                    };
+                    result = _context.Database.ExecuteSqlRaw("exec add_information @hash_account,@name,@email",parameters:parameters) != 0 ? true : false;
                 }
             }
             catch (Exception) {
