@@ -10,8 +10,8 @@ namespace People_errand_api.Models
         public int InformationId { get; set; }
         public string HashAccount { get; set; }
         public string Name { get; set; }
-        public int DepartmentId { get; set; }
-        public int JobtitleId { get; set; }
+        public int? DepartmentId { get; set; }
+        public int? JobtitleId { get; set; }
         public string Phone { get; set; }
         public string Email { get; set; }
         public string Img { get; set; }

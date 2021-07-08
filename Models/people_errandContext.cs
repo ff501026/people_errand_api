@@ -132,6 +132,8 @@ namespace People_errand_api.Models
                     .HasDefaultValueSql("([dbo].[add_employee]())")
                     .IsFixedLength(true);
 
+                entity.Property(e => e.Enabled).HasColumnName("enabled");
+
                 entity.Property(e => e.PhoneCode)
                     .IsRequired()
                     .HasMaxLength(36)
@@ -178,6 +180,7 @@ namespace People_errand_api.Models
                 entity.Property(e => e.DepartmentId).HasColumnName("department_id");
 
                 entity.Property(e => e.Email)
+                    .IsRequired()
                     .HasMaxLength(128)
                     .HasColumnName("email");
 
@@ -194,6 +197,7 @@ namespace People_errand_api.Models
                 entity.Property(e => e.JobtitleId).HasColumnName("jobtitle_id");
 
                 entity.Property(e => e.Name)
+                    .IsRequired()
                     .HasMaxLength(50)
                     .HasColumnName("name");
 
@@ -205,7 +209,6 @@ namespace People_errand_api.Models
                 entity.HasOne(d => d.Department)
                     .WithMany(p => p.EmployeeInformations)
                     .HasForeignKey(d => d.DepartmentId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_employee_information_employee_department_type");
 
                 entity.HasOne(d => d.HashAccountNavigation)
@@ -217,7 +220,6 @@ namespace People_errand_api.Models
                 entity.HasOne(d => d.Jobtitle)
                     .WithMany(p => p.EmployeeInformations)
                     .HasForeignKey(d => d.JobtitleId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_employee_information_employee_jobtitle_type");
             });
 

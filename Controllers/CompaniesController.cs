@@ -23,12 +23,6 @@ namespace People_errand_api.Controllers
             _context = context;
         }
 
-        //// GET: api/Companies
-        //[HttpGet]
-        //public async Task<ActionResult<IEnumerable<Company>>> GetCompanies()
-        //{
-        //    return await _context.Companies.ToListAsync();
-        //}
 
         // GET: api/Companies/company_hash
         [HttpGet("{company_code}")]
@@ -136,25 +130,48 @@ namespace People_errand_api.Controllers
         }
 
 
-        //[HttpGet("GetEmployee_Record/{hash_company}")]
-        //public async Task<IEnumerable> GetEmployee_Reccord(string hash_company)
-        //{
-        //    var Employee_Record = await (from t in _context.Employees
-        //                                 join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
-        //                                 join b in _context.EmployeeWorkRecords on t.HashAccount equals b.HashAccount
-        //                                 where t.CompanyHash == hash_company && b.Enabled==true
-        //                                 select new
-        //                                 {
-        //                                     員工姓名 = a.Name,
-        //                                     紀錄時間 = b.CreatedTime,
-        //                                     X_coordinate = b.CoordinateX,
-        //                                     Y_coordinate = b.CoordinateY,
-        //                                     Work_type = b.WorkTypeId,
-        //                                 }).ToListAsync();
 
-        //    return Employee_Record;
-        //}
+        [HttpGet("Review_Employee/{hash_company}")]
+        public async Task<IEnumerable> Review_employee(string hash_company)
+        {
+            var review_employee = await (from t in _context.Employees
+                                         join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount 
+                                         join b in _context.Companies on t.CompanyHash equals b.CompanyHash
+                                         where t.CompanyHash == hash_company && t.Enabled == false
+                                         select new
+                                         {
+                                             Companyid = b.Code,
+                                             Name = a.Name,
+                                             Email = a.Email,
+                                             PhoneCode = t.PhoneCode,
+                                             CreatedTime = t.CreatedTime,
+                                         }).ToListAsync();
 
+            string jsonData = JsonConvert.SerializeObject(review_employee);
+            return jsonData;
+        }
+
+        [HttpGet("Pass_Employee/{hash_company}")]
+        public async Task<IEnumerable> Pass_employee(string hash_company)
+        {
+            var pass_employee = await (from t in _context.Employees
+                                         join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
+                                         join b in _context.EmployeeDepartmentTypes on a.DepartmentId equals b.DepartmentId
+                                         join c in _context.EmployeeJobtitleTypes on a.JobtitleId equals c.JobtitleId
+                                         where t.CompanyHash == hash_company && t.Enabled == true
+                                         select new
+                                         {
+                                             Name = a.Name,
+                                             Phone = a.Phone,
+                                             Department = b.Name,
+                                             Jobtitle = c.Name,
+                                             Email = a.Email,
+                                             PhoneCode = t.PhoneCode,
+                                         }).ToListAsync();
+
+            string jsonData = JsonConvert.SerializeObject(pass_employee);
+            return jsonData;
+        }
 
         public partial class WorkRecord
         {

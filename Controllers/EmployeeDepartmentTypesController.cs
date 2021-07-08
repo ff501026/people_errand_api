@@ -101,18 +101,7 @@ namespace People_errand_api.Controllers
             return result;
         }
 
-        //// POST: api/EmployeeDepartmentTypes
-        //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        //[HttpPost]
-        //public async Task<ActionResult<EmployeeDepartmentType>> PostEmployeeDepartmentType(EmployeeDepartmentType employeeDepartmentType)
-        //{
-        //    _context.EmployeeDepartmentTypes.Add(employeeDepartmentType);
-        //    await _context.SaveChangesAsync();
 
-        //    return CreatedAtAction("GetEmployeeDepartmentType", new { id = employeeDepartmentType.DepartmentId }, employeeDepartmentType);
-        //}
-
-        // DELETE: api/EmployeeDepartmentTypes/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEmployeeDepartmentType(int id)
         {
