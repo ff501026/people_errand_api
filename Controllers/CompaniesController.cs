@@ -257,6 +257,28 @@ namespace People_errand_api.Controllers
             return jsonData;
         }
 
+        [HttpGet("Review_TripRecord/{hash_company}")]
+        public async Task<IEnumerable> Review_TripRecord(string hash_company)
+        {
+            var review_triprecord = await (from t in _context.EmployeeTripRecords
+                                         join a in _context.Employees on t.HashAccount equals a.HashAccount
+                                         join b in _context.Companies on a.CompanyHash equals b.CompanyHash
+                                         join c in _context.EmployeeInformations on t.HashAccount equals c.HashAccount
+                                         where a.CompanyHash == hash_company && t.Review == false
+                                         select new
+                                         {
+                                             Name = c.Name,
+                                             StartDate = t.StartDate,
+                                             EndDate = t.EndDate,
+                                             Location = t.Location,
+                                             Reason = t.Reason,
+                                             CreatedTime = t.CreatedTime, 
+                                         }).ToListAsync();
+
+            string jsonData = JsonConvert.SerializeObject(review_triprecord);
+            return jsonData;
+        }
+
         private bool CompanyExists(string id)
         {
             return _context.Companies.Any(e => e.CompanyHash == id);
