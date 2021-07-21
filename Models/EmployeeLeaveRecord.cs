@@ -13,6 +13,7 @@ namespace People_errand_api.Models
         public DateTime EndDate { get; set; }
         public int LeaveTypeId { get; set; }
         public string Reason { get; set; }
+        public bool? Review { get; set; }
         public DateTime CreatedTime { get; set; }
 
         public virtual Employee HashAccountNavigation { get; set; }

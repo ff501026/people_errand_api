@@ -264,7 +264,7 @@ namespace People_errand_api.Controllers
                                          join a in _context.Employees on t.HashAccount equals a.HashAccount
                                          join b in _context.Companies on a.CompanyHash equals b.CompanyHash
                                          join c in _context.EmployeeInformations on t.HashAccount equals c.HashAccount
-                                         where a.CompanyHash == hash_company && t.Review == false
+                                         where a.CompanyHash == hash_company && t.Review == null
                                          select new
                                          {
                                              Name = c.Name,
@@ -274,6 +274,69 @@ namespace People_errand_api.Controllers
                                              Reason = t.Reason,
                                              CreatedTime = t.CreatedTime, 
                                          }).ToListAsync();
+
+            string jsonData = JsonConvert.SerializeObject(review_triprecord);
+            return jsonData;
+        }
+        [HttpGet("Pass_TripRecord/{hash_company}")]
+        public async Task<IEnumerable> Pass_TripRecord(string hash_company)
+        {
+            var review_triprecord = await (from t in _context.EmployeeTripRecords
+                                           join a in _context.Employees on t.HashAccount equals a.HashAccount
+                                           join b in _context.Companies on a.CompanyHash equals b.CompanyHash
+                                           join c in _context.EmployeeInformations on t.HashAccount equals c.HashAccount
+                                           where a.CompanyHash == hash_company && t.Review != null
+                                           select new
+                                           {
+                                               Name = c.Name,
+                                               StartDate = t.StartDate,
+                                               EndDate = t.EndDate,
+                                               Location = t.Location,
+                                               Reason = t.Reason,
+                                               CreatedTime = t.CreatedTime,
+                                           }).ToListAsync();
+
+            string jsonData = JsonConvert.SerializeObject(review_triprecord);
+            return jsonData;
+        }
+        [HttpGet("Review_LeaveRecord/{hash_company}")]
+        public async Task<IEnumerable> Review_LeaveRecord(string hash_company)
+        {
+            var review_triprecord = await (from t in _context.EmployeeLeaveRecords
+                                           join a in _context.Employees on t.HashAccount equals a.HashAccount
+                                           join b in _context.EmployeeLeaveTypes on t.LeaveTypeId equals b.LeaveTypeId
+                                           join c in _context.EmployeeInformations on t.HashAccount equals c.HashAccount
+                                           where a.CompanyHash == hash_company && t.Review == null
+                                           select new
+                                           {
+                                               Name = c.Name,
+                                               LeaveType = b.Name,
+                                               StartDate = t.StartDate,
+                                               EndDate = t.EndDate,
+                                               Reason = t.Reason,
+                                               CreatedTime = t.CreatedTime,
+                                           }).ToListAsync();
+
+            string jsonData = JsonConvert.SerializeObject(review_triprecord);
+            return jsonData;
+        }
+        [HttpGet("Pass_LeaveRecord/{hash_company}")]
+        public async Task<IEnumerable> Pass_LeaveRecord(string hash_company)
+        {
+            var review_triprecord = await (from t in _context.EmployeeLeaveRecords
+                                           join a in _context.Employees on t.HashAccount equals a.HashAccount
+                                           join b in _context.EmployeeLeaveTypes on t.LeaveTypeId equals b.LeaveTypeId
+                                           join c in _context.EmployeeInformations on t.HashAccount equals c.HashAccount
+                                           where a.CompanyHash == hash_company && t.Review != null
+                                           select new
+                                           {
+                                               Name = c.Name,
+                                               LeaveType = b.Name,
+                                               StartDate = t.StartDate,
+                                               EndDate = t.EndDate,
+                                               Reason = t.Reason,
+                                               CreatedTime = t.CreatedTime,
+                                           }).ToListAsync();
 
             string jsonData = JsonConvert.SerializeObject(review_triprecord);
             return jsonData;
