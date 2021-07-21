@@ -272,6 +272,7 @@ namespace People_errand_api.Controllers
                                              EndDate = t.EndDate,
                                              Location = t.Location,
                                              Reason = t.Reason,
+                                             Review = t.Review,
                                              CreatedTime = t.CreatedTime, 
                                          }).ToListAsync();
 
@@ -293,12 +294,14 @@ namespace People_errand_api.Controllers
                                                EndDate = t.EndDate,
                                                Location = t.Location,
                                                Reason = t.Reason,
+                                               Reveiw = t.Review,
                                                CreatedTime = t.CreatedTime,
                                            }).ToListAsync();
 
             string jsonData = JsonConvert.SerializeObject(review_triprecord);
             return jsonData;
         }
+        
         [HttpGet("Review_LeaveRecord/{hash_company}")]
         public async Task<IEnumerable> Review_LeaveRecord(string hash_company)
         {
@@ -314,6 +317,7 @@ namespace People_errand_api.Controllers
                                                StartDate = t.StartDate,
                                                EndDate = t.EndDate,
                                                Reason = t.Reason,
+                                               Review = t.Review,
                                                CreatedTime = t.CreatedTime,
                                            }).ToListAsync();
 
@@ -335,6 +339,7 @@ namespace People_errand_api.Controllers
                                                StartDate = t.StartDate,
                                                EndDate = t.EndDate,
                                                Reason = t.Reason,
+                                               Review = t.Review,
                                                CreatedTime = t.CreatedTime,
                                            }).ToListAsync();
 
