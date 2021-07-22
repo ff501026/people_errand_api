@@ -140,6 +140,7 @@ namespace People_errand_api.Controllers
                                          where t.CompanyHash == hash_company && t.Enabled == false
                                          select new
                                          {
+                                             HashAccount = t.HashAccount,
                                              Companyid = b.Code,
                                              Name = a.Name,
                                              Email = a.Email,
@@ -161,6 +162,7 @@ namespace People_errand_api.Controllers
                                          where t.CompanyHash == hash_company && t.Enabled == true
                                          select new
                                          {
+                                             HashAccount = t.HashAccount,
                                              Name = a.Name,
                                              Phone = a.Phone,
                                              Department = b.Name,
@@ -267,6 +269,7 @@ namespace People_errand_api.Controllers
                                          where a.CompanyHash == hash_company && t.Review == null
                                          select new
                                          {
+                                             HashAccount = t.HashAccount,
                                              Name = c.Name,
                                              StartDate = t.StartDate,
                                              EndDate = t.EndDate,
@@ -289,6 +292,7 @@ namespace People_errand_api.Controllers
                                            where a.CompanyHash == hash_company && t.Review != null
                                            select new
                                            {
+                                               HashAccount = t.HashAccount,
                                                Name = c.Name,
                                                StartDate = t.StartDate,
                                                EndDate = t.EndDate,
@@ -312,6 +316,7 @@ namespace People_errand_api.Controllers
                                            where a.CompanyHash == hash_company && t.Review == null
                                            select new
                                            {
+                                               HashAccount = t.HashAccount,
                                                Name = c.Name,
                                                LeaveType = b.Name,
                                                StartDate = t.StartDate,
@@ -334,6 +339,7 @@ namespace People_errand_api.Controllers
                                            where a.CompanyHash == hash_company && t.Review != null
                                            select new
                                            {
+                                               HashAccount = t.HashAccount,
                                                Name = c.Name,
                                                LeaveType = b.Name,
                                                StartDate = t.StartDate,
