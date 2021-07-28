@@ -200,7 +200,7 @@ namespace People_errand_api.Controllers
             return result;
         }
         // DELETE: api/EmployeeInformations/5
-        [HttpDelete("{hash_account}")]
+        [HttpDelete("DeleteInformation/{hash_account}")]
         public async Task<bool> DeleteInformation(string hash_account)
         {
             bool result = true;
