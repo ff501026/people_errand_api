@@ -125,7 +125,7 @@ namespace People_errand_api.Controllers
             return result;
         }
 
-        // POST: api/add_information
+        // PUT: api/add_information
         [HttpPut("set_information")]
         public ActionResult<bool> set_information([FromBody] List<EmployeeInformation> employeeInformations)
         {
@@ -199,22 +199,58 @@ namespace People_errand_api.Controllers
             }
             return result;
         }
-
         // DELETE: api/EmployeeInformations/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteEmployeeInformation(int id)
+        [HttpDelete("{hash_account}")]
+        public async Task<bool> DeleteInformation(string hash_account)
         {
-            var employeeInformation = await _context.EmployeeInformations.FindAsync(id);
-            if (employeeInformation == null)
+            bool result = true;
+            try
             {
-                return NotFound();
+                    var parameters = new[]
+                    {
+                            new SqlParameter("@hash_account",System.Data.SqlDbType.VarChar)
+                            {
+                                Direction = System.Data.ParameterDirection.Input,
+                                Value = hash_account
+                            }
+                        };
+                    result = _context.Database.ExecuteSqlRaw("exec delete_employee @hash_account", parameters: parameters) != 0 ? true : false;
             }
-
-            _context.EmployeeInformations.Remove(employeeInformation);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (Exception)
+            {
+                result = false;
+                throw;
+            }
+            return result;
         }
+
+        //// DELETE: api/EmployeeInformations/5
+        //[HttpDelete("delete_information")]
+        //public ActionResult<bool> delete_information([FromBody] List<EmployeeInformation> employeeInformations)
+        //{
+        //    bool result = true;
+        //    try
+        //    {
+        //        foreach (EmployeeInformation employeeInformation in employeeInformations)
+        //        {
+        //            var parameters = new[]
+        //            {
+        //                new SqlParameter("@hash_account",System.Data.SqlDbType.VarChar)
+        //                {
+        //                    Direction = System.Data.ParameterDirection.Input,
+        //                    Value = employeeInformation.HashAccount
+        //                }
+        //            };
+        //            result = _context.Database.ExecuteSqlRaw("exec delete_employee @hash_account", parameters: parameters) != 0 ? true : false;
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //        result = false;
+        //        throw;
+        //    }
+        //    return result;
+        //}
 
         private bool EmployeeInformationExists(int id)
         {
