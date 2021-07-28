@@ -21,6 +21,7 @@ namespace People_errand_api.Models
         public string Email { get; set; }
         public double? CoordinateX { get; set; }
         public double? CoordinateY { get; set; }
+        public TimeSpan? WorkTime { get; set; }
         public DateTime CreateTime { get; set; }
 
         public virtual Employee ManagerHashNavigation { get; set; }

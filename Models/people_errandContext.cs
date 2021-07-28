@@ -97,6 +97,8 @@ namespace People_errand_api.Models
                     .IsUnicode(false)
                     .HasColumnName("phone");
 
+                entity.Property(e => e.WorkTime).HasColumnName("work_time");
+
                 entity.HasOne(d => d.ManagerHashNavigation)
                     .WithMany(p => p.Companies)
                     .HasForeignKey(d => d.ManagerHash)

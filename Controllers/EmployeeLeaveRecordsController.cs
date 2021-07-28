@@ -64,35 +64,61 @@ namespace People_errand_api.Controllers
             return employee_leave_record;
         }
 
-        // PUT: api/EmployeeLeaveRecords/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutEmployeeLeaveRecord(int id, EmployeeLeaveRecord employeeLeaveRecord)
+        // PUT: api/EmployeeLeaveRecords/update_leaveRecord
+        [HttpPut("update_leaveRecord")]
+        public ActionResult<bool> update_leaveRecord([FromBody] List<EmployeeLeaveRecord> leaveRecords)
         {
-            if (id != employeeLeaveRecord.LeaveRecordsId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(employeeLeaveRecord).State = EntityState.Modified;
-
+            bool result = true;
             try
             {
-                await _context.SaveChangesAsync();
+                foreach (EmployeeLeaveRecord leaveRecord in leaveRecords)
+                {
+                    //設定放入查詢的值
+                    var parameters = new[]
+                    {
+                        new SqlParameter("@leaveRecord_id",System.Data.SqlDbType.Int)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = leaveRecord.LeaveRecordsId
+                        },
+                        new SqlParameter("@start_date",System.Data.SqlDbType.DateTime)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = leaveRecord.StartDate
+                        },
+                        new SqlParameter("@end_date",System.Data.SqlDbType.DateTime)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = leaveRecord.EndDate
+                        },
+                        new SqlParameter("@leave_type_id",System.Data.SqlDbType.Int)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = leaveRecord.LeaveTypeId
+                        },
+                        new SqlParameter("@reason",System.Data.SqlDbType.NVarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = leaveRecord.Reason
+                        },
+                        new SqlParameter("@review",System.Data.SqlDbType.Bit)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = leaveRecord.Review
+                        }
+                    };
+                    //執行預存程序
+                    result = _context.Database.ExecuteSqlRaw("exec update_leaveRecord @leaveRecord_id,@start_date,@end_date,@leave_type_id,@reason,@review", parameters: parameters) != 0 ? true : false;
+                }
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception)
             {
-                if (!EmployeeLeaveRecordExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                result = false;
+                throw;
             }
 
-            return NoContent();
+            //輸出成功與否
+            return result;
         }
 
 

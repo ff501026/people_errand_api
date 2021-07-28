@@ -48,41 +48,41 @@ namespace People_errand_api.Controllers
             return company_hash+"\n"+coordinate_X+"\n"+coordinate_Y;
         }
 
-        // PUT: api/Companies/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCompany(string id, Company company)
+        // PUT: api/Companies/UpdateWorkTime
+        [HttpPut("UpdateWorkTime")]//更新公司上班時間
+        public ActionResult<bool> update_worktime([FromBody] List<Company> companies)
         {
-            if (id != company.CompanyHash)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(company).State = EntityState.Modified;
-
+            bool result = true;
             try
             {
-                await _context.SaveChangesAsync();
+                foreach (Company company in companies)
+                {
+                    var parameters = new[]
+                    {
+                        new SqlParameter("@hash_company",System.Data.SqlDbType.VarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = company.CompanyHash
+                        },
+                        new SqlParameter("@work_time",System.Data.SqlDbType.Time)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = company.WorkTime
+                        }
+                    };
+                    result = _context.Database.ExecuteSqlRaw("exec update_company_worktime @hash_company,@work_time", parameters: parameters) != 0 ? true : false;
+                }
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception)
             {
-                if (!CompanyExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                result = false;
+                throw;
             }
-
-            return NoContent();
+            return result;
         }
 
-      
-
         // POST: api/Companies/regist_company
-        [HttpPost("regist_company")]
+        [HttpPost("regist_company")]//註冊公司
         public ActionResult<bool> regist_company([FromBody] List<Company> companies)
         {
             bool result = true;
@@ -131,13 +131,14 @@ namespace People_errand_api.Controllers
 
 
 
-        [HttpGet("Review_Employee/{hash_company}")]
+        [HttpGet("Review_Employee/{hash_company}")]//取得未審核員工資料
         public async Task<IEnumerable> Review_employee(string hash_company)
         {
             var review_employee = await (from t in _context.Employees
                                          join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount 
                                          join b in _context.Companies on t.CompanyHash equals b.CompanyHash
                                          where t.CompanyHash == hash_company && t.Enabled == false
+                                         orderby t.CreatedTime
                                          select new
                                          {
                                              HashAccount = t.HashAccount,
@@ -152,7 +153,7 @@ namespace People_errand_api.Controllers
             return jsonData;
         }
 
-        [HttpGet("Pass_Employee/{hash_company}")]
+        [HttpGet("Pass_Employee/{hash_company}")]//取得已審核員工資料
         public async Task<IEnumerable> Pass_employee(string hash_company)
         {
             var pass_employee = await (from t in _context.Employees
@@ -160,6 +161,7 @@ namespace People_errand_api.Controllers
                                          join b in _context.EmployeeDepartmentTypes on a.DepartmentId equals b.DepartmentId
                                          join c in _context.EmployeeJobtitleTypes on a.JobtitleId equals c.JobtitleId
                                          where t.CompanyHash == hash_company && t.Enabled == true
+                                         orderby a.Name
                                          select new
                                          {
                                              HashAccount = t.HashAccount,
@@ -181,9 +183,9 @@ namespace People_errand_api.Controllers
             public string Name { get; set; }
             public DateTime WorkTime { get; set; }
             public DateTime RestTime { get; set; }
-        }
+        }//打卡紀錄Model
 
-        [HttpGet("GetWorkRecord/{hash_company}")]
+        [HttpGet("GetWorkRecord/{hash_company}")]//取得員工打卡紀錄
         public async Task<IEnumerable> GetWorkReccord(string hash_company)
         {
             var Employee_Record = await (from t in _context.Employees
@@ -259,7 +261,7 @@ namespace People_errand_api.Controllers
             return jsonData;
         }
 
-        [HttpGet("Review_TripRecord/{hash_company}")]
+        [HttpGet("Review_TripRecord/{hash_company}")]//取得未審核公差資料
         public async Task<IEnumerable> Review_TripRecord(string hash_company)
         {
             var review_triprecord = await (from t in _context.EmployeeTripRecords
@@ -267,8 +269,10 @@ namespace People_errand_api.Controllers
                                          join b in _context.Companies on a.CompanyHash equals b.CompanyHash
                                          join c in _context.EmployeeInformations on t.HashAccount equals c.HashAccount
                                          where a.CompanyHash == hash_company && t.Review == null
+                                         orderby t.CreatedTime
                                          select new
                                          {
+                                             TripRecordId = t.TripRecordsId,
                                              HashAccount = t.HashAccount,
                                              Name = c.Name,
                                              StartDate = t.StartDate,
@@ -282,7 +286,7 @@ namespace People_errand_api.Controllers
             string jsonData = JsonConvert.SerializeObject(review_triprecord);
             return jsonData;
         }
-        [HttpGet("Pass_TripRecord/{hash_company}")]
+        [HttpGet("Pass_TripRecord/{hash_company}")]//取得已審核公差資料
         public async Task<IEnumerable> Pass_TripRecord(string hash_company)
         {
             var review_triprecord = await (from t in _context.EmployeeTripRecords
@@ -290,8 +294,10 @@ namespace People_errand_api.Controllers
                                            join b in _context.Companies on a.CompanyHash equals b.CompanyHash
                                            join c in _context.EmployeeInformations on t.HashAccount equals c.HashAccount
                                            where a.CompanyHash == hash_company && t.Review != null
+                                           orderby t.CreatedTime
                                            select new
                                            {
+                                               TripRecordId = t.TripRecordsId,
                                                HashAccount = t.HashAccount,
                                                Name = c.Name,
                                                StartDate = t.StartDate,
@@ -306,7 +312,7 @@ namespace People_errand_api.Controllers
             return jsonData;
         }
         
-        [HttpGet("Review_LeaveRecord/{hash_company}")]
+        [HttpGet("Review_LeaveRecord/{hash_company}")]//取得未審核請假資料
         public async Task<IEnumerable> Review_LeaveRecord(string hash_company)
         {
             var review_triprecord = await (from t in _context.EmployeeLeaveRecords
@@ -314,8 +320,10 @@ namespace People_errand_api.Controllers
                                            join b in _context.EmployeeLeaveTypes on t.LeaveTypeId equals b.LeaveTypeId
                                            join c in _context.EmployeeInformations on t.HashAccount equals c.HashAccount
                                            where a.CompanyHash == hash_company && t.Review == null
+                                           orderby t. CreatedTime
                                            select new
                                            {
+                                               LeaveRecordId =t.LeaveRecordsId,
                                                HashAccount = t.HashAccount,
                                                Name = c.Name,
                                                LeaveType = b.Name,
@@ -329,7 +337,7 @@ namespace People_errand_api.Controllers
             string jsonData = JsonConvert.SerializeObject(review_triprecord);
             return jsonData;
         }
-        [HttpGet("Pass_LeaveRecord/{hash_company}")]
+        [HttpGet("Pass_LeaveRecord/{hash_company}")]//取得已審核請假資料
         public async Task<IEnumerable> Pass_LeaveRecord(string hash_company)
         {
             var review_triprecord = await (from t in _context.EmployeeLeaveRecords
@@ -337,8 +345,10 @@ namespace People_errand_api.Controllers
                                            join b in _context.EmployeeLeaveTypes on t.LeaveTypeId equals b.LeaveTypeId
                                            join c in _context.EmployeeInformations on t.HashAccount equals c.HashAccount
                                            where a.CompanyHash == hash_company && t.Review != null
+                                           orderby t.CreatedTime
                                            select new
                                            {
+                                               LeaveRecordId = t.LeaveRecordsId,
                                                HashAccount = t.HashAccount,
                                                Name = c.Name,
                                                LeaveType = b.Name,

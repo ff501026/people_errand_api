@@ -75,7 +75,7 @@ namespace People_errand_api.Controllers
 
 
         // PUT: api/update_information
-        [HttpPut("update_information")]
+        [HttpPut("update_information")]//APP用修改員工資料
         public ActionResult<bool> update_information([FromBody] List<EmployeeInformation> employeeInformations)
         {
             bool result = true;
@@ -125,8 +125,64 @@ namespace People_errand_api.Controllers
             return result;
         }
 
+        // PUT: api/edit_information
+        [HttpPut("edit_information")]//後台用修改員工資料
+        public ActionResult<bool> edit_information([FromBody] List<EmployeeInformation> employeeInformations)
+        {
+            bool result = true;
+            try
+            {
+                foreach (EmployeeInformation employeeInformation in employeeInformations)
+                {
+                    var parameters = new[]
+                    {
+                        new SqlParameter("@hash_account",System.Data.SqlDbType.VarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employeeInformation.HashAccount
+                        },
+                        new SqlParameter("@name",System.Data.SqlDbType.NVarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employeeInformation.Name
+                        },
+                        new SqlParameter("@phone",System.Data.SqlDbType.VarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employeeInformation.Phone
+                        },
+                        new SqlParameter("@email",System.Data.SqlDbType.NVarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employeeInformation.Email
+                        },
+                        new SqlParameter("@department_id",System.Data.SqlDbType.Int)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employeeInformation.DepartmentId
+                        },
+                        new SqlParameter("@jobtitle_id",System.Data.SqlDbType.Int)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employeeInformation.JobtitleId
+                        }
+                    };
+
+                    result = _context.Database.ExecuteSqlRaw("exec edit_information @hash_account,@name,@phone,@email,@department_id,@jobtitle_id", parameters: parameters) != 0 ? true : false;
+                }
+
+            }
+            catch (Exception)
+            {
+                result = false;
+                throw;
+            }
+
+            return result;
+        }
+
         // PUT: api/add_information
-        [HttpPut("set_information")]
+        [HttpPut("set_information")]//賦予員工職位及部門
         public ActionResult<bool> set_information([FromBody] List<EmployeeInformation> employeeInformations)
         {
             bool result = true;
@@ -164,7 +220,7 @@ namespace People_errand_api.Controllers
         }
 
         // POST: api/add_information
-        [HttpPost("add_information")]
+        [HttpPost("add_information")]//新增員工資料
         public ActionResult<bool> add_information([FromBody]List<EmployeeInformation> employeeInformations)
         {
             bool result = true;
@@ -199,7 +255,7 @@ namespace People_errand_api.Controllers
             }
             return result;
         }
-        // DELETE: api/EmployeeInformations/5
+        // DELETE: api/EmployeeInformations/DeleteInformation/5
         [HttpDelete("DeleteInformation/{hash_account}")]
         public async Task<bool> DeleteInformation(string hash_account)
         {

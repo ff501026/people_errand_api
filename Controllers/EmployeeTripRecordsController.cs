@@ -43,35 +43,63 @@ namespace People_errand_api.Controllers
             return employeeTripRecord;
         }
 
-        // PUT: api/EmployeeTripRecords/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutEmployeeTripRecord(int id, EmployeeTripRecord employeeTripRecord)
+        // Put: api/EmployeeTripRecords/update_tripRecord
+        [HttpPut("update_tripRecord")]
+        public ActionResult<bool> update_tripRecord([FromBody] List<EmployeeTripRecord> tripRecords)
         {
-            if (id != employeeTripRecord.TripRecordsId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(employeeTripRecord).State = EntityState.Modified;
-
+            //[FromBody] List<EmployeeTripRecord> tripRecords => JSON
+            bool result = true;
             try
             {
-                await _context.SaveChangesAsync();
+                foreach (EmployeeTripRecord tripRecord in tripRecords)
+                //foreach用來讀取多筆資料，假設一個JSON有很多{}
+                {
+                    //設定放入查詢的值
+                    var parameters = new[]
+                    {
+                        new SqlParameter("@tripRecord_id",System.Data.SqlDbType.Int)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = tripRecord.TripRecordsId
+                        },
+                        new SqlParameter("@start_date",System.Data.SqlDbType.DateTime)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = tripRecord.StartDate
+                        },
+                        new SqlParameter("@end_date",System.Data.SqlDbType.DateTime)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = tripRecord.EndDate
+                        },
+                        new SqlParameter("@location",System.Data.SqlDbType.NVarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = tripRecord.Location
+                        },
+                         new SqlParameter("reason",System.Data.SqlDbType.NVarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = tripRecord.Reason
+                        },
+                         new SqlParameter("review",System.Data.SqlDbType.Bit)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = tripRecord.Review
+                        }
+                    };
+
+                    result = _context.Database.ExecuteSqlRaw("exec update_tripRecord @tripRecord_id,@start_date,@end_date,@location,@reason,@review", parameters: parameters) != 0 ? true : false;
+                }
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception)
             {
-                if (!EmployeeTripRecordExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                result = false;
+                throw;
             }
 
-            return NoContent();
+            //輸出成功與否
+            return result;
         }
 
         // POST: api/EmployeeTripRecords/add_tripRecord
