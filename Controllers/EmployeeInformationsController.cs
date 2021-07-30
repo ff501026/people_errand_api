@@ -146,16 +146,6 @@ namespace People_errand_api.Controllers
                             Direction = System.Data.ParameterDirection.Input,
                             Value = employeeInformation.Name
                         },
-                        new SqlParameter("@phone",System.Data.SqlDbType.VarChar)
-                        {
-                            Direction = System.Data.ParameterDirection.Input,
-                            Value = employeeInformation.Phone
-                        },
-                        new SqlParameter("@email",System.Data.SqlDbType.NVarChar)
-                        {
-                            Direction = System.Data.ParameterDirection.Input,
-                            Value = employeeInformation.Email
-                        },
                         new SqlParameter("@department_id",System.Data.SqlDbType.Int)
                         {
                             Direction = System.Data.ParameterDirection.Input,
@@ -165,10 +155,21 @@ namespace People_errand_api.Controllers
                         {
                             Direction = System.Data.ParameterDirection.Input,
                             Value = employeeInformation.JobtitleId
+                        },
+                        new SqlParameter("@phone",System.Data.SqlDbType.VarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employeeInformation.Phone
+                        },
+                        new SqlParameter("@email",System.Data.SqlDbType.NVarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employeeInformation.Email
                         }
+                        
                     };
 
-                    result = _context.Database.ExecuteSqlRaw("exec edit_information @hash_account,@name,@phone,@email,@department_id,@jobtitle_id", parameters: parameters) != 0 ? true : false;
+                    result = _context.Database.ExecuteSqlRaw("exec edit_information @hash_account,@name,@department_id,@jobtitle_id,@phone,@email", parameters: parameters) != 0 ? true : false;
                 }
 
             }
