@@ -137,7 +137,7 @@ namespace People_errand_api.Controllers
             var review_employee = await (from t in _context.Employees
                                          join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount 
                                          join b in _context.Companies on t.CompanyHash equals b.CompanyHash
-                                         where t.CompanyHash == hash_company && t.Enabled == false
+                                         where t.CompanyHash == hash_company && t.Enabled == null
                                          orderby t.CreatedTime
                                          select new
                                          {
@@ -160,7 +160,7 @@ namespace People_errand_api.Controllers
                                          join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
                                          join b in _context.EmployeeDepartmentTypes on a.DepartmentId equals b.DepartmentId
                                          join c in _context.EmployeeJobtitleTypes on a.JobtitleId equals c.JobtitleId
-                                         where t.CompanyHash == hash_company && t.Enabled == true
+                                         where t.CompanyHash == hash_company && t.Enabled != null
                                          orderby a.Name
                                          select new
                                          {

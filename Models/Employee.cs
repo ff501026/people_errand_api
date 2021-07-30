@@ -25,7 +25,7 @@ namespace People_errand_api.Models
         public string PhoneCode { get; set; }
         public int RoleId { get; set; }
         public string CompanyHash { get; set; }
-        public bool Enabled { get; set; }
+        public bool? Enabled { get; set; }
         public DateTime CreatedTime { get; set; }
 
         public virtual Company CompanyHashNavigation { get; set; }

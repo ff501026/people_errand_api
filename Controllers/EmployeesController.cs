@@ -45,35 +45,40 @@ namespace People_errand_api.Controllers
             return employee;
         }
 
-        // PUT: api/Employees/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutEmployee(string id, Employee employee)
+        // PUT: api/Employees/enabled_employee
+        [HttpPut("enabled_employee")]
+        public ActionResult<bool> enabled_employee([FromBody] List<Employee> employees)
         {
-            if (id != employee.HashAccount)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(employee).State = EntityState.Modified;
-
+            bool result = true;
             try
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!EmployeeExists(id))
+                foreach (Employee employee in employees)
+                //foreach用來讀取多筆資料，假設一個JSON有很多{}
                 {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+                    var parameters = new[]
+                    {
 
-            return NoContent();
+                        new SqlParameter("@hashaccount", System.Data.SqlDbType.VarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employee.HashAccount
+                        },
+                        new SqlParameter("@enabled", System.Data.SqlDbType.Bit)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employee.Enabled
+                        }
+                    };
+
+                    result = _context.Database.ExecuteSqlRaw("exec enabled_employee @hashaccount,@enabled", parameters: parameters) != 0 ? true : false;
+                }
+            }
+            catch (Exception)
+            {
+                result = false;
+                throw;
+            }
+            return result;
         }
 
 
