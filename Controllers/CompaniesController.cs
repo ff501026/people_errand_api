@@ -289,7 +289,7 @@ namespace People_errand_api.Controllers
         [HttpGet("Pass_TripRecord/{hash_company}")]//取得已審核公差資料
         public async Task<IEnumerable> Pass_TripRecord(string hash_company)
         {
-            var review_triprecord = await (from t in _context.EmployeeTripRecords
+            var pass_triprecord = await (from t in _context.EmployeeTripRecords
                                            join a in _context.Employees on t.HashAccount equals a.HashAccount
                                            join b in _context.Companies on a.CompanyHash equals b.CompanyHash
                                            join c in _context.EmployeeInformations on t.HashAccount equals c.HashAccount
@@ -304,18 +304,18 @@ namespace People_errand_api.Controllers
                                                EndDate = t.EndDate,
                                                Location = t.Location,
                                                Reason = t.Reason,
-                                               Reveiw = t.Review,
+                                               Review = t.Review,
                                                CreatedTime = t.CreatedTime,
                                            }).ToListAsync();
 
-            string jsonData = JsonConvert.SerializeObject(review_triprecord);
+            string jsonData = JsonConvert.SerializeObject(pass_triprecord);
             return jsonData;
         }
         
         [HttpGet("Review_LeaveRecord/{hash_company}")]//取得未審核請假資料
         public async Task<IEnumerable> Review_LeaveRecord(string hash_company)
         {
-            var review_triprecord = await (from t in _context.EmployeeLeaveRecords
+            var review_leaverecord = await (from t in _context.EmployeeLeaveRecords
                                            join a in _context.Employees on t.HashAccount equals a.HashAccount
                                            join b in _context.EmployeeLeaveTypes on t.LeaveTypeId equals b.LeaveTypeId
                                            join c in _context.EmployeeInformations on t.HashAccount equals c.HashAccount
@@ -334,13 +334,13 @@ namespace People_errand_api.Controllers
                                                CreatedTime = t.CreatedTime,
                                            }).ToListAsync();
 
-            string jsonData = JsonConvert.SerializeObject(review_triprecord);
+            string jsonData = JsonConvert.SerializeObject(review_leaverecord);
             return jsonData;
         }
         [HttpGet("Pass_LeaveRecord/{hash_company}")]//取得已審核請假資料
         public async Task<IEnumerable> Pass_LeaveRecord(string hash_company)
         {
-            var review_triprecord = await (from t in _context.EmployeeLeaveRecords
+            var pass_leaverecord = await (from t in _context.EmployeeLeaveRecords
                                            join a in _context.Employees on t.HashAccount equals a.HashAccount
                                            join b in _context.EmployeeLeaveTypes on t.LeaveTypeId equals b.LeaveTypeId
                                            join c in _context.EmployeeInformations on t.HashAccount equals c.HashAccount
@@ -359,7 +359,7 @@ namespace People_errand_api.Controllers
                                                CreatedTime = t.CreatedTime,
                                            }).ToListAsync();
 
-            string jsonData = JsonConvert.SerializeObject(review_triprecord);
+            string jsonData = JsonConvert.SerializeObject(pass_leaverecord);
             return jsonData;
         }
 
