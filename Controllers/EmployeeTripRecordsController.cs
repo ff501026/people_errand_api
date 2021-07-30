@@ -67,7 +67,7 @@ namespace People_errand_api.Controllers
                         }
                     };
 
-                result = _context.Database.ExecuteSqlRaw("exec review_employee @tripRecord_Id @review", parameters: parameters) != 0 ? true : false;
+                result = _context.Database.ExecuteSqlRaw("exec review_tripRecord @tripRecord_Id @review", parameters: parameters) != 0 ? true : false;
                 }
             }
             catch (Exception)
