@@ -147,6 +147,7 @@ namespace People_errand_api.Controllers
                                              Email = a.Email,
                                              PhoneCode = t.PhoneCode,
                                              CreatedTime = t.CreatedTime,
+                                             Enabled = t.Enabled
                                          }).ToListAsync();
 
             string jsonData = JsonConvert.SerializeObject(review_employee);
@@ -171,6 +172,7 @@ namespace People_errand_api.Controllers
                                              Jobtitle = c.Name,
                                              Email = a.Email,
                                              PhoneCode = t.PhoneCode,
+                                             Enabled = t.Enabled
                                          }).ToListAsync();
 
             string jsonData = JsonConvert.SerializeObject(pass_employee);
