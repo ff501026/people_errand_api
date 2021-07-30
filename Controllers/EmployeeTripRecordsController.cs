@@ -43,6 +43,41 @@ namespace People_errand_api.Controllers
             return employeeTripRecord;
         }
 
+        [HttpPut("review_tripRecord")]
+        public ActionResult<bool> review_tripRecord([FromBody] List<EmployeeTripRecord> tripRecords)
+        {
+            bool result = true;
+            try
+            {
+                foreach (EmployeeTripRecord tripRecord in tripRecords)
+                //foreach用來讀取多筆資料，假設一個JSON有很多{}
+                {
+                    var parameters = new[]
+                    {
+                    
+                        new SqlParameter("@tripRecord_Id", System.Data.SqlDbType.Int)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = tripRecord.TripRecordsId
+                        },
+                        new SqlParameter("@review", System.Data.SqlDbType.Bit)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = tripRecord.Review
+                        }
+                    };
+
+                result = _context.Database.ExecuteSqlRaw("exec review_employee @tripRecord_Id @review", parameters: parameters) != 0 ? true : false;
+                }
+            }
+            catch (Exception)
+            {
+                result = false;
+                throw;
+            }
+            return result;
+        }
+
         // Put: api/EmployeeTripRecords/update_tripRecord
         [HttpPut("update_tripRecord")]
         public ActionResult<bool> update_tripRecord([FromBody] List<EmployeeTripRecord> tripRecords)

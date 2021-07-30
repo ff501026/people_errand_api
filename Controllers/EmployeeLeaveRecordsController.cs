@@ -63,6 +63,40 @@ namespace People_errand_api.Controllers
 
             return employee_leave_record;
         }
+        [HttpPut("review_leaveRecord")]
+        public ActionResult<bool> review_leaveRecord([FromBody] List<EmployeeLeaveRecord> leaveRecords)
+        {
+            bool result = true;
+            try
+            {
+                foreach (EmployeeLeaveRecord leaveRecord in leaveRecords)
+                //foreach用來讀取多筆資料，假設一個JSON有很多{}
+                {
+                    var parameters = new[]
+                    {
+
+                        new SqlParameter("@leaveRecord_Id", System.Data.SqlDbType.Int)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = leaveRecord.LeaveRecordsId
+                        },
+                        new SqlParameter("@review", System.Data.SqlDbType.Bit)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = leaveRecord.Review
+                        }
+                    };
+
+                    result = _context.Database.ExecuteSqlRaw("exec review_leaveRecord @leaveRecord_Id @review", parameters: parameters) != 0 ? true : false;
+                }
+            }
+            catch (Exception)
+            {
+                result = false;
+                throw;
+            }
+            return result;
+        }
 
         // PUT: api/EmployeeLeaveRecords/update_leaveRecord
         [HttpPut("update_leaveRecord")]
