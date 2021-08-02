@@ -44,33 +44,36 @@ namespace People_errand_api.Controllers
 
         // PUT: api/EmployeeDepartmentTypes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutEmployeeDepartmentType(int id, EmployeeDepartmentType employeeDepartmentType)
+        [HttpPut("UpdateDepartment")]
+        public ActionResult<bool> update_department([FromBody] List<EmployeeDepartmentType> employeeDepartmentTypes)
         {
-            if (id != employeeDepartmentType.DepartmentId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(employeeDepartmentType).State = EntityState.Modified;
-
+            bool result = true;
             try
             {
-                await _context.SaveChangesAsync();
+                foreach (EmployeeDepartmentType employeeDepartmentType in employeeDepartmentTypes)
+                {
+                    var parameters = new[]
+                    {
+                        new SqlParameter("@department_id",System.Data.SqlDbType.Int)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employeeDepartmentType.DepartmentId
+                        },
+                        new SqlParameter("@department_name",System.Data.SqlDbType.NVarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employeeDepartmentType.Name
+                        }
+                    };
+                    result = _context.Database.ExecuteSqlRaw("exec update_department @department_id,@department_name", parameters: parameters) != 0 ? true : false;
+                }
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception)
             {
-                if (!EmployeeDepartmentTypeExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                result = false;
+                throw;
             }
-
-            return NoContent();
+            return result;
         }
 
         // POST: api/add_department
@@ -102,19 +105,28 @@ namespace People_errand_api.Controllers
         }
 
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteEmployeeDepartmentType(int id)
+        [HttpDelete("DeleteDepartment/{department_id}")]
+        public async Task<bool> DeleteDepartment(int department_id)
         {
-            var employeeDepartmentType = await _context.EmployeeDepartmentTypes.FindAsync(id);
-            if (employeeDepartmentType == null)
+            bool result = true;
+            try
             {
-                return NotFound();
+                var parameters = new[]
+                {
+                            new SqlParameter("@department_id",System.Data.SqlDbType.Int)
+                            {
+                                Direction = System.Data.ParameterDirection.Input,
+                                Value = department_id
+                            }
+                        };
+                result = _context.Database.ExecuteSqlRaw("exec delete_department @department_id", parameters: parameters) != 0 ? true : false;
             }
-
-            _context.EmployeeDepartmentTypes.Remove(employeeDepartmentType);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (Exception)
+            {
+                result = false;
+                throw;
+            }
+            return result;
         }
 
         private bool EmployeeDepartmentTypeExists(int id)

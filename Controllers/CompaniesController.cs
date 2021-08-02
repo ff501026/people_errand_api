@@ -48,9 +48,9 @@ namespace People_errand_api.Controllers
             return company_hash+"\n"+coordinate_X+"\n"+coordinate_Y;
         }
 
-        // PUT: api/Companies/UpdateWorkTime
-        [HttpPut("UpdateWorkTime")]//更新公司上班時間
-        public ActionResult<bool> update_worktime([FromBody] List<Company> companies)
+        // PUT: api/Companies/Update_WorkTime_RestTIme
+        [HttpPut("Update_WorkTime_RestTime")]//更新公司上班時間
+        public ActionResult<bool> update_worktime_resttime([FromBody] List<Company> companies)
         {
             bool result = true;
             try
@@ -68,9 +68,47 @@ namespace People_errand_api.Controllers
                         {
                             Direction = System.Data.ParameterDirection.Input,
                             Value = company.WorkTime
+                        },
+                        new SqlParameter("@rest_time",System.Data.SqlDbType.Time)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = company.RestTime
                         }
                     };
-                    result = _context.Database.ExecuteSqlRaw("exec update_company_worktime @hash_company,@work_time", parameters: parameters) != 0 ? true : false;
+                    result = _context.Database.ExecuteSqlRaw("exec update_company_worktime_resttime @hash_company,@work_time,@resttime", parameters: parameters) != 0 ? true : false;
+                }
+            }
+            catch (Exception)
+            {
+                result = false;
+                throw;
+            }
+            return result;
+        }
+
+        // PUT: api/Companies/UpdateManagerPassword
+        [HttpPut("UpdateManagerPassword")]//更新公司上班時間
+        public ActionResult<bool> update_manager_password([FromBody] List<Company> companies)
+        {
+            bool result = true;
+            try
+            {
+                foreach (Company company in companies)
+                {
+                    var parameters = new[]
+                    {
+                        new SqlParameter("@hash_company",System.Data.SqlDbType.VarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = company.CompanyHash
+                        },
+                        new SqlParameter("@manager_password",System.Data.SqlDbType.VarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = company.ManagerPassword
+                        }
+                    };
+                    result = _context.Database.ExecuteSqlRaw("exec update_manager_password @hash_company,@manager_password", parameters: parameters) != 0 ? true : false;
                 }
             }
             catch (Exception)

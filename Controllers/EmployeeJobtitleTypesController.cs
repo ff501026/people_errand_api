@@ -44,34 +44,38 @@ namespace People_errand_api.Controllers
 
         // PUT: api/EmployeeJobtitleTypes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutEmployeeJobtitleType(int id, EmployeeJobtitleType employeeJobtitleType)
+        [HttpPost("UpdateJobtitle")]
+        public ActionResult<bool> update_jobtitle([FromBody] List<EmployeeJobtitleType> employeeJobtitleTypes)
         {
-            if (id != employeeJobtitleType.JobtitleId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(employeeJobtitleType).State = EntityState.Modified;
-
+            bool result = true;
             try
             {
-                await _context.SaveChangesAsync();
+                foreach (EmployeeJobtitleType employeeJobtitleType in employeeJobtitleTypes)
+                {
+                    var parameters = new[]
+                    {
+                        new SqlParameter("@jobtitle_id",System.Data.SqlDbType.Int)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employeeJobtitleType.JobtitleId
+                        },
+                        new SqlParameter("@jobtitle_name",System.Data.SqlDbType.NVarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employeeJobtitleType.Name
+                        }
+                    };
+                    result = _context.Database.ExecuteSqlRaw("exec update_jobtitle @jobtitle_id,@jobtitle_name", parameters: parameters) != 0 ? true : false;
+                }
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception)
             {
-                if (!EmployeeJobtitleTypeExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                result = false;
+                return result;
             }
-
-            return NoContent();
+            return result;
         }
+
 
         // POST: api/EmployeeJobtitleTypes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -103,19 +107,28 @@ namespace People_errand_api.Controllers
         }
 
         // DELETE: api/EmployeeJobtitleTypes/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteEmployeeJobtitleType(int id)
+        [HttpDelete("DeleteJobtitle/{jobtitle_id}")]
+        public async Task<bool> DeleteJobtitle(int jobtitle_id)
         {
-            var employeeJobtitleType = await _context.EmployeeJobtitleTypes.FindAsync(id);
-            if (employeeJobtitleType == null)
+            bool result = true;
+            try
             {
-                return NotFound();
+                var parameters = new[]
+                {
+                            new SqlParameter("@jobtitle_id",System.Data.SqlDbType.Int)
+                            {
+                                Direction = System.Data.ParameterDirection.Input,
+                                Value = jobtitle_id
+                            }
+                        };
+                result = _context.Database.ExecuteSqlRaw("exec delete_jobtitle @jobtitle_id", parameters: parameters) != 0 ? true : false;
             }
-
-            _context.EmployeeJobtitleTypes.Remove(employeeJobtitleType);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (Exception)
+            {
+                result = false;
+                throw;
+            }
+            return result;
         }
 
         private bool EmployeeJobtitleTypeExists(int id)
