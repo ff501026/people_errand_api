@@ -168,6 +168,19 @@ namespace People_errand_api.Controllers
         }
 
 
+        [HttpGet("Get_WorkTime_RestTime/{hash_company}")]//取得上下班時間
+        public async Task<IEnumerable> WorkTime_RestTime(string hash_company)
+        {
+            var worktime_resttime = await (from t in _context.Companies where t.CompanyHash == hash_company 
+                                         select new
+                                         {
+                                            WorkTime = t.WorkTime,
+                                            RestTime = t.RestTime
+                                         }).ToListAsync();
+
+            string jsonData = JsonConvert.SerializeObject(worktime_resttime);
+            return jsonData;
+        }
 
         [HttpGet("Review_Employee/{hash_company}")]//取得未審核員工資料
         public async Task<IEnumerable> Review_employee(string hash_company)
