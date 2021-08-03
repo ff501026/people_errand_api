@@ -75,7 +75,7 @@ namespace People_errand_api.Controllers
                             Value = company.RestTime
                         }
                     };
-                    result = _context.Database.ExecuteSqlRaw("exec update_company_worktime_resttime @hash_company,@work_time,@resttime", parameters: parameters) != 0 ? true : false;
+                    result = _context.Database.ExecuteSqlRaw("exec update_company_worktime_resttime @hash_company,@work_time,@rest_time", parameters: parameters) != 0 ? true : false;
                 }
             }
             catch (Exception)
