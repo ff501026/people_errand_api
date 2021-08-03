@@ -44,7 +44,7 @@ namespace People_errand_api.Controllers
 
         // PUT: api/EmployeeJobtitleTypes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost("UpdateJobtitle")]
+        [HttpPut("UpdateJobtitle")]
         public ActionResult<bool> update_jobtitle([FromBody] List<EmployeeJobtitleType> employeeJobtitleTypes)
         {
             bool result = true;
