@@ -23,7 +23,19 @@ namespace People_errand_api.Controllers
             _context = context;
         }
 
+        [HttpGet("Get_CompanyHash")]//取得公司HASH
+        public async Task<IEnumerable> Get_CompanyHash(string code,string password)
+        {
+            var review_employee = await (from t in _context.Companies
+                                         where t.Code == code && t.ManagerPassword == password
+                                         select new
+                                         {
+                                             CompanyHash = t.CompanyHash
+                                         }).ToListAsync();
 
+            string jsonData = JsonConvert.SerializeObject(review_employee);
+            return jsonData;
+        }
         // GET: api/Companies/company_hash
         [HttpGet("{company_code}")]
         public async Task<ActionResult<string>> GetCompany(string company_code)
@@ -106,7 +118,7 @@ namespace People_errand_api.Controllers
                             Value = company.ManagerPassword
                         }
                     };
-                    result = _context.Database.ExecuteSqlRaw("exec update_manager_password @hash_company,@manager_password", parameters: parameters) != 0 ? true : false;
+                    result = _context.Database.ExecuteSqlRaw("exec update_company_manager_password @hash_company,@manager_password", parameters: parameters) != 0 ? true : false;
                 }
             }
             catch (Exception)
