@@ -30,7 +30,8 @@ namespace People_errand_api.Controllers
                                          where t.Code == code && t.ManagerPassword == password
                                          select new
                                          {
-                                             CompanyHash = t.CompanyHash
+                                             CompanyHash = t.CompanyHash,
+                                             Name = t.Name
                                          }).ToListAsync();
 
             string jsonData = JsonConvert.SerializeObject(review_employee);
