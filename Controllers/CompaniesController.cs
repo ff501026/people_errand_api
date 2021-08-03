@@ -49,7 +49,7 @@ namespace People_errand_api.Controllers
         }
 
         // PUT: api/Companies/Update_WorkTime_RestTIme
-        [HttpPut("Update_WorkTime_RestTime")]//更新公司上班時間
+        [HttpGet("Update_WorkTime_RestTime")]//更新公司上班時間
         public ActionResult<bool> update_worktime_resttime(string companyhash,string worktime ,string resttime)
         {
             bool result = true;
