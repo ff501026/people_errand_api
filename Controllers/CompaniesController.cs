@@ -50,33 +50,31 @@ namespace People_errand_api.Controllers
 
         // PUT: api/Companies/Update_WorkTime_RestTIme
         [HttpPut("Update_WorkTime_RestTime")]//更新公司上班時間
-        public ActionResult<bool> update_worktime_resttime([FromBody] List<Company> companies)
+        public ActionResult<bool> update_worktime_resttime(string companyhash,string worktime ,string resttime)
         {
             bool result = true;
-            try
-            {
-                foreach (Company company in companies)
-                {
+            try { 
+
                     var parameters = new[]
                     {
                         new SqlParameter("@hash_company",System.Data.SqlDbType.VarChar)
                         {
                             Direction = System.Data.ParameterDirection.Input,
-                            Value = company.CompanyHash
+                            Value = companyhash
                         },
                         new SqlParameter("@work_time",System.Data.SqlDbType.Time)
                         {
                             Direction = System.Data.ParameterDirection.Input,
-                            Value = company.WorkTime
+                            Value = DateTime.Parse(worktime).TimeOfDay
                         },
                         new SqlParameter("@rest_time",System.Data.SqlDbType.Time)
                         {
                             Direction = System.Data.ParameterDirection.Input,
-                            Value = company.RestTime
+                            Value = DateTime.Parse(resttime).TimeOfDay
                         }
                     };
                     result = _context.Database.ExecuteSqlRaw("exec update_company_worktime_resttime @hash_company,@work_time,@rest_time", parameters: parameters) != 0 ? true : false;
-                }
+                
             }
             catch (Exception)
             {
