@@ -19,6 +19,7 @@ namespace People_errand_api.Models
         public string Code { get; set; }
         public string Phone { get; set; }
         public string Email { get; set; }
+        public string Address { get; set; }
         public double? CoordinateX { get; set; }
         public double? CoordinateY { get; set; }
         public TimeSpan? WorkTime { get; set; }

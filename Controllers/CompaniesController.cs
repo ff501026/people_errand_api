@@ -54,6 +54,64 @@ namespace People_errand_api.Controllers
             string jsonData = JsonConvert.SerializeObject(company);
             return jsonData;
         }
+        [HttpGet("Get_CompanyAddress")]//取得公司地址
+        public async Task<IEnumerable> Get_CompanyAddress(string company_hash)
+        {
+            var company = await (from t in _context.Companies
+                                 where t.CompanyHash == company_hash
+                                 select new
+                                 {
+                                     CompanyHash = t.CompanyHash,
+                                     Address = t.Address,
+                                     CoordinateX = t.CoordinateX,
+                                     CoordinateY = t.CoordinateY
+                                 }).ToListAsync();
+
+            string jsonData = JsonConvert.SerializeObject(company);
+            return jsonData;
+        }
+
+        // PUT: api/Companies/Update_CompanyAddress
+        [HttpPut("Update_CompanyAddress")]//更新公司地址
+        public ActionResult<bool> Update_CompanyAddress([FromBody] List<Company> companies)
+        {
+            bool result = true;
+            try
+            {
+                foreach (var company in companies) {
+                    var parameters = new[]
+                    {
+                        new SqlParameter("@hash_company",System.Data.SqlDbType.VarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = company.CompanyHash
+                        },
+                        new SqlParameter("@address",System.Data.SqlDbType.NVarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = company.Address
+                        },
+                        new SqlParameter("@CoordinateX",System.Data.SqlDbType.Float)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = company.CoordinateX
+                        },
+                        new SqlParameter("@CoordinateY",System.Data.SqlDbType.Float)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = company.CoordinateY
+                        }
+                    };
+                    result = _context.Database.ExecuteSqlRaw("exec update_CompanyAddress @hash_company,@address,@CoordinateX,@CoordinateY", parameters: parameters) != 0 ? true : false;
+                }
+            }
+            catch (Exception)
+            {
+                result = false;
+                throw;
+            }
+            return result;
+        }
         // GET: api/Companies/company_hash
         [HttpGet("{company_code}")]
         public async Task<ActionResult<string>> GetCompany(string company_code)

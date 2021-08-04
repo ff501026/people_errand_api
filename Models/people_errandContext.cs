@@ -55,6 +55,10 @@ namespace People_errand_api.Models
                     .IsUnicode(false)
                     .HasColumnName("company_hash");
 
+                entity.Property(e => e.Address)
+                    .HasMaxLength(50)
+                    .HasColumnName("address");
+
                 entity.Property(e => e.Code)
                     .IsRequired()
                     .HasMaxLength(16)
@@ -102,9 +106,13 @@ namespace People_errand_api.Models
                     .IsUnicode(false)
                     .HasColumnName("phone");
 
-                entity.Property(e => e.RestTime).HasColumnName("rest_time");
+                entity.Property(e => e.RestTime)
+                    .HasColumnType("time(4)")
+                    .HasColumnName("rest_time");
 
-                entity.Property(e => e.WorkTime).HasColumnName("work_time");
+                entity.Property(e => e.WorkTime)
+                    .HasColumnType("time(4)")
+                    .HasColumnName("work_time");
 
                 entity.HasOne(d => d.ManagerHashNavigation)
                     .WithMany(p => p.Companies)
