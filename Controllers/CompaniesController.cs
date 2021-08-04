@@ -364,7 +364,8 @@ namespace People_errand_api.Controllers
                         i++;
                     }
                 }
-                var name = Employee_Record[i].HashAccount; //取得i筆上班紀錄的員工姓名
+                var hashaccount = Employee_Record[i].HashAccount; //取得i筆上班紀錄的員工編號
+                var name = Employee_Record[i].員工姓名;
 
                 for (int j = 1; j <= length-1; j++)//從第1筆紀錄開始找i筆上班紀錄的下班紀錄
                 {
@@ -375,7 +376,7 @@ namespace People_errand_api.Controllers
                             j++;//如果i筆記錄已完成登入，則換查看下一筆
                         }
                     }
-                    if (name == Employee_Record[j].HashAccount && j != i)//如果第j筆資料名字與i筆資料相同，且與i為不同筆則登入至後台
+                    if (name == Employee_Record[j].HashAccount && j != i)//如果第j筆資料員工編號與i筆資料相同，且與i為不同筆則登入至後台
                     {
                         num++;//編號
                         var worktime = Employee_Record[i].紀錄時間;//上班時間
