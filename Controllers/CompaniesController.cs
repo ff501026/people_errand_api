@@ -331,7 +331,7 @@ namespace People_errand_api.Controllers
                                          join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
                                          join b in _context.Employees on t.HashAccount equals b.HashAccount
                                          where b.CompanyHash == hash_company && b.Enabled == true
-                                         orderby t.CreatedTime descending
+                                         orderby t.CreatedTime 
                                          select new
                                          {
                                              HashAccount = t.HashAccount,
@@ -379,8 +379,8 @@ namespace People_errand_api.Controllers
                     if (hashaccount == Employee_Record[j].HashAccount && j != i)//如果第j筆資料員工編號與i筆資料相同，且與i為不同筆則登入至後台
                     {
                         num++;//編號
-                        var resttime = Employee_Record[i].紀錄時間;//下班時間
-                        var worktime = Employee_Record[j].紀錄時間;//上班時間
+                        var worktime = Employee_Record[i].紀錄時間;//下班時間
+                        var resttime = Employee_Record[j].紀錄時間;//上班時間
                         recorded.Add(i);//完成登入的該筆記錄至recorded
                         recorded.Add(j);//完成登入的該筆記錄至recorded
 
