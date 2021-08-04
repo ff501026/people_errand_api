@@ -384,16 +384,16 @@ namespace People_errand_api.Controllers
                         recorded.Add(i);//完成登入的該筆記錄至recorded
                         recorded.Add(j);//完成登入的該筆記錄至recorded
 
-                        for (int i = 1; i <= recorded.Count - 1; i++)
+                        for (int k = 1; k <= recorded.Count - 1; k++)
                         {//執行的回數
-                            for (int j = 1; j <= recorded.Count- i; j++)//執行的次數
+                            for (int m = 1; m <= recorded.Count- k; j++)//執行的次數
                             {
-                                if (recorded[j] < recorded[j - 1])
+                                if (recorded[m] < recorded[m - 1])
                                 {
                                     //二數交換
-                                    int temp = recorded[j];
-                                    recorded[j] = recorded[j - 1];
-                                    recorded[j - 1] = temp;
+                                    int temp = recorded[m];
+                                    recorded[m] = recorded[m - 1];
+                                    recorded[m - 1] = temp;
                                 }
                             }
                         }
