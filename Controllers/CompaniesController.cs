@@ -327,17 +327,19 @@ namespace People_errand_api.Controllers
         [HttpGet("GetWorkRecord/{hash_company}")]//取得員工打卡紀錄
         public async Task<IEnumerable> GetWorkReccord(string hash_company)
         {
-            var Employee_Record = await (from t in _context.Employees
+            var Employee_Record = await (from t in _context.EmployeeWorkRecords
                                          join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
-                                         join b in _context.EmployeeWorkRecords on t.HashAccount equals b.HashAccount
-                                         where t.CompanyHash == hash_company && b.Enabled == true
+                                         join b in _context.Employees on t.HashAccount equals b.HashAccount
+                                         where b.CompanyHash == hash_company && b.Enabled == true
+                                         orderby t.CreatedTime
                                          select new
                                          {
+                                             HashAccount = t.HashAccount,
                                              員工姓名 = a.Name,
-                                             紀錄時間 = b.CreatedTime,
-                                             X_coordinate = b.CoordinateX,
-                                             Y_coordinate = b.CoordinateY,
-                                             Work_type = b.WorkTypeId,
+                                             紀錄時間 = t.CreatedTime,
+                                             X_coordinate = t.CoordinateX,
+                                             Y_coordinate = t.CoordinateY,
+                                             Work_type = t.WorkTypeId,
                                          }).ToListAsync();
 
             List<WorkRecord> workRecord = new List<WorkRecord>();
@@ -362,7 +364,7 @@ namespace People_errand_api.Controllers
                         i++;
                     }
                 }
-                var name = Employee_Record[i].員工姓名; //取得i筆上班紀錄的員工姓名
+                var name = Employee_Record[i].HashAccount; //取得i筆上班紀錄的員工姓名
 
                 for (int j = 1; j <= length-1; j++)//從第1筆紀錄開始找i筆上班紀錄的下班紀錄
                 {
@@ -373,7 +375,7 @@ namespace People_errand_api.Controllers
                             j++;//如果i筆記錄已完成登入，則換查看下一筆
                         }
                     }
-                    if (name == Employee_Record[j].員工姓名 && j != i)//如果第j筆資料名字與i筆資料相同，且與i為不同筆則登入至後台
+                    if (name == Employee_Record[j].HashAccount && j != i)//如果第j筆資料名字與i筆資料相同，且與i為不同筆則登入至後台
                     {
                         num++;//編號
                         var worktime = Employee_Record[i].紀錄時間;//上班時間
