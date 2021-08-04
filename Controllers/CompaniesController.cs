@@ -376,7 +376,7 @@ namespace People_errand_api.Controllers
                             j++;//如果i筆記錄已完成登入，則換查看下一筆
                         }
                     }
-                    if (name == Employee_Record[j].HashAccount && j != i)//如果第j筆資料員工編號與i筆資料相同，且與i為不同筆則登入至後台
+                    if (hashaccount == Employee_Record[j].HashAccount && j != i)//如果第j筆資料員工編號與i筆資料相同，且與i為不同筆則登入至後台
                     {
                         num++;//編號
                         var worktime = Employee_Record[i].紀錄時間;//上班時間
