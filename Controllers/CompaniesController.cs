@@ -386,7 +386,7 @@ namespace People_errand_api.Controllers
 
                         for (int k = 1; k <= recorded.Count - 1; k++)
                         {//執行的回數
-                            for (int m = 1; m <= recorded.Count- k; j++)//執行的次數
+                            for (int m = 1; m <= recorded.Count- k; m++)//執行的次數
                             {
                                 if (recorded[m] < recorded[m - 1])
                                 {
