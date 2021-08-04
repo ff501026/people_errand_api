@@ -367,7 +367,7 @@ namespace People_errand_api.Controllers
                 var hashaccount = Employee_Record[i].HashAccount; //取得i筆上班紀錄的員工編號
                 var name = Employee_Record[i].員工姓名;
 
-                for (int j = 0; j <= length-1; j++)//從第1筆紀錄開始找i筆上班紀錄的下班紀錄
+                for (int j = 1; j <= length-1; j++)//從第1筆紀錄開始找i筆上班紀錄的下班紀錄
                 {
                     foreach (int pass in recorded)//pass=已完成登入的紀錄
                     {
@@ -384,7 +384,19 @@ namespace People_errand_api.Controllers
                         recorded.Add(i);//完成登入的該筆記錄至recorded
                         recorded.Add(j);//完成登入的該筆記錄至recorded
 
-
+                        for (int i = 1; i <= recorded.Count - 1; i++)
+                        {//執行的回數
+                            for (int j = 1; j <= recorded.Count- i; j++)//執行的次數
+                            {
+                                if (recorded[j] < recorded[j - 1])
+                                {
+                                    //二數交換
+                                    int temp = recorded[j];
+                                    recorded[j] = recorded[j - 1];
+                                    recorded[j - 1] = temp;
+                                }
+                            }
+                        }
                         workRecord.Add(new WorkRecord
                         {
                             Num = num,
