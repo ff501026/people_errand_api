@@ -330,7 +330,7 @@ namespace People_errand_api.Controllers
             var Employee_Record = await (from t in _context.EmployeeWorkRecords
                                          join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
                                          join b in _context.Employees on t.HashAccount equals b.HashAccount
-                                         where b.CompanyHash == hash_company && b.Enabled == true
+                                         where b.CompanyHash == hash_company && t.Enabled == true
                                          orderby t.CreatedTime 
                                          select new
                                          {
