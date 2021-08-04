@@ -331,7 +331,7 @@ namespace People_errand_api.Controllers
                                          join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
                                          join b in _context.Employees on t.HashAccount equals b.HashAccount
                                          where b.CompanyHash == hash_company && b.Enabled == true
-                                         orderby t.CreatedTime
+                                         orderby t.CreatedTime descending
                                          select new
                                          {
                                              HashAccount = t.HashAccount,
