@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using People_errand_api.Models;
 
 namespace People_errand_api.Controllers
@@ -29,17 +31,19 @@ namespace People_errand_api.Controllers
         }
 
         // GET: api/EmployeeDepartmentTypes/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<EmployeeDepartmentType>> GetEmployeeDepartmentType(int id)
+        [HttpGet("{company_hash}")]
+        public async Task<IEnumerable> Get_Department(string company_hash)
         {
-            var employeeDepartmentType = await _context.EmployeeDepartmentTypes.FindAsync(id);
+            var department = await (from t in _context.EmployeeDepartmentTypes
+                                 where t.CompanyHash.Equals(company_hash)
+                                 select new
+                                 {
+                                     DepartmentId = t.DepartmentId,
+                                     Name = t.Name
+                                 }).ToListAsync();
 
-            if (employeeDepartmentType == null)
-            {
-                return NotFound();
-            }
-
-            return employeeDepartmentType;
+            string jsonData = JsonConvert.SerializeObject(department);
+            return jsonData;
         }
 
         // PUT: api/EmployeeDepartmentTypes/5
@@ -91,9 +95,14 @@ namespace People_errand_api.Controllers
                         {
                             Direction = System.Data.ParameterDirection.Input,
                             Value = employeeDepartmentType.Name
+                        },
+                        new SqlParameter("@company_hash",System.Data.SqlDbType.VarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employeeDepartmentType.CompanyHash
                         }
                     };
-                    result = _context.Database.ExecuteSqlRaw("exec add_department @department_name", parameters: parameters) != 0 ? true : false;
+                    result = _context.Database.ExecuteSqlRaw("exec add_department @department_name,@company_hash", parameters: parameters) != 0 ? true : false;
                 }
             }
             catch (Exception)

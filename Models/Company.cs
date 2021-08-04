@@ -9,6 +9,8 @@ namespace People_errand_api.Models
     {
         public Company()
         {
+            EmployeeDepartmentTypes = new HashSet<EmployeeDepartmentType>();
+            EmployeeJobtitleTypes = new HashSet<EmployeeJobtitleType>();
             Employees = new HashSet<Employee>();
         }
 
@@ -28,6 +30,8 @@ namespace People_errand_api.Models
         public DateTime CreateTime { get; set; }
 
         public virtual Employee ManagerHashNavigation { get; set; }
+        public virtual ICollection<EmployeeDepartmentType> EmployeeDepartmentTypes { get; set; }
+        public virtual ICollection<EmployeeJobtitleType> EmployeeJobtitleTypes { get; set; }
         public virtual ICollection<Employee> Employees { get; set; }
     }
 }

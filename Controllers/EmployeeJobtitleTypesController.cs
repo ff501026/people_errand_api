@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using People_errand_api.Models;
 
 namespace People_errand_api.Controllers
@@ -29,17 +31,19 @@ namespace People_errand_api.Controllers
         }
 
         // GET: api/EmployeeJobtitleTypes/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<EmployeeJobtitleType>> GetEmployeeJobtitleType(int id)
+        [HttpGet("{company_hash}")]
+        public async Task<IEnumerable> Get_Jobtitle(string company_hash)
         {
-            var employeeJobtitleType = await _context.EmployeeJobtitleTypes.FindAsync(id);
+            var jobtitle = await (from t in _context.EmployeeJobtitleTypes
+                                    where t.CompanyHash.Equals(company_hash)
+                                    select new
+                                    {
+                                        JobtitleId = t.JobtitleId,
+                                        Name = t.Name
+                                    }).ToListAsync();
 
-            if (employeeJobtitleType == null)
-            {
-                return NotFound();
-            }
-
-            return employeeJobtitleType;
+            string jsonData = JsonConvert.SerializeObject(jobtitle);
+            return jsonData;
         }
 
         // PUT: api/EmployeeJobtitleTypes/5
@@ -93,9 +97,14 @@ namespace People_errand_api.Controllers
                         {
                             Direction = System.Data.ParameterDirection.Input,
                             Value = employeeJobtitleType.Name
+                        },
+                        new SqlParameter("@company_hash",System.Data.SqlDbType.VarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employeeJobtitleType.CompanyHash
                         }
                     };
-                    result = _context.Database.ExecuteSqlRaw("exec add_jobtitle @jobtitle_name", parameters: parameters) != 0 ? true : false;
+                    result = _context.Database.ExecuteSqlRaw("exec add_jobtitle @jobtitle_name,@company_hash", parameters: parameters) != 0 ? true : false;
                 }
             }
             catch (Exception)

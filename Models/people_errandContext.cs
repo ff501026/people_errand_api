@@ -180,10 +180,22 @@ namespace People_errand_api.Models
 
                 entity.Property(e => e.DepartmentId).HasColumnName("department_id");
 
+                entity.Property(e => e.CompanyHash)
+                    .IsRequired()
+                    .HasMaxLength(256)
+                    .IsUnicode(false)
+                    .HasColumnName("company_hash");
+
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(50)
                     .HasColumnName("name");
+
+                entity.HasOne(d => d.CompanyHashNavigation)
+                    .WithMany(p => p.EmployeeDepartmentTypes)
+                    .HasForeignKey(d => d.CompanyHash)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_employee_department_type_company");
             });
 
             modelBuilder.Entity<EmployeeInformation>(entity =>
@@ -248,10 +260,22 @@ namespace People_errand_api.Models
 
                 entity.Property(e => e.JobtitleId).HasColumnName("jobtitle_id");
 
+                entity.Property(e => e.CompanyHash)
+                    .IsRequired()
+                    .HasMaxLength(256)
+                    .IsUnicode(false)
+                    .HasColumnName("company_hash");
+
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(50)
                     .HasColumnName("name");
+
+                entity.HasOne(d => d.CompanyHashNavigation)
+                    .WithMany(p => p.EmployeeJobtitleTypes)
+                    .HasForeignKey(d => d.CompanyHash)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_employee_jobtitle_type_company");
             });
 
             modelBuilder.Entity<EmployeeLeaveRecord>(entity =>
