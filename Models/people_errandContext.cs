@@ -25,6 +25,8 @@ namespace People_errand_api.Models
         public virtual DbSet<EmployeeLeaveRecord> EmployeeLeaveRecords { get; set; }
         public virtual DbSet<EmployeeLeaveType> EmployeeLeaveTypes { get; set; }
         public virtual DbSet<EmployeeSchedule> EmployeeSchedules { get; set; }
+        public virtual DbSet<EmployeeTrip2Record> EmployeeTrip2Records { get; set; }
+        public virtual DbSet<EmployeeTrip2Type> EmployeeTrip2Types { get; set; }
         public virtual DbSet<EmployeeTripRecord> EmployeeTripRecords { get; set; }
         public virtual DbSet<EmployeeWorkRecord> EmployeeWorkRecords { get; set; }
         public virtual DbSet<EmployeeWorkType> EmployeeWorkTypes { get; set; }
@@ -386,6 +388,63 @@ namespace People_errand_api.Models
                     .HasForeignKey(d => d.ManagerHash)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_employee_schedule_employee");
+            });
+
+            modelBuilder.Entity<EmployeeTrip2Record>(entity =>
+            {
+                entity.HasKey(e => e.Trip2RecordsId);
+
+                entity.ToTable("employee_trip2Records");
+
+                entity.Property(e => e.Trip2RecordsId).HasColumnName("trip2Records_id");
+
+                entity.Property(e => e.CoordinateX).HasColumnName("coordinate_X");
+
+                entity.Property(e => e.CoordinateY).HasColumnName("coordinate_Y");
+
+                entity.Property(e => e.CreatedTime)
+                    .HasColumnType("datetime")
+                    .HasColumnName("created_time")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.GroupId)
+                    .HasColumnName("group_id")
+                    .HasDefaultValueSql("([dbo].[add_trip2Record_groupid]())");
+
+                entity.Property(e => e.HashAccount)
+                    .IsRequired()
+                    .HasMaxLength(256)
+                    .IsUnicode(false)
+                    .HasColumnName("hash_account");
+
+                entity.Property(e => e.Trip2TypeId).HasColumnName("trip2_type_id");
+
+                entity.HasOne(d => d.HashAccountNavigation)
+                    .WithMany(p => p.EmployeeTrip2Records)
+                    .HasForeignKey(d => d.HashAccount)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_employee_trip2Records_employee");
+
+                entity.HasOne(d => d.Trip2Type)
+                    .WithMany(p => p.EmployeeTrip2Records)
+                    .HasForeignKey(d => d.Trip2TypeId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_employee_trip2Records_employee_trip2_type");
+            });
+
+            modelBuilder.Entity<EmployeeTrip2Type>(entity =>
+            {
+                entity.HasKey(e => e.Trip2TypeId);
+
+                entity.ToTable("employee_trip2_type");
+
+                entity.Property(e => e.Trip2TypeId).HasColumnName("trip2_type_id");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false)
+                    .HasColumnName("name");
             });
 
             modelBuilder.Entity<EmployeeTripRecord>(entity =>

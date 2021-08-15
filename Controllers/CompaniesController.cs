@@ -465,7 +465,117 @@ namespace People_errand_api.Controllers
             string jsonData = JsonConvert.SerializeObject(pass_triprecord);
             return jsonData;
         }
-        
+
+        [HttpGet("Detail_Trip2Record/{Group_id}")]//取得詳細公差紀錄
+        public async Task<IEnumerable> Detail_Trip2Record(int Group_id)
+        {
+            var detail_trip2Record = await (from t in _context.EmployeeTrip2Records
+                                            join a in _context.EmployeeTrip2Types on t.Trip2TypeId equals a.Trip2TypeId
+                                            join b in _context.EmployeeInformations on t.HashAccount equals b.HashAccount
+                                            where t.GroupId == Group_id
+                                            orderby t.GroupId
+                                            select new
+                                            {
+                                                Trip2RecordId = t.Trip2RecordsId,
+                                                GroupId = t.GroupId,
+                                                HashAccount = t.HashAccount,
+                                                Name = b.Name,
+                                                Trip2Type = a.Name,
+                                                CoordinateX = t.CoordinateX,
+                                                CoordinateY = t.CoordinateY,
+                                                CreatedTime = t.CreatedTime,
+                                            }).ToListAsync();
+
+            string jsonData = JsonConvert.SerializeObject(detail_trip2Record);
+            return jsonData;
+        }
+
+        public partial class Trip2Record
+        {
+            public int Num { get; set; }
+            public string Name { get; set; }
+            public DateTime StartTime { get; set; }
+            public DateTime EndTime { get; set; }
+        }//打卡紀錄Model
+
+        [HttpGet("Get_Trip2Record/{hash_company}")]//取得公差紀錄
+        public async Task<IEnumerable> Get_Trip2Record(string hash_company)
+        {
+            var get_trip2Record = await (from t in _context.EmployeeTrip2Records
+                                            join a in _context.Employees on t.HashAccount equals a.HashAccount
+                                            join b in _context.EmployeeInformations on t.HashAccount equals b.HashAccount
+                                            where a.CompanyHash == hash_company && t.Trip2TypeId != 2
+                                            orderby t.CreatedTime descending
+                                            select new
+                                            {
+                                                GroupId = t.GroupId,
+                                                Name = b.Name,
+                                                Trip2TypeId = t.Trip2TypeId,
+                                                CreatedTime = t.CreatedTime,
+                                            }).ToListAsync();
+
+            List<Trip2Record> trip2Record = new List<Trip2Record>();
+
+            //計算JSON總長度
+            int length = 0;
+            foreach (var ever in get_trip2Record)
+            {
+                length++;
+            }
+
+            //recorded接已完成登入的公差紀錄
+            List<int> recorded = new List<int>();
+            int num = 0; //編號
+
+            for (int i = 0; i < length - 1; i++) //i=JSON裡的每筆公差紀錄
+            {
+                for(int n = 0; n < recorded.Count ; n++) //pass=已完成登入的紀錄
+                {
+                    if (get_trip2Record[i].GroupId == recorded[n])//如果i筆記錄已完成登入，則換查看下一筆
+                    {
+                        i++;
+                        n = -1;
+                    }
+                }
+
+                for (int j = 1; j <= length - 1; j++)//從第1筆紀錄開始找同樣的的Group_id
+                {
+                    if (get_trip2Record[i].GroupId == get_trip2Record[j].GroupId && j != i)//如果第j筆資料的Group_id與i筆相同，且與i為不同筆則登入至後台
+                    {
+                        num++;//編號
+                        recorded.Add(get_trip2Record[i].GroupId);//完成登入的Group_id記錄至recorded
+
+                        for (int k = 1; k <= recorded.Count - 1; k++)
+                        {//執行的回數
+                            for (int m = 1; m <= recorded.Count - k; m++)//執行的次數
+                            {
+                                if (recorded[m] < recorded[m - 1])
+                                {
+                                    //二數交換
+                                    int temp = recorded[m];
+                                    recorded[m] = recorded[m - 1];
+                                    recorded[m - 1] = temp;
+                                }
+                            }
+                        }
+                        trip2Record.Add(new Trip2Record
+                        {
+                            Num = num,
+                            Name = get_trip2Record[j].Name,
+                            StartTime = get_trip2Record[j].CreatedTime,//開始時間
+                            EndTime = get_trip2Record[i].CreatedTime//結束時間
+                        });
+
+                        break;
+                    }
+                }
+
+            }
+
+            string jsonData = JsonConvert.SerializeObject(trip2Record);
+            return jsonData;
+        }
+
         [HttpGet("Review_LeaveRecord/{hash_company}")]//取得未審核請假資料
         public async Task<IEnumerable> Review_LeaveRecord(string hash_company)
         {

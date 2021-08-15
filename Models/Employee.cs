@@ -14,6 +14,7 @@ namespace People_errand_api.Models
             EmployeeLeaveRecords = new HashSet<EmployeeLeaveRecord>();
             EmployeeScheduleEmployeeHashNavigations = new HashSet<EmployeeSchedule>();
             EmployeeScheduleManagerHashNavigations = new HashSet<EmployeeSchedule>();
+            EmployeeTrip2Records = new HashSet<EmployeeTrip2Record>();
             EmployeeTripRecords = new HashSet<EmployeeTripRecord>();
             EmployeeWorkRecords = new HashSet<EmployeeWorkRecord>();
             SalaryRecordEmployeeHashNavigations = new HashSet<SalaryRecord>();
@@ -35,6 +36,7 @@ namespace People_errand_api.Models
         public virtual ICollection<EmployeeLeaveRecord> EmployeeLeaveRecords { get; set; }
         public virtual ICollection<EmployeeSchedule> EmployeeScheduleEmployeeHashNavigations { get; set; }
         public virtual ICollection<EmployeeSchedule> EmployeeScheduleManagerHashNavigations { get; set; }
+        public virtual ICollection<EmployeeTrip2Record> EmployeeTrip2Records { get; set; }
         public virtual ICollection<EmployeeTripRecord> EmployeeTripRecords { get; set; }
         public virtual ICollection<EmployeeWorkRecord> EmployeeWorkRecords { get; set; }
         public virtual ICollection<SalaryRecord> SalaryRecordEmployeeHashNavigations { get; set; }
