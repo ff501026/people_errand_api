@@ -466,13 +466,14 @@ namespace People_errand_api.Controllers
             return jsonData;
         }
 
-        [HttpGet("Detail_Trip2Record/{Group_id}")]//取得詳細公差紀錄
-        public async Task<IEnumerable> Detail_Trip2Record(int Group_id)
+        [HttpGet("Detail_Trip2Record/{hash_company}")]//取得詳細公差紀錄
+        public async Task<IEnumerable> Detail_Trip2Record(string hash_company)
         {
             var detail_trip2Record = await (from t in _context.EmployeeTrip2Records
                                             join a in _context.EmployeeTrip2Types on t.Trip2TypeId equals a.Trip2TypeId
                                             join b in _context.EmployeeInformations on t.HashAccount equals b.HashAccount
-                                            where t.GroupId == Group_id
+                                            join c in _context.Employees on t.HashAccount equals c.HashAccount
+                                            where c.CompanyHash.Equals(hash_company)
                                             orderby t.GroupId
                                             select new
                                             {
