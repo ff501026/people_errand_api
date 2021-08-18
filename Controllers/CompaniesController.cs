@@ -492,6 +492,7 @@ namespace People_errand_api.Controllers
 
         public partial class Trip2Record
         {
+            public int GroupId { get; set; }
             public int Num { get; set; }
             public string Name { get; set; }
             public DateTime StartTime { get; set; }
@@ -560,6 +561,7 @@ namespace People_errand_api.Controllers
                         }
                         trip2Record.Add(new Trip2Record
                         {
+                            GroupId = get_trip2Record[i].GroupId,
                             Num = num,
                             Name = get_trip2Record[j].Name,
                             StartTime = get_trip2Record[j].CreatedTime,//開始時間
