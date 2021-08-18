@@ -470,10 +470,9 @@ namespace People_errand_api.Controllers
         public async Task<IEnumerable> Detail_Trip2Record(string hash_company)
         {
             var detail_trip2Record = await (from t in _context.EmployeeTrip2Records
-                                            join a in _context.EmployeeTrip2Types on t.Trip2TypeId equals a.Trip2TypeId
+                                            join a in _context.Employees on t.HashAccount equals a.HashAccount
                                             join b in _context.EmployeeInformations on t.HashAccount equals b.HashAccount
-                                            join c in _context.Employees on t.HashAccount equals c.HashAccount
-                                            where c.CompanyHash.Equals(hash_company)
+                                            where a.CompanyHash.Equals(hash_company)
                                             orderby t.GroupId
                                             select new
                                             {
@@ -481,7 +480,7 @@ namespace People_errand_api.Controllers
                                                 GroupId = t.GroupId,
                                                 HashAccount = t.HashAccount,
                                                 Name = b.Name,
-                                                Trip2Type = a.Name,
+                                                Trip2Type = t.Trip2TypeId,
                                                 CoordinateX = t.CoordinateX,
                                                 CoordinateY = t.CoordinateY,
                                                 CreatedTime = t.CreatedTime,
