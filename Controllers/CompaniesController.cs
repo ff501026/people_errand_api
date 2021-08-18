@@ -497,7 +497,7 @@ namespace People_errand_api.Controllers
             public string Name { get; set; }
             public DateTime StartTime { get; set; }
             public DateTime EndTime { get; set; }
-        }//打卡紀錄Model
+        }//公差紀錄Model
 
         [HttpGet("Get_Trip2Record/{hash_company}")]//取得公差紀錄
         public async Task<IEnumerable> Get_Trip2Record(string hash_company)
