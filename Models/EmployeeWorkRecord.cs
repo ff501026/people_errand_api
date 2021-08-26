@@ -10,8 +10,8 @@ namespace People_errand_api.Models
         public int WorkRecordsId { get; set; }
         public string HashAccount { get; set; }
         public int WorkTypeId { get; set; }
-        public double CoordinateX { get; set; }
-        public double CoordinateY { get; set; }
+        public decimal CoordinateX { get; set; }
+        public decimal CoordinateY { get; set; }
         public bool Enabled { get; set; }
         public DateTime CreatedTime { get; set; }
 

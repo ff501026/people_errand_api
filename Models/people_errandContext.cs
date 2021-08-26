@@ -30,6 +30,7 @@ namespace People_errand_api.Models
         public virtual DbSet<EmployeeTripRecord> EmployeeTripRecords { get; set; }
         public virtual DbSet<EmployeeWorkRecord> EmployeeWorkRecords { get; set; }
         public virtual DbSet<EmployeeWorkType> EmployeeWorkTypes { get; set; }
+        public virtual DbSet<ManagerAccount> ManagerAccounts { get; set; }
         public virtual DbSet<Role> Roles { get; set; }
         public virtual DbSet<SalaryRecord> SalaryRecords { get; set; }
 
@@ -402,9 +403,13 @@ namespace People_errand_api.Models
 
                 entity.Property(e => e.Trip2RecordsId).HasColumnName("trip2Records_id");
 
-                entity.Property(e => e.CoordinateX).HasColumnName("coordinate_X");
+                entity.Property(e => e.CoordinateX)
+                    .HasColumnType("numeric(18, 6)")
+                    .HasColumnName("coordinate_X");
 
-                entity.Property(e => e.CoordinateY).HasColumnName("coordinate_Y");
+                entity.Property(e => e.CoordinateY)
+                    .HasColumnType("numeric(18, 6)")
+                    .HasColumnName("coordinate_Y");
 
                 entity.Property(e => e.CreatedTime)
                     .HasColumnType("datetime")
@@ -504,9 +509,13 @@ namespace People_errand_api.Models
 
                 entity.Property(e => e.WorkRecordsId).HasColumnName("workRecords_id");
 
-                entity.Property(e => e.CoordinateX).HasColumnName("coordinate_X");
+                entity.Property(e => e.CoordinateX)
+                    .HasColumnType("numeric(18, 6)")
+                    .HasColumnName("coordinate_X");
 
-                entity.Property(e => e.CoordinateY).HasColumnName("coordinate_Y");
+                entity.Property(e => e.CoordinateY)
+                    .HasColumnType("numeric(18, 6)")
+                    .HasColumnName("coordinate_Y");
 
                 entity.Property(e => e.CreatedTime)
                     .HasColumnType("datetime")
@@ -549,6 +558,35 @@ namespace People_errand_api.Models
                     .HasMaxLength(8)
                     .IsUnicode(false)
                     .HasColumnName("name");
+            });
+
+            modelBuilder.Entity<ManagerAccount>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToTable("manager_account");
+
+                entity.Property(e => e.Acconut)
+                    .IsRequired()
+                    .HasMaxLength(36)
+                    .IsUnicode(false)
+                    .HasColumnName("acconut");
+
+                entity.Property(e => e.HashAccount)
+                    .IsRequired()
+                    .HasMaxLength(256)
+                    .IsUnicode(false)
+                    .HasColumnName("hash_account");
+
+                entity.Property(e => e.ManagerId)
+                    .ValueGeneratedOnAdd()
+                    .HasColumnName("manager_id");
+
+                entity.Property(e => e.Password)
+                    .IsRequired()
+                    .HasMaxLength(256)
+                    .IsUnicode(false)
+                    .HasColumnName("password");
             });
 
             modelBuilder.Entity<Role>(entity =>
