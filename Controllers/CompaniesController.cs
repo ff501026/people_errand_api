@@ -23,7 +23,7 @@ namespace People_errand_api.Controllers
             _context = context;
         }
 
-        [HttpGet("Login_Company")]
+        [HttpGet("Login_Company")]//公司登入
         public async Task<ActionResult<bool>> CheckCode(string code, string password)
         {
             var get_company = await (_context.Companies
@@ -34,7 +34,7 @@ namespace People_errand_api.Controllers
             return result;
         }
 
-        [HttpGet("Login_Manager")]
+        [HttpGet("Login_Manager")]//管理員登入
         public async Task<ActionResult<bool>> LoginManager(string code, string email,string password)
         {
             var get_password = await (_context.ManagerAccounts
@@ -46,7 +46,7 @@ namespace People_errand_api.Controllers
                                 join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
                                 join b in _context.Companies on t.CompanyHash equals b.CompanyHash
                                 join c in _context.ManagerAccounts on t.HashAccount equals c.HashAccount
-                                where b.Code.Equals(code) && a.Email.Equals(email) && c.Password.Equals(new_password)
+                                where b.Code.Equals(code) && a.Email.Equals(email) && c.Password.Equals(new_password) && c.Enabled==true
                                 select new
                                 {
                                     CompanyHash = b.CompanyHash,
