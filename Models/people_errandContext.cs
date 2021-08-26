@@ -75,9 +75,13 @@ namespace People_errand_api.Models
                     .HasDefaultValueSql("([dbo].[add_company]())")
                     .IsFixedLength(true);
 
-                entity.Property(e => e.CoordinateX).HasColumnName("coordinate_X");
+                entity.Property(e => e.CoordinateX)
+                    .HasColumnType("numeric(18, 6)")
+                    .HasColumnName("coordinate_X");
 
-                entity.Property(e => e.CoordinateY).HasColumnName("coordinate_Y");
+                entity.Property(e => e.CoordinateY)
+                    .HasColumnType("numeric(18, 6)")
+                    .HasColumnName("coordinate_Y");
 
                 entity.Property(e => e.CreateTime)
                     .HasColumnType("datetime")
@@ -94,7 +98,7 @@ namespace People_errand_api.Models
                     .HasColumnName("manager_hash");
 
                 entity.Property(e => e.ManagerPassword)
-                    .HasMaxLength(16)
+                    .HasMaxLength(256)
                     .IsUnicode(false)
                     .HasColumnName("manager_password");
 
@@ -407,9 +411,7 @@ namespace People_errand_api.Models
                     .HasColumnName("created_time")
                     .HasDefaultValueSql("(getdate())");
 
-                entity.Property(e => e.GroupId)
-                    .HasColumnName("group_id")
-                    .HasDefaultValueSql("([dbo].[add_trip2Record_groupid]())");
+                entity.Property(e => e.GroupId).HasColumnName("group_id");
 
                 entity.Property(e => e.HashAccount)
                     .IsRequired()
@@ -423,13 +425,13 @@ namespace People_errand_api.Models
                     .WithMany(p => p.EmployeeTrip2Records)
                     .HasForeignKey(d => d.HashAccount)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_employee_trip2Records_employee");
+                    .HasConstraintName("FK_employee_trip2Records_employee1");
 
                 entity.HasOne(d => d.Trip2Type)
                     .WithMany(p => p.EmployeeTrip2Records)
                     .HasForeignKey(d => d.Trip2TypeId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_employee_trip2Records_employee_trip2_type");
+                    .HasConstraintName("FK_employee_trip2Records_employee_trip2_type1");
             });
 
             modelBuilder.Entity<EmployeeTrip2Type>(entity =>

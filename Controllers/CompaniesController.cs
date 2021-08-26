@@ -26,33 +26,33 @@ namespace People_errand_api.Controllers
         [HttpGet("Login_Company")]
         public async Task<ActionResult<bool>> CheckCode(string code, string password)
         {
-            var checkcode = await _context.Companies
-                .Where(db_company => db_company.Code == code)
-                .Where(db_company => db_company.ManagerPassword == password)
-                .FirstOrDefaultAsync();
+            var get_company = await (_context.Companies
+                       .FromSqlInterpolated($"EXECUTE dbo.login_employee {code},{password}")
+                       ).ToListAsync();
 
-
-            if (checkcode == null)
-            {
-                return false;
-            }
-
-            return true;
+            bool result = get_company.Count != 0 ? true:false;
+            return result;
         }
 
-        [HttpGet("Get_CompanyHash")]//取得公司HASH
-        public async Task<IEnumerable> Get_CompanyHash(string code,string password)
+        public class CompanyLogin
         {
-            var company = await (from t in _context.Companies
-                                         where t.Code == code && t.ManagerPassword == password
-                                         select new
-                                         {
-                                             CompanyHash = t.CompanyHash,
-                                             Name = t.Name
-                                         }).ToListAsync();
+            public string CompanyHash { get; set; }
+            public string Name { get; set; }
+        }//公司登入
 
-            string jsonData = JsonConvert.SerializeObject(company);
-            return jsonData;
+        [HttpGet("Get_CompanyHash")]//取得公司HASH
+        public async Task<CompanyLogin> Get_CompanyHash(string code,string password)
+        {
+            var get_company =await( _context.Companies
+                        .FromSqlInterpolated($"EXECUTE dbo.login_employee {code},{password}")
+                        ).ToListAsync();
+            CompanyLogin company_login = new CompanyLogin
+            {
+                CompanyHash = get_company.Count !=0 ? get_company[0].CompanyHash : "",
+                Name = get_company.Count != 0 ? get_company[0].Name : ""
+            };
+           
+            return company_login;
         }
         [HttpGet("Get_CompanyAddress")]//取得公司地址
         public async Task<IEnumerable> Get_CompanyAddress(string company_hash)
