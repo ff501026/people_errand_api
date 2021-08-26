@@ -34,6 +34,150 @@ namespace People_errand_api.Controllers
             return result;
         }
 
+        [HttpGet("Login_Manager")]
+        public async Task<ActionResult<bool>> LoginManager(string code, string email,string password)
+        {
+            var get_password = await (_context.ManagerAccounts
+                       .FromSqlInterpolated($"EXECUTE dbo.login_manager_password {password}")
+                       ).ToListAsync();
+
+            var new_password = get_password.Count != 0 ? get_password[0].Password : "";
+            var manager = await (from t in _context.Employees
+                                join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
+                                join b in _context.Companies on t.CompanyHash equals b.CompanyHash
+                                join c in _context.ManagerAccounts on t.HashAccount equals c.HashAccount
+                                where b.Code.Equals(code) && a.Email.Equals(email) && c.Password.Equals(new_password)
+                                select new
+                                {
+                                    CompanyHash = b.CompanyHash,
+                                    HashAccount = t.HashAccount,
+                                    Name = a.Name
+                                }).ToListAsync();
+            bool result = manager.Count != 0 ? true : false;
+            return result;
+        }
+
+        [HttpGet("Get_Manager")]
+        public async Task<IEnumerable> GetManager(string code, string email, string password)
+        {
+            var get_password = await (_context.ManagerAccounts
+                       .FromSqlInterpolated($"EXECUTE dbo.login_manager_password {password}")
+                       ).ToListAsync();
+
+            var new_password = get_password.Count != 0 ? get_password[0].Password : "";
+            var result = await (from t in _context.Employees
+                                join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
+                                join b in _context.Companies on t.CompanyHash equals b.CompanyHash
+                                join c in _context.ManagerAccounts on t.HashAccount equals c.HashAccount
+                                where b.Code.Equals(code) && a.Email.Equals(email) && c.Password.Equals(new_password)
+                                select new
+                                {
+                                    CompanyHash = b.CompanyHash,
+                                    HashAccount = t.HashAccount,
+                                    Name = a.Name
+                                }).ToListAsync();
+            return result;
+        }
+
+        // PUT: api/Companies/UpdateManagerPassword
+        [HttpPut("UpdateManagerPassword")]//更新管理員密碼
+        public ActionResult<bool> update_manager_password([FromBody] List<ManagerAccount> managerAccounts)
+        {
+            bool result = true;
+            try
+            {
+                foreach (ManagerAccount managerAccount in managerAccounts)
+                {
+                    var parameters = new[]
+                    {
+                        new SqlParameter("@hash_account",System.Data.SqlDbType.VarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = managerAccount.HashAccount
+                        },
+                        new SqlParameter("@manager_password",System.Data.SqlDbType.VarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = managerAccount.Password
+                        }
+                    };
+                    result = _context.Database.ExecuteSqlRaw("exec update_manager_account @hash_account,@manager_password", parameters: parameters) != 0 ? true : false;
+                }
+            }
+            catch (Exception)
+            {
+                result = false;
+                throw;
+            }
+            return result;
+        }
+
+        // PUT: api/Companies/UpdateManagerEnabled
+        [HttpPut("UpdateManagerEnabled")]//啟用或停用管理員
+        public ActionResult<bool> update_manager_enabled([FromBody] List<ManagerAccount> managerAccounts)
+        {
+            bool result = true;
+            try
+            {
+                foreach (ManagerAccount managerAccount in managerAccounts)
+                {
+                    var parameters = new[]
+                    {
+                        new SqlParameter("@hash_account",System.Data.SqlDbType.VarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = managerAccount.HashAccount
+                        },
+                        new SqlParameter("@manager_enabled",System.Data.SqlDbType.Bit)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = managerAccount.Enabled
+                        }
+                    };
+                    result = _context.Database.ExecuteSqlRaw("exec update_manager_account_enabled @hash_account,@manager_enabled", parameters: parameters) != 0 ? true : false;
+                }
+            }
+            catch (Exception)
+            {
+                result = false;
+                throw;
+            }
+            return result;
+        }
+
+        // Post: api/Companies/AddManagerAccount
+        [HttpPost("AddManagerAccount")]//新增管理員
+        public ActionResult<bool> add_manager_account([FromBody] List<ManagerAccount> managerAccounts)
+        {
+            bool result = true;
+            try
+            {
+                foreach (ManagerAccount managerAccount in managerAccounts)
+                {
+                    var parameters = new[]
+                    {
+                        new SqlParameter("@hash_account",System.Data.SqlDbType.VarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = managerAccount.HashAccount
+                        },
+                        new SqlParameter("@manager_password",System.Data.SqlDbType.VarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = managerAccount.Password
+                        }
+                    };
+                    result = _context.Database.ExecuteSqlRaw("exec add_manager_account @hash_account,@manager_password", parameters: parameters) != 0 ? true : false;
+                }
+            }
+            catch (Exception)
+            {
+                result = false;
+                throw;
+            }
+            return result;
+        }
+
         public class CompanyLogin
         {
             public string CompanyHash { get; set; }
@@ -112,29 +256,7 @@ namespace People_errand_api.Controllers
             }
             return result;
         }
-        // GET: api/Companies/company_hash
-        [HttpGet("{company_code}")]
-        public async Task<ActionResult<string>> GetCompany(string company_code)
-        {
-            //去company資料表比對company_code，並回傳資料行
-            var company_hash = await _context.Companies
-                .Where(db_company => db_company.Code == company_code)
-                .Select(db_company => db_company.CompanyHash).FirstOrDefaultAsync();
-            var coordinate_X = await _context.Companies
-                .Where(db_company => db_company.Code == company_code)
-                .Select(db_company => db_company.CoordinateX).FirstOrDefaultAsync();
-            var coordinate_Y = await _context.Companies
-                .Where(db_company => db_company.Code == company_code)
-                .Select(db_company => db_company.CoordinateY).FirstOrDefaultAsync();
 
-
-            if (company_hash == null)
-            {
-                return NotFound();
-            }
-
-            return company_hash+"\n"+coordinate_X+"\n"+coordinate_Y;
-        }
 
         // PUT: api/Companies/Update_WorkTime_RestTIme
         [HttpGet("Update_WorkTime_RestTime")]//更新公司上班時間
@@ -173,8 +295,8 @@ namespace People_errand_api.Controllers
         }
 
         // PUT: api/Companies/UpdateManagerPassword
-        [HttpPut("UpdateManagerPassword")]//更新公司上班時間
-        public ActionResult<bool> update_manager_password([FromBody] List<Company> companies)
+        [HttpPut("UpdateCompanyPassword")]//更新公司密碼
+        public ActionResult<bool> update_company_password([FromBody] List<Company> companies)
         {
             bool result = true;
             try

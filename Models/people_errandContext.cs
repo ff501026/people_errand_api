@@ -566,11 +566,7 @@ namespace People_errand_api.Models
 
                 entity.ToTable("manager_account");
 
-                entity.Property(e => e.Acconut)
-                    .IsRequired()
-                    .HasMaxLength(36)
-                    .IsUnicode(false)
-                    .HasColumnName("acconut");
+                entity.Property(e => e.Enabled).HasColumnName("enabled");
 
                 entity.Property(e => e.HashAccount)
                     .IsRequired()
@@ -587,6 +583,12 @@ namespace People_errand_api.Models
                     .HasMaxLength(256)
                     .IsUnicode(false)
                     .HasColumnName("password");
+
+                entity.HasOne(d => d.HashAccountNavigation)
+                    .WithMany()
+                    .HasForeignKey(d => d.HashAccount)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_manager_account_employee");
             });
 
             modelBuilder.Entity<Role>(entity =>
