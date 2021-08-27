@@ -70,7 +70,8 @@ namespace People_errand_api.Controllers
                                       {
                                           HashAccount = t.HashAccount,
                                           Code = b.Code,
-                                          Name = a.Name
+                                          Name = a.Name,
+                                          ManagerKeyOverDate = t.ManagerKeyOverDate
                                       }).ToListAsync();
 
             return get_employee;
