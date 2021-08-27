@@ -72,6 +72,19 @@ namespace People_errand_api.Controllers
             return Employee_information;
         }
 
+        [HttpGet("{email}")]
+        public async Task<bool> BoolEmployeeInformationEmail(string email)
+        {
+
+            var Employee_information = await (from t in _context.EmployeeInformations
+                                              where t.Email == email
+                                              select new
+                                              {
+                                                  Email=t.Email
+                                              }).ToListAsync();
+            bool result = Employee_information.Count() != 0 ? true : false;
+            return result;
+        }
 
 
         // PUT: api/update_information
