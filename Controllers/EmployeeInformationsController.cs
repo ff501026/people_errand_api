@@ -72,17 +72,21 @@ namespace People_errand_api.Controllers
             return Employee_information;
         }
 
-        [HttpGet("{email}")]
-        public async Task<bool> BoolEmployeeInformationEmail(string email)
+        [HttpGet("BoolEmployeeInformationEmail")]
+        public async Task<bool> BoolEmployeeInformationEmail(string hash_company,string email)
         {
 
             var Employee_information = await (from t in _context.EmployeeInformations
-                                              where t.Email == email
+                                              join a in _context.Employees on t.HashAccount equals a.HashAccount
+                                              where a.CompanyHash==hash_company && t.Email == email
                                               select new
                                               {
+                                                  CompanyHash=a.CompanyHash,
                                                   Email=t.Email
                                               }).ToListAsync();
+
             bool result = Employee_information.Count() != 0 ? true : false;
+
             return result;
         }
 
