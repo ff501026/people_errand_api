@@ -10,8 +10,11 @@ namespace People_errand_api.Models
         public Company()
         {
             EmployeeDepartmentTypes = new HashSet<EmployeeDepartmentType>();
+            EmployeeFlexibleWorktimes = new HashSet<EmployeeFlexibleWorktime>();
+            EmployeeGeneralWorktimes = new HashSet<EmployeeGeneralWorktime>();
             EmployeeJobtitleTypes = new HashSet<EmployeeJobtitleType>();
             Employees = new HashSet<Employee>();
+            ManagerPermissions = new HashSet<ManagerPermission>();
         }
 
         public string CompanyId { get; set; }
@@ -29,9 +32,11 @@ namespace People_errand_api.Models
         public string ManagerPassword { get; set; }
         public DateTime CreateTime { get; set; }
 
-        public virtual Employee ManagerHashNavigation { get; set; }
         public virtual ICollection<EmployeeDepartmentType> EmployeeDepartmentTypes { get; set; }
+        public virtual ICollection<EmployeeFlexibleWorktime> EmployeeFlexibleWorktimes { get; set; }
+        public virtual ICollection<EmployeeGeneralWorktime> EmployeeGeneralWorktimes { get; set; }
         public virtual ICollection<EmployeeJobtitleType> EmployeeJobtitleTypes { get; set; }
         public virtual ICollection<Employee> Employees { get; set; }
+        public virtual ICollection<ManagerPermission> ManagerPermissions { get; set; }
     }
 }

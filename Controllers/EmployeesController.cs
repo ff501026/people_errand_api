@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -43,6 +44,36 @@ namespace People_errand_api.Controllers
             }
 
             return employee;
+        }
+
+        // Get: api/Employees/get_employee_manager_key
+        [HttpGet("get_employee_manager_key/{hash_account}")]
+        public async Task<string> employee_manager_key(string hash_account)
+        {
+            var get_employee = await(_context.Employees
+                       .FromSqlInterpolated($"EXECUTE dbo.update_employee_manager_key {hash_account}")
+                       ).ToListAsync();
+
+            var get_manager_key = get_employee.Count != 0 ? get_employee[0].ManagerKey : "";
+            return get_manager_key;
+        }
+
+        // Get: api/Employees/update_employee_manager_key
+        [HttpGet("get_employee_data/{manager_key}")]
+        public async Task<IEnumerable> get_manager_data(string manager_key)
+        {
+            var get_employee = await (from t in _context.Employees
+                                      join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
+                                      join b in _context.Companies on t.CompanyHash equals b.CompanyHash
+                                      where t.ManagerKey.Equals(manager_key)
+                                      select new
+                                      {
+                                          HashAccount = t.HashAccount,
+                                          Code = b.Code,
+                                          Name = a.Name
+                                      }).ToListAsync();
+
+            return get_employee;
         }
 
         // PUT: api/Employees/enabled_employee
