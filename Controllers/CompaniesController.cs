@@ -79,6 +79,19 @@ namespace People_errand_api.Controllers
             return result;
         }
 
+        [HttpGet("BoolManager/{hash_account}")]
+        public async Task<bool> BoolManager(string hash_account)
+        {
+            var manager = await (from t in _context.ManagerAccounts
+                                where t.HashAccount.Equals(hash_account)
+                                select new
+                                {
+                                    HashAccount = t.HashAccount
+                                }).ToListAsync();
+            bool result = manager.Count != 0 ? true : false;
+            return result;
+        }
+
         // GET: api/Companies/company_hash
         [HttpGet("{company_code}")]
         public async Task<ActionResult<string>> GetCompany(string company_code)
