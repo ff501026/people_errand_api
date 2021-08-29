@@ -54,7 +54,7 @@ namespace People_errand_api.Controllers
                        .FromSqlInterpolated($"EXECUTE dbo.update_employee_manager_key {hash_account}")
                        ).ToListAsync();
 
-            var get_manager_key = get_employee.Count != 0 ? get_employee[0].ManagerKey : "";
+            var get_manager_key = get_employee.Count != 0 ? get_employee[0].ManagerKey.ToString() : "";
             return get_manager_key;
         }
 

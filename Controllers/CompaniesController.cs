@@ -92,6 +92,25 @@ namespace People_errand_api.Controllers
             return result;
         }
 
+        [HttpGet("OrganizationChart/{hash_company}")]
+        public async Task<IEnumerable> OrganizationChart(string hash_company)
+        {
+            var Organization = await (from t in _context.Employees
+                                 join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
+                                 join b in _context.EmployeeDepartmentTypes on a.DepartmentId equals b.DepartmentId
+                                 join c in _context.EmployeeJobtitleTypes on a.JobtitleId equals c.JobtitleId
+                                 where t.CompanyHash.Equals(hash_company)
+                                 select new
+                                 {
+                                     HashAccount = t.HashAccount,
+                                     Name = a.Name,
+                                     ManagerHash = t.ManagerHash,
+                                     Department = b.Name,
+                                     Jobtitle = c.Name
+                                 }).ToListAsync();
+            return Organization;
+        }
+
         // GET: api/Companies/company_hash
         [HttpGet("{company_code}")]
         public async Task<ActionResult<string>> GetCompany(string company_code)
