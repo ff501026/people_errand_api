@@ -158,6 +158,11 @@ namespace People_errand_api.Controllers
                             Direction = System.Data.ParameterDirection.Input,
                             Value = employeeInformation.HashAccount
                         },
+                        new SqlParameter("@manager_hash",System.Data.SqlDbType.VarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employeeInformation.HashAccount
+                        },
                         new SqlParameter("@name",System.Data.SqlDbType.NVarChar)
                         {
                             Direction = System.Data.ParameterDirection.Input,
@@ -186,7 +191,7 @@ namespace People_errand_api.Controllers
                         
                     };
 
-                    result = _context.Database.ExecuteSqlRaw("exec edit_information @hash_account,@name,@department_id,@jobtitle_id,@phone,@email", parameters: parameters) != 0 ? true : false;
+                    result = _context.Database.ExecuteSqlRaw("exec edit_information @hash_account, @manager_hash,@name,@department_id,@jobtitle_id,@phone,@email", parameters: parameters) != 0 ? true : false;
                 }
 
             }
@@ -215,6 +220,11 @@ namespace People_errand_api.Controllers
                             Direction = System.Data.ParameterDirection.Input,
                             Value = employeeInformation.HashAccount
                         },
+                        new SqlParameter("@manager_hash",System.Data.SqlDbType.VarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employeeInformation.HashAccount
+                        },
                         new SqlParameter("@department_id",System.Data.SqlDbType.Int)
                         {
                             Direction = System.Data.ParameterDirection.Input,
@@ -226,7 +236,7 @@ namespace People_errand_api.Controllers
                             Value = employeeInformation.JobtitleId
                         }
                     };
-                    result = _context.Database.ExecuteSqlRaw("exec set_information @hash_account,@department_id,@jobtitle_id", parameters: parameters) != 0 ? true : false;
+                    result = _context.Database.ExecuteSqlRaw("exec set_information @hash_account,@manager_hash,@department_id,@jobtitle_id", parameters: parameters) != 0 ? true : false;
                 }
             }
             catch (Exception)

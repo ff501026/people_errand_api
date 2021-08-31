@@ -481,6 +481,7 @@ namespace People_errand_api.Controllers
                                          select new
                                          {
                                              HashAccount = t.HashAccount,
+                                             ManagerHash = t.ManagerHash,
                                              Name = a.Name,
                                              Phone = a.Phone,
                                              Department = b.Name,
@@ -491,6 +492,30 @@ namespace People_errand_api.Controllers
                                          }).ToListAsync();
 
             string jsonData = JsonConvert.SerializeObject(pass_employee);
+            return jsonData;
+        }
+
+        [HttpGet("Get_All_Manager/{hash_company}")]//取得公司全部管理員資料
+        public async Task<IEnumerable> Get_All_Manager(string hash_company)
+        {
+            var all_manager = await (from t in _context.ManagerAccounts
+                                       join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
+                                       join b in _context.EmployeeDepartmentTypes on a.DepartmentId equals b.DepartmentId
+                                       join c in _context.EmployeeJobtitleTypes on a.JobtitleId equals c.JobtitleId
+                                       join d in _context.Employees on t.HashAccount equals d.HashAccount  
+                                       where d.CompanyHash == hash_company 
+                                       orderby a.Name
+                                       select new
+                                       {
+                                           ManagerHash = t.HashAccount,
+                                           Name = a.Name,
+                                           Email = a.Email,
+                                           Department = b.Name,
+                                           Jobtitle = c.Name,
+                                           Enabled = t.Enabled
+                                       }).ToListAsync();
+
+            string jsonData = JsonConvert.SerializeObject(all_manager);
             return jsonData;
         }
 
