@@ -142,14 +142,24 @@ namespace People_errand_api.Controllers
             return result;
         }
 
+        public class EditEmployee
+        {
+            public string HashAccount { get; set; }//員工編號
+            public string ManagerHash { get; set; }//管理員編號
+            public string Name { get; set; }//員工姓名
+            public string Phone { get; set; }//員工電話
+            public string Email { get; set; }//員工電子郵件
+            public int DepartmentId { get; set; }//員工部門代號
+            public int JobTitleId { get; set; }//員工職稱代號
+        }//已審核員工資料編輯
         // PUT: api/edit_information
         [HttpPut("edit_information")]//後台用修改員工資料
-        public ActionResult<bool> edit_information([FromBody] List<EmployeeInformation> employeeInformations)
+        public ActionResult<bool> edit_information([FromBody] List<EditEmployee> employeeInformations)
         {
             bool result = true;
             try
             {
-                foreach (EmployeeInformation employeeInformation in employeeInformations)
+                foreach (EditEmployee employeeInformation in employeeInformations)
                 {
                     var parameters = new[]
                     {
@@ -161,7 +171,7 @@ namespace People_errand_api.Controllers
                         new SqlParameter("@manager_hash",System.Data.SqlDbType.VarChar)
                         {
                             Direction = System.Data.ParameterDirection.Input,
-                            Value = employeeInformation.HashAccount
+                            Value = employeeInformation.ManagerHash
                         },
                         new SqlParameter("@name",System.Data.SqlDbType.NVarChar)
                         {
@@ -176,7 +186,7 @@ namespace People_errand_api.Controllers
                         new SqlParameter("@jobtitle_id",System.Data.SqlDbType.Int)
                         {
                             Direction = System.Data.ParameterDirection.Input,
-                            Value = employeeInformation.JobtitleId
+                            Value = employeeInformation.JobTitleId
                         },
                         new SqlParameter("@phone",System.Data.SqlDbType.VarChar)
                         {
@@ -203,15 +213,21 @@ namespace People_errand_api.Controllers
 
             return result;
         }
-
+        public class SetEmployee
+        {
+            public string HashAccount { get; set; }//員工編號
+            public string ManagerHash { get; set; }//管理員編號
+            public int DepartmentId { get; set; }//員工部門
+            public int JobtitleId { get; set; }//員工職稱
+        }//賦予職稱及部門
         // PUT: api/add_information
         [HttpPut("set_information")]//賦予員工職位及部門
-        public ActionResult<bool> set_information([FromBody] List<EmployeeInformation> employeeInformations)
+        public ActionResult<bool> set_information([FromBody] List<SetEmployee> employeeInformations)
         {
             bool result = true;
             try
             {
-                foreach (EmployeeInformation employeeInformation in employeeInformations)
+                foreach (SetEmployee employeeInformation in employeeInformations)
                 {
                     var parameters = new[]
                     {
@@ -223,7 +239,7 @@ namespace People_errand_api.Controllers
                         new SqlParameter("@manager_hash",System.Data.SqlDbType.VarChar)
                         {
                             Direction = System.Data.ParameterDirection.Input,
-                            Value = employeeInformation.HashAccount
+                            Value = employeeInformation.ManagerHash
                         },
                         new SqlParameter("@department_id",System.Data.SqlDbType.Int)
                         {
