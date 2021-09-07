@@ -110,6 +110,42 @@ namespace People_errand_api.Controllers
                                  }).ToListAsync();
             return Organization;
         }
+        [HttpGet("GetAllGeneralWorkTime/{hash_company}")]
+        public async Task<IEnumerable> GetAllGeneralWorkTime(string hash_company)
+        {
+            var get_general_worktime = await (from t in _context.EmployeeGeneralWorktimes
+                                              where t.CompanyHash.Equals(hash_company)
+                                              select new
+                                              {
+                                                  GeneralWorktimeId = t.GeneralWorktimeId,
+                                                  Name = t.Name,
+                                                  WorkTime = t.WorkTime, 
+                                                  RestTime = t.RestTime,
+                                                  BreakTime = t.BreakTime
+                                              }).ToListAsync();
+            string jsonData = JsonConvert.SerializeObject(get_general_worktime);
+            return jsonData;
+        }
+
+
+        [HttpGet("GetAllFlexibleWorkTime/{hash_company}")]
+        public async Task<IEnumerable> GetAllFlexibleWorkTime(string hash_company)
+        {
+            var get_flexible_worktime = await (from t in _context.EmployeeFlexibleWorktimes
+                                               where t.CompanyHash.Equals(hash_company)
+                                               select new
+                                               {
+                                                   FlexibleWorktimeId = t.FlexibleWorktimeId,
+                                                   Name = t.Name,
+                                                   WorkTimeStart = t.WorkTimeStart,
+                                                   WorkTimeEnd = t.WorkTimeEnd,
+                                                   RestTimeStart = t.RestTimeStart,
+                                                   RestTimeEnd = t.RestTimeEnd,
+                                                   BreakTime = t.BreakTime
+                                               }).ToListAsync();
+            string jsonData = JsonConvert.SerializeObject(get_flexible_worktime);
+            return jsonData;
+        }
 
         // GET: api/Companies/company_hash
         [HttpGet("{company_code}")]
@@ -383,37 +419,37 @@ namespace People_errand_api.Controllers
             return result;
         }
 
-        // POST: api/Companies/regist_company
-        [HttpPost("regist_company")]//註冊公司
-        public ActionResult<bool> regist_company([FromBody] List<Company> companies)
-        {
-            bool result = true;
-            try
-            {
-                foreach (Company company in companies)
-                {
-                        //設定放入查詢的值
-                        var parameters = new[]
-                    {
-                        new SqlParameter("@company_name",System.Data.SqlDbType.NVarChar)
-                        {
-                            Direction = System.Data.ParameterDirection.Input,
-                            Value = company.Name
-                        }
-                    };
-                    result = _context.Database.ExecuteSqlRaw("exec regist_company @company_name", parameters: parameters) != 0 ? true : false;
-                }
-            }
-            catch (Exception)
-            {
-                result = false;
-                throw;
-            }
+        //// POST: api/Companies/regist_company
+        //[HttpPost("regist_company")]//註冊公司
+        //public ActionResult<bool> regist_company([FromBody] List<Company> companies)
+        //{
+        //    bool result = true;
+        //    try
+        //    {
+        //        foreach (Company company in companies)
+        //        {
+        //                //設定放入查詢的值
+        //                var parameters = new[]
+        //            {
+        //                new SqlParameter("@company_name",System.Data.SqlDbType.NVarChar)
+        //                {
+        //                    Direction = System.Data.ParameterDirection.Input,
+        //                    Value = company.Name
+        //                }
+        //            };
+        //            result = _context.Database.ExecuteSqlRaw("exec regist_company @company_name", parameters: parameters) != 0 ? true : false;
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //        result = false;
+        //        throw;
+        //    }
 
             
-            //輸出成功與否
-            return result ;
-        }
+        //    //輸出成功與否
+        //    return result ;
+        //}
 
         // DELETE: api/Companies/5
         [HttpDelete("{id}")]
