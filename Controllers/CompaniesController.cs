@@ -356,6 +356,45 @@ namespace People_errand_api.Controllers
             return result;
         }
 
+        // Post: api/Companies/RenewWorktime
+        [HttpPut("RenewWorktime")]
+        public ActionResult<bool> renew_worktime([FromBody] List<RenewWorktime> renewWorktimes)
+        {
+            bool result = true;
+            try
+            {
+                foreach (RenewWorktime renewWorktime in renewWorktimes)
+                {
+                    var parameters = new[]
+                    {
+                        new SqlParameter("@Worktime",System.Data.SqlDbType.VarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = renewWorktime.Worktime
+                        },
+                        new SqlParameter("@NewWorktime",System.Data.SqlDbType.VarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = renewWorktime.NewWorktime
+                        }
+                    };
+                    result = _context.Database.ExecuteSqlRaw("exec renew_employee_worktime @Worktime,@NewWorktime", parameters: parameters) != 0 ? true : false;
+                }
+            }
+            catch (Exception)
+            {
+                result = false;
+                throw;
+            }
+            return result;
+        }
+
+        public class RenewWorktime
+        {
+            public string Worktime { get; set; }
+            public string NewWorktime { get; set; }
+        }//公司登入
+
         public class CompanyLogin
         {
             public string CompanyHash { get; set; }
