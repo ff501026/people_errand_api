@@ -610,6 +610,7 @@ namespace People_errand_api.Controllers
                                              Jobtitle = c.Name,
                                              Email = a.Email,
                                              PhoneCode = t.PhoneCode,
+                                             WorktimeId =t.WorktimeId,
                                              Enabled = t.Enabled
                                          }).ToListAsync();
 
