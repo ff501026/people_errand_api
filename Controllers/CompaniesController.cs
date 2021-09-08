@@ -643,6 +643,7 @@ namespace People_errand_api.Controllers
 
         public partial class WorkRecord
         {
+            public string HashAccount { get; set; }
             public int Num { get; set; }
             public string Name { get; set; }
             public DateTime WorkTime { get; set; }
@@ -724,6 +725,7 @@ namespace People_errand_api.Controllers
                         }
                         workRecord.Add(new WorkRecord
                         {
+                            HashAccount = hashaccount,
                             Num = num,
                             Name = name,
                             WorkTime = worktime,
