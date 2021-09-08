@@ -109,7 +109,7 @@ namespace People_errand_api.Controllers
             public string WorkTimeEnd { get; set; }
             public string RestTimeStart { get; set; }
             public string RestTimeEnd { get; set; }
-            public int BreakTime { get; set; }
+            public int? BreakTime { get; set; }
         }
 
         // POST: api/add_flexible_worktime

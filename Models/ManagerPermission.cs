@@ -21,6 +21,7 @@ namespace People_errand_api.Models
         public bool SettingWorktime { get; set; }
         public bool SettingDepartmentJobtitle { get; set; }
         public bool SettingLocation { get; set; }
+        public DateTime CreatedTime { get; set; }
 
         public virtual Company CompanyHashNavigation { get; set; }
         public virtual ManagerPermissionsType EmployeeDisplayNavigation { get; set; }

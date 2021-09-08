@@ -110,7 +110,7 @@ namespace People_errand_api.Models
 
                 entity.Property(e => e.Name)
                     .IsRequired()
-                    .HasMaxLength(30)
+                    .HasMaxLength(50)
                     .HasColumnName("name");
 
                 entity.Property(e => e.Phone)
@@ -256,6 +256,11 @@ namespace People_errand_api.Models
                     .IsUnicode(false)
                     .HasColumnName("company_hash");
 
+                entity.Property(e => e.CreatedTime)
+                    .HasColumnType("datetime")
+                    .HasColumnName("created_time")
+                    .HasDefaultValueSql("(getdate())");
+
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(50)
@@ -304,6 +309,11 @@ namespace People_errand_api.Models
                     .HasMaxLength(256)
                     .IsUnicode(false)
                     .HasColumnName("company_hash");
+
+                entity.Property(e => e.CreatedTime)
+                    .HasColumnType("datetime")
+                    .HasColumnName("created_time")
+                    .HasDefaultValueSql("(getdate())");
 
                 entity.Property(e => e.Name)
                     .IsRequired()
@@ -465,7 +475,6 @@ namespace People_errand_api.Models
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(50)
-                    .IsUnicode(false)
                     .HasColumnName("name");
             });
 
@@ -729,6 +738,11 @@ namespace People_errand_api.Models
                     .HasMaxLength(256)
                     .IsUnicode(false)
                     .HasColumnName("company_hash");
+
+                entity.Property(e => e.CreatedTime)
+                    .HasColumnType("datetime")
+                    .HasColumnName("created_time")
+                    .HasDefaultValueSql("(getdate())");
 
                 entity.Property(e => e.EmployeeDisplay).HasColumnName("employee_display");
 

@@ -19,7 +19,8 @@ namespace People_errand_api.Models
         public TimeSpan WorkTimeEnd { get; set; }
         public TimeSpan RestTimeStart { get; set; }
         public TimeSpan RestTimeEnd { get; set; }
-        public int BreakTime { get; set; }
+        public int? BreakTime { get; set; }
+        public DateTime CreatedTime { get; set; }
 
         public virtual Company CompanyHashNavigation { get; set; }
         public virtual ICollection<Employee> Employees { get; set; }
