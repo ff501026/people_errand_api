@@ -102,9 +102,9 @@ namespace People_errand_api.Controllers
 
         // POST: api/add_general_worktime
         [HttpPost("add_general_worktime")]//新增一般上下班
-        public ActionResult<bool> add_general_worktime([FromBody] List<GeneralWorkTime> GeneralWorktimes)
+        public async Task<string> add_general_worktime([FromBody] List<GeneralWorkTime> GeneralWorktimes)
         {
-            bool result = true;
+            string id = "";
             try
             {
                 foreach (GeneralWorkTime GeneralWorktime in GeneralWorktimes)
@@ -137,15 +137,18 @@ namespace People_errand_api.Controllers
                             Value = GeneralWorktime.BreakTime
                         }
                     };
-                    result = _context.Database.ExecuteSqlRaw("exec add_employee_general_worktime @company_hash,@name,@work_time,@rest_time,@break_time", parameters: parameters) != 0 ? true : false;
+                    var get_company = await(_context.EmployeeGeneralWorktimes
+                        .FromSqlRaw("EXECUTE dbo.add_employee_general_worktime @company_hash,@name,@work_time,@rest_time,@break_time", parameters: parameters)
+                        ).ToListAsync();
+                    id = get_company[0].GeneralWorktimeId;
                 }
             }
             catch (Exception)
             {
-                result = false;
+                id = "";
                 throw;
             }
-            return result;
+            return id;
         }
 
         // DELETE: api/EmployeeGeneralWorktimes/DeleteGeneralWorktime/5

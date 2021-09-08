@@ -114,9 +114,9 @@ namespace People_errand_api.Controllers
 
         // POST: api/add_flexible_worktime
         [HttpPost("add_flexible_worktime")]//新增彈性上下班
-        public ActionResult<bool> add_flexible_worktime([FromBody] List<FlexibleWorkTime> flexibleWorktimes)
+        public async Task<string> add_flexible_worktime([FromBody] List<FlexibleWorkTime> flexibleWorktimes)
         {
-            bool result = true;
+            string id = "";
             try
             {
                 foreach (FlexibleWorkTime flexibleWorkTime in flexibleWorktimes)
@@ -159,15 +159,18 @@ namespace People_errand_api.Controllers
                             Value = flexibleWorkTime.BreakTime
                         }
                     };
-                    result = _context.Database.ExecuteSqlRaw("exec add_employee_flexible_worktime @company_hash,@name,@work_time_start,@work_time_end,@rest_time_start,@rest_time_end,@break_time", parameters: parameters) != 0 ? true : false;
+                    var get_company = await (_context.EmployeeFlexibleWorktimes
+                        .FromSqlRaw("EXECUTE dbo.add_employee_flexible_worktime @company_hash,@name,@work_time_start,@work_time_end,@rest_time_start,@rest_time_end,@break_time", parameters: parameters)
+                        ).ToListAsync();
+                    id = get_company[0].FlexibleWorktimeId;
                 }
             }
             catch (Exception)
             {
-                result = false;
+                id = "";
                 throw;
             }
-            return result;
+            return id;
         }
 
         // DELETE: api/EmployeeFlexibleWorktimes/DeleteFlexibleWorktime/5
