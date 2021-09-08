@@ -35,8 +35,6 @@ namespace People_errand_api.Models
 
         public virtual Company CompanyHashNavigation { get; set; }
         public virtual Role Role { get; set; }
-        public virtual EmployeeFlexibleWorktime Worktime { get; set; }
-        public virtual EmployeeGeneralWorktime WorktimeNavigation { get; set; }
         public virtual ICollection<EmployeeInformation> EmployeeInformations { get; set; }
         public virtual ICollection<EmployeeLeaveRecord> EmployeeLeaveRecords { get; set; }
         public virtual ICollection<EmployeeSchedule> EmployeeScheduleEmployeeHashNavigations { get; set; }

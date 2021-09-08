@@ -110,6 +110,92 @@ namespace People_errand_api.Controllers
                                  }).ToListAsync();
             return Organization;
         }
+
+        [HttpGet("CompanyEmployeeWorkTime/{hash_company}")]
+        public async Task<IEnumerable> CompanyEmployeeWorkTime(string hash_company)
+        {
+            var EmployeeWorkTime = await (from t in _context.Employees
+                                          join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
+                                          where t.CompanyHash.Equals(hash_company) && t.Enabled !=null
+                                          select new
+                                          {
+                                              HashAccount = t.HashAccount,
+                                              DepartmentId = a.DepartmentId,
+                                              JobtitleId = a.JobtitleId,
+                                              WorktimeId = t.WorktimeId
+                                          }).ToListAsync();
+            List<EmployeeWorkTime> employeeWorkTimes = new List<EmployeeWorkTime>();
+            foreach (var all in EmployeeWorkTime) 
+            {
+                bool result = true;
+                foreach (var x in employeeWorkTimes) 
+                {
+                    if (all.DepartmentId == x.DepartmentId && all.JobtitleId == x.JobtitleId)
+                    {
+                        result = false;
+                        break;
+                    }
+                }
+                if (result) 
+                {
+                    EmployeeWorkTime employeeWorkTime = new EmployeeWorkTime
+                    {
+                        DepartmentId = (int)all.DepartmentId,
+                        JobtitleId = (int)all.JobtitleId,
+                        WorktimeId = all.WorktimeId
+                    };
+                    employeeWorkTimes.Add(employeeWorkTime);
+                }
+            }
+            string jsonData = JsonConvert.SerializeObject(employeeWorkTimes);
+            return jsonData;
+        }
+
+        public partial class EmployeeWorkTime//變更員工上下班時間
+        {
+            public int DepartmentId { get; set; }
+            public int JobtitleId { get; set; }
+            public string WorktimeId { get; set; }
+        }
+
+        // PUT: api/Companies/UpdateEmployeeWorkTime
+        [HttpPut("UpdateEmployeeWorkTime")]//啟用或停用管理員
+        public ActionResult<bool> UpdateEmployeeWorkTime([FromBody] List<EmployeeWorkTime> employeeWorkTimes)
+        {
+            bool result = true;
+            try
+            {
+                foreach (EmployeeWorkTime employeeWorkTime in employeeWorkTimes)
+                {
+                    var parameters = new[]
+                    {
+                        new SqlParameter("@department_id",System.Data.SqlDbType.Int)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employeeWorkTime.DepartmentId
+                        },
+                        new SqlParameter("@jobtitle_id",System.Data.SqlDbType.Int)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employeeWorkTime.JobtitleId
+                        },
+                        new SqlParameter("@worktime_id",System.Data.SqlDbType.Char)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = employeeWorkTime.WorktimeId
+                        }
+                    };
+                    result = _context.Database.ExecuteSqlRaw("exec update_employee_worktime @department_id,@jobtitle_id,@worktime_id", parameters: parameters) != 0 ? true : false;
+                }
+            }
+            catch (Exception)
+            {
+                result = false;
+                throw;
+            }
+            return result;
+        }
+
         [HttpGet("GetAllGeneralWorkTime/{hash_company}")]
         public async Task<IEnumerable> GetAllGeneralWorkTime(string hash_company)
         {

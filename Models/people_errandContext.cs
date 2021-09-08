@@ -197,16 +197,6 @@ namespace People_errand_api.Models
                     .HasForeignKey(d => d.RoleId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_employee_role");
-
-                entity.HasOne(d => d.Worktime)
-                    .WithMany(p => p.Employees)
-                    .HasForeignKey(d => d.WorktimeId)
-                    .HasConstraintName("FK_employee_employee_flexible_worktime");
-
-                entity.HasOne(d => d.WorktimeNavigation)
-                    .WithMany(p => p.Employees)
-                    .HasForeignKey(d => d.WorktimeId)
-                    .HasConstraintName("FK_employee_employee_general_worktime");
             });
 
             modelBuilder.Entity<EmployeeDepartmentType>(entity =>

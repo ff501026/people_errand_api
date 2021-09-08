@@ -7,11 +7,6 @@ namespace People_errand_api.Models
 {
     public partial class EmployeeFlexibleWorktime
     {
-        public EmployeeFlexibleWorktime()
-        {
-            Employees = new HashSet<Employee>();
-        }
-
         public string FlexibleWorktimeId { get; set; }
         public string CompanyHash { get; set; }
         public string Name { get; set; }
@@ -23,6 +18,5 @@ namespace People_errand_api.Models
         public DateTime CreatedTime { get; set; }
 
         public virtual Company CompanyHashNavigation { get; set; }
-        public virtual ICollection<Employee> Employees { get; set; }
     }
 }
