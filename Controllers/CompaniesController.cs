@@ -111,6 +111,24 @@ namespace People_errand_api.Controllers
             return Organization;
         }
 
+        [HttpGet("Get_Manager_Permissions")]
+        public async Task<IEnumerable> GetManagerPermissions(string company_hash)
+        {
+            var result = await (from t in _context.ManagerPermissions
+                                where t.CompanyHash.Equals(company_hash)
+                                select new
+                                {
+                                    PermissionsId =t.PermissionsId,
+                                    Name = t.Name,
+                                    EmployeeDisplay = t.EmployeeDisplay,
+                                    EmployeeReview = t.EmployeeReview,
+                                    SettingWorktime = t.SettingWorktime,
+                                    SettingDepartmentJobtitle = t.SettingDepartmentJobtitle,
+                                    SettingLocation = t.SettingLocation
+                                }).ToListAsync();
+            return result;
+        }
+
         [HttpGet("CompanyEmployeeWorkTime/{hash_company}")]
         public async Task<IEnumerable> CompanyEmployeeWorkTime(string hash_company)
         {
@@ -393,7 +411,7 @@ namespace People_errand_api.Controllers
         {
             public string Worktime { get; set; }
             public string NewWorktime { get; set; }
-        }//公司登入
+        }
 
         public class CompanyLogin
         {

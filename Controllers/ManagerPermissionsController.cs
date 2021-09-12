@@ -41,43 +41,70 @@ namespace People_errand_api.Controllers
 
             return managerPermission;
         }
-
-        // PUT: api/ManagerPermissions/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutManagerPermission(int id, ManagerPermission managerPermission)
-        {
-            if (id != managerPermission.PermissionsId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(managerPermission).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ManagerPermissionExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/add_information
-        [HttpPost("add_manager_permissions")]//新增員工資料
-        public ActionResult<bool> add_manager_permissions([FromBody] List<ManagerPermission> managerPermissions)
+        // PUT: api/ManagerPermissions/update_manager_permissions
+        [HttpPut("update_manager_permissions")]//編輯
+        public ActionResult<bool> update_manager_permissions([FromBody] List<ManagerPermission> managerPermissions)
         {
             bool result = true;
+            try
+            {
+                foreach (ManagerPermission managerPermission in managerPermissions)
+                {
+                    var parameters = new[]
+                    {
+                        new SqlParameter("@permissions_id",System.Data.SqlDbType.Int)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = managerPermission.PermissionsId
+                        },
+                        new SqlParameter("@name",System.Data.SqlDbType.NVarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = managerPermission.Name
+                        },
+                        new SqlParameter("@employee_display",System.Data.SqlDbType.Int)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = managerPermission.EmployeeDisplay
+                        },
+                        new SqlParameter("@employee_review",System.Data.SqlDbType.Int)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = managerPermission.EmployeeReview
+                        },
+                        new SqlParameter("@setting_worktime",System.Data.SqlDbType.Bit)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = managerPermission.SettingWorktime
+                        },
+                        new SqlParameter("@setting_department_jobtitle",System.Data.SqlDbType.Bit)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = managerPermission.SettingDepartmentJobtitle
+                        },
+                        new SqlParameter("@setting_location",System.Data.SqlDbType.Bit)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = managerPermission.SettingLocation
+                        }
+                    };
+                    result = _context.Database.ExecuteSqlRaw("EXECUTE dbo.update_manager_permissions @permissions_id,@name,@employee_display,@employee_review,@setting_worktime,@setting_department_jobtitle,@setting_location", parameters: parameters) != 0 ? true : false;
+                }
+            }
+            catch (Exception)
+            {
+                result = false;
+                throw;
+            }
+            return result;
+        }
+        
+
+        // POST: api/ManagerPermissions/add_manager_permissions
+        [HttpPost("add_manager_permissions")]//新增
+        public async Task<int> add_manager_permissions([FromBody] List<ManagerPermission> managerPermissions)
+        {
+            int id = -1;
             try
             {
                 foreach (ManagerPermission managerPermission in managerPermissions)
@@ -120,32 +147,35 @@ namespace People_errand_api.Controllers
                             Value = managerPermission.SettingLocation
                         }
                     };
-                    result = _context.Database.ExecuteSqlRaw("exec add_manager_permissions @company_hash,@name,@employee_display,@employee_review,@setting_worktime,@setting_department_jobtitle,@setting_location", parameters: parameters) != 0 ? true : false;
+                    var get_manager_permissions = await(_context.ManagerPermissions
+                        .FromSqlRaw("EXECUTE dbo.add_manager_permissions @company_hash,@name,@employee_display,@employee_review,@setting_worktime,@setting_department_jobtitle,@setting_location", parameters: parameters)
+                        ).ToListAsync();
+                    id = get_manager_permissions[0].PermissionsId;
                 }
             }
             catch (Exception)
             {
-                result = false;
+                id=-1;
                 throw;
             }
-            return result;
+            return id;
         }
-        // DELETE: api/EmployeeInformations/DeleteInformation/5
-        [HttpDelete("DeleteInformation/{hash_account}")]
-        public async Task<bool> DeleteInformation(string hash_account)
+        // DELETE: api/ManagerPermissions/DeleteManagerPermissions/5
+        [HttpDelete("DeleteManagerPermissions/{permissions_id}")]
+        public async Task<bool> DeleteManagerPermissions(int permissions_id)
         {
             bool result = true;
             try
             {
                 var parameters = new[]
                 {
-                            new SqlParameter("@hash_account",System.Data.SqlDbType.VarChar)
+                            new SqlParameter("@permissions_id",System.Data.SqlDbType.Int)
                             {
                                 Direction = System.Data.ParameterDirection.Input,
-                                Value = hash_account
+                                Value = permissions_id
                             }
                         };
-                result = _context.Database.ExecuteSqlRaw("exec delete_employee @hash_account", parameters: parameters) != 0 ? true : false;
+                result = _context.Database.ExecuteSqlRaw("exec delete_manager_permissions @permissions_id", parameters: parameters) != 0 ? true : false;
             }
             catch (Exception)
             {
@@ -155,22 +185,7 @@ namespace People_errand_api.Controllers
             return result;
         }
 
-        // DELETE: api/ManagerPermissions/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteManagerPermission(int id)
-        {
-            var managerPermission = await _context.ManagerPermissions.FindAsync(id);
-            if (managerPermission == null)
-            {
-                return NotFound();
-            }
-
-            _context.ManagerPermissions.Remove(managerPermission);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
+       
         private bool ManagerPermissionExists(int id)
         {
             return _context.ManagerPermissions.Any(e => e.PermissionsId == id);
