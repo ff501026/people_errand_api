@@ -82,8 +82,16 @@ namespace People_errand_api.Controllers
 
         // POST: api/ManagerPermissionsCustomization/add_manager_permissions_customization
         [HttpPost("add_manager_permissions_customization")]//新增
-        public ActionResult<bool> add_manager_permissions_customization([FromBody] List<ManagerPermissionsCustomization> managerPermissionsCustomizations)
+        public ActionResult<int> add_manager_permissions_customization([FromBody] List<ManagerPermissionsCustomization> managerPermissionsCustomizations)
         {
+            var permissions = from t in _context.ManagerPermissionsCustomizations
+                              orderby t.PermissionsId descending
+                              select t;
+            int? permissions_id = permissions.Select(db => db.PermissionsId).FirstOrDefault();
+            if (permissions_id == null) 
+            {
+                permissions_id = 0;
+            }
             bool result = true;
             try
             {
@@ -94,7 +102,7 @@ namespace People_errand_api.Controllers
                         new SqlParameter("@permissions_id",System.Data.SqlDbType.Int)
                         {
                             Direction = System.Data.ParameterDirection.Input,
-                            Value = managerPermissionsCustomization.PermissionsId
+                            Value = permissions_id+1
                         },
                         new SqlParameter("@department_id",System.Data.SqlDbType.Int)
                         {
@@ -115,12 +123,18 @@ namespace People_errand_api.Controllers
                 result = false;
                 throw;
             }
-            return result;
+
+            if (result)
+            {
+                return permissions_id + 1;
+            }
+            else
+                return -1;
         }
 
         // DELETE: api/ManagerPermissionsCustomization/DeleteManagerPermissionsCustomization/5
         [HttpDelete("DeleteManagerPermissionsCustomization/{permissions_id}")]
-        public async Task<bool> DeleteManagerPermissionsCustomization(int permissions_id)
+        public bool DeleteManagerPermissionsCustomization(int permissions_id)
         {
             bool result = true;
             try

@@ -734,6 +734,10 @@ namespace People_errand_api.Models
                     .HasColumnName("created_time")
                     .HasDefaultValueSql("(getdate())");
 
+                entity.Property(e => e.CustomizationDisplay).HasColumnName("customization_display");
+
+                entity.Property(e => e.CustomizationReview).HasColumnName("customization_review");
+
                 entity.Property(e => e.EmployeeDisplay).HasColumnName("employee_display");
 
                 entity.Property(e => e.EmployeeReview).HasColumnName("employee_review");
@@ -782,12 +786,6 @@ namespace People_errand_api.Models
                 entity.Property(e => e.JobtitleId).HasColumnName("jobtitle_id");
 
                 entity.Property(e => e.PermissionsId).HasColumnName("permissions_id");
-
-                entity.HasOne(d => d.Permissions)
-                    .WithMany(p => p.ManagerPermissionsCustomizations)
-                    .HasForeignKey(d => d.PermissionsId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_manager_permissions_customization_manager_permissions");
             });
 
             modelBuilder.Entity<ManagerPermissionsType>(entity =>

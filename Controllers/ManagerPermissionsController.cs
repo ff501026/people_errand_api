@@ -67,10 +67,22 @@ namespace People_errand_api.Controllers
                             Direction = System.Data.ParameterDirection.Input,
                             Value = managerPermission.EmployeeDisplay
                         },
+                        new SqlParameter("@customization_display",System.Data.SqlDbType.Int)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            IsNullable = true,
+                            Value = managerPermission.CustomizationDisplay == null ? DBNull.Value : managerPermission.CustomizationDisplay
+                        },
                         new SqlParameter("@employee_review",System.Data.SqlDbType.Int)
                         {
                             Direction = System.Data.ParameterDirection.Input,
                             Value = managerPermission.EmployeeReview
+                        },
+                        new SqlParameter("@customization_review",System.Data.SqlDbType.Int)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            IsNullable = true,
+                            Value = managerPermission.CustomizationReview == null ? DBNull.Value : managerPermission.CustomizationReview
                         },
                         new SqlParameter("@setting_worktime",System.Data.SqlDbType.Bit)
                         {
@@ -88,7 +100,7 @@ namespace People_errand_api.Controllers
                             Value = managerPermission.SettingLocation
                         }
                     };
-                    result = _context.Database.ExecuteSqlRaw("EXECUTE dbo.update_manager_permissions @permissions_id,@name,@employee_display,@employee_review,@setting_worktime,@setting_department_jobtitle,@setting_location", parameters: parameters) != 0 ? true : false;
+                    result = _context.Database.ExecuteSqlRaw("EXECUTE dbo.update_manager_permissions @permissions_id,@name,@employee_display,@customization_display,@employee_review,@customization_review,@setting_worktime,@setting_department_jobtitle,@setting_location", parameters: parameters) != 0 ? true : false;
                 }
             }
             catch (Exception)
@@ -126,10 +138,20 @@ namespace People_errand_api.Controllers
                             Direction = System.Data.ParameterDirection.Input,
                             Value = managerPermission.EmployeeDisplay
                         },
+                        new SqlParameter("@customization_display",System.Data.SqlDbType.Int)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = managerPermission.CustomizationDisplay == null ? DBNull.Value : managerPermission.CustomizationDisplay
+                        },
                         new SqlParameter("@employee_review",System.Data.SqlDbType.Int)
                         {
                             Direction = System.Data.ParameterDirection.Input,
                             Value = managerPermission.EmployeeReview
+                        },
+                        new SqlParameter("@customization_review",System.Data.SqlDbType.Int)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = managerPermission.CustomizationReview == null ? DBNull.Value : managerPermission.CustomizationReview
                         },
                         new SqlParameter("@setting_worktime",System.Data.SqlDbType.Bit)
                         {
@@ -148,7 +170,7 @@ namespace People_errand_api.Controllers
                         }
                     };
                     var get_manager_permissions = await(_context.ManagerPermissions
-                        .FromSqlRaw("EXECUTE dbo.add_manager_permissions @company_hash,@name,@employee_display,@employee_review,@setting_worktime,@setting_department_jobtitle,@setting_location", parameters: parameters)
+                        .FromSqlRaw("EXECUTE dbo.add_manager_permissions @company_hash,@name,@employee_display,@customization_display,@employee_review,@customization_review,@setting_worktime,@setting_department_jobtitle,@setting_location", parameters: parameters)
                         ).ToListAsync();
                     id = get_manager_permissions[0].PermissionsId;
                 }

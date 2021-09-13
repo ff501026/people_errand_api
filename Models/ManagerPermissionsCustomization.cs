@@ -11,7 +11,5 @@ namespace People_errand_api.Models
         public int PermissionsId { get; set; }
         public int DepartmentId { get; set; }
         public int JobtitleId { get; set; }
-
-        public virtual ManagerPermission Permissions { get; set; }
     }
 }
