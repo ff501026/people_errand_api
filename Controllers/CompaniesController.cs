@@ -119,6 +119,7 @@ namespace People_errand_api.Controllers
                                 where a.CompanyHash.Equals(hash_company)
                                 select new
                                 {
+                                    CustomizationId = t.CustomizationId,
                                     PermissionsId = t.PermissionsId,
                                     DeparmentId = t.DepartmentId,
                                     JobtitleId = t.JobtitleId
