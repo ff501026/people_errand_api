@@ -111,6 +111,21 @@ namespace People_errand_api.Controllers
             return Organization;
         }
 
+        [HttpGet("Get_Manager_Permissions_Customizations/{hash_company}")]
+        public async Task<IEnumerable> GetManagerPermissionsCustomizations(string hash_company)
+        {
+            var result = await (from t in _context.ManagerPermissionsCustomizations
+                                join a in _context.ManagerPermissions on t.PermissionsId equals a.PermissionsId
+                                where a.CompanyHash.Equals(hash_company)
+                                select new
+                                {
+                                    PermissionsId = t.PermissionsId,
+                                    DeparmentId = t.DepartmentId,
+                                    JobtitleId = t.JobtitleId
+                                }).ToListAsync();
+            return result;
+        }
+
         [HttpGet("Get_Manager_Permissions")]
         public async Task<IEnumerable> GetManagerPermissions(string company_hash)
         {
