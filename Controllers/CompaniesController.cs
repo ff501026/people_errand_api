@@ -702,6 +702,7 @@ namespace People_errand_api.Controllers
                                            Email = a.Email,
                                            Department = b.Name,
                                            Jobtitle = c.Name,
+                                           PermissionsId = t.PermissionsId,
                                            Enabled = t.Enabled
                                        }).ToListAsync();
 
