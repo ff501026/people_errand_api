@@ -767,6 +767,113 @@ namespace People_errand_api.Controllers
             return jsonData;
         }
 
+        [HttpGet("Manager_GetPassEmployee2/{hash_account}")]//取得已審核員工資料
+        public async Task<IEnumerable> Manager_GetPassEmployee2(string hash_account)
+        {
+            var pass_employee = await (from t in _context.Employees
+                                       join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
+                                       join b in _context.EmployeeDepartmentTypes on a.DepartmentId equals b.DepartmentId
+                                       join c in _context.EmployeeJobtitleTypes on a.JobtitleId equals c.JobtitleId
+                                       where t.ManagerHash == hash_account && t.Enabled != null
+                                       orderby a.Name
+                                       select new
+                                       {
+                                           HashAccount = t.HashAccount,
+                                           ManagerHash = t.ManagerHash,
+                                           Name = a.Name,
+                                           Phone = a.Phone,
+                                           Department = b.Name,
+                                           Jobtitle = c.Name,
+                                           Email = a.Email,
+                                           PhoneCode = t.PhoneCode,
+                                           WorktimeId = t.WorktimeId,
+                                           Enabled = t.Enabled
+                                       }).ToListAsync();
+
+            string jsonData = JsonConvert.SerializeObject(pass_employee);
+            return jsonData;
+        }
+        public class PassEmployee
+        {
+            public string HashAccount { get; set; }//員工編號
+            public string ManagerHash { get; set; }//管理員編號
+            public string Name { get; set; }//員工姓名
+            public string Phone { get; set; }//員工電話
+            public string Department { get; set; }//員工部門
+            public string JobTitle { get; set; }//員工職稱
+            public string Email { get; set; }//員工電子郵件
+            public string PhoneCode { get; set; }//員工驗證碼(phone_code)
+            public string WorktimeId { get; set; }//上下班代碼
+            public bool? Enabled { get; set; }//使用狀態
+        }//已審核員工資料
+
+        [HttpGet("Manager_GetPassEmployee3/{hash_account}")]//取得已審核員工資料
+        public async Task<IEnumerable> Manager_GetPassEmployee3(string hash_account)
+        {
+            var permissions_id = await _context.ManagerAccounts
+                            .Where(db => db.HashAccount == hash_account)
+                            .Select(db => db.PermissionsId).FirstOrDefaultAsync();
+
+            var customeizationDisplayId = await _context.ManagerPermissions
+                            .Where(db => db.PermissionsId == permissions_id)
+                            .Select(db => db.CustomizationDisplay).FirstOrDefaultAsync();
+
+            var customizationsDisplay = await (from t in _context.ManagerPermissionsCustomizations
+                                              where t.PermissionsId == customeizationDisplayId
+                                               select new
+                                              {
+                                                  DepartmentId = t.DepartmentId,
+                                                  JobtitleId = t.JobtitleId
+                                              }).ToListAsync();
+            List<PassEmployee> passes = new List<PassEmployee>();
+            foreach (var display in customizationsDisplay)
+            {
+                var pass_employee = await (from t in _context.Employees
+                                           join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
+                                           join b in _context.EmployeeDepartmentTypes on a.DepartmentId equals b.DepartmentId
+                                           join c in _context.EmployeeJobtitleTypes on a.JobtitleId equals c.JobtitleId
+                                           where a.DepartmentId == display.DepartmentId && a.JobtitleId==display.JobtitleId
+                                           orderby a.Name
+                                           select new
+                                           {
+                                               HashAccount = t.HashAccount,
+                                               ManagerHash = t.ManagerHash,
+                                               Name = a.Name,
+                                               Phone = a.Phone,
+                                               Department = b.Name,
+                                               Jobtitle = c.Name,
+                                               Email = a.Email,
+                                               PhoneCode = t.PhoneCode,
+                                               WorktimeId = t.WorktimeId,
+                                               Enabled = t.Enabled
+                                           }).ToListAsync();
+
+                string jsonData = JsonConvert.SerializeObject(pass_employee);
+                List<PassEmployee> passEmployees = JsonConvert.DeserializeObject<List<PassEmployee>>(jsonData);
+                foreach (var passEmployee in passEmployees)
+                {
+                    PassEmployee search = new PassEmployee()
+                    {
+                        HashAccount = passEmployee.HashAccount,//員工編號
+                        Name = passEmployee.Name,//員工姓名
+                        Phone = passEmployee.Phone,//員工電話
+                        Department = passEmployee.Department,//員工部門
+                        JobTitle = passEmployee.JobTitle,//員工職稱
+                        Email = passEmployee.Email, //員工電子郵件
+                        PhoneCode = passEmployee.PhoneCode,//員工驗證碼(phone_code)
+                        Enabled = passEmployee.Enabled,
+                        WorktimeId = passEmployee.WorktimeId,
+                        ManagerHash = passEmployee.ManagerHash
+                    };
+                    passes.Add(search);
+                }
+            }
+
+            return passes;
+            //string jsonData = JsonConvert.SerializeObject(pass_employee);
+            //return jsonData;
+        }
+
         [HttpGet("Pass_Employee/{hash_company}")]//取得已審核員工資料
         public async Task<IEnumerable> Pass_employee(string hash_company)
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using People_errand_api.Models;
 
 namespace People_errand_api.Controllers
@@ -21,7 +23,162 @@ namespace People_errand_api.Controllers
             _context = context;
         }
 
-       
+        [HttpGet("Review_LeaveRecord")]//取得未審核請假資料
+        public async Task<IEnumerable> Manager_GetReviewLeaveRecord(string hash_company, string hash_account)
+        {
+            var review_leaverecord = await (from t in _context.EmployeeLeaveRecords
+                                            join a in _context.Employees on t.HashAccount equals a.HashAccount
+                                            join b in _context.EmployeeLeaveTypes on t.LeaveTypeId equals b.LeaveTypeId
+                                            join c in _context.EmployeeInformations on t.HashAccount equals c.HashAccount
+                                            where a.CompanyHash == hash_company && t.Review == null
+                                            orderby t.CreatedTime
+                                            select new
+                                            {
+                                                LeaveRecordId = t.LeaveRecordsId,
+                                                HashAccount = t.HashAccount,
+                                                Name = c.Name,
+                                                LeaveType = b.Name,
+                                                StartDate = t.StartDate,
+                                                EndDate = t.EndDate,
+                                                Reason = t.Reason,
+                                                Review = t.Review,
+                                                CreatedTime = t.CreatedTime,
+                                            }).ToListAsync();
+
+            var isManager = await _context.ManagerAccounts
+                            .Where(db => db.HashAccount == hash_account)
+                            .Select(db => db.Enabled).FirstOrDefaultAsync();
+
+            var result = await (from t in _context.ManagerAccounts
+                                join a in _context.ManagerPermissions on t.PermissionsId equals a.PermissionsId
+                                where t.HashAccount.Equals(hash_account)
+                                select new
+                                {
+                                    PermissionsId = t.PermissionsId,
+                                    EmployeeDisplay = a.EmployeeDisplay,
+                                    CustomizationDisplay = a.CustomizationDisplay,
+                                    EmployeeReview = a.EmployeeReview,
+                                    CustomizationReview = a.CustomizationReview,
+                                    SettingWorktime = a.SettingWorktime,
+                                    SettingDepartmentJobtitle = a.SettingDepartmentJobtitle,
+                                    SettingLocation = a.SettingLocation
+                                }).ToListAsync();
+
+            if (isManager == false)
+            {
+                return null;
+            }
+            else if (result.Count == 0 || result[0].EmployeeReview == 1)
+            {
+                return review_leaverecord;
+            }
+            else if (result[0].EmployeeReview == 2)
+            {
+                review_leaverecord = await (from t in _context.EmployeeLeaveRecords
+                                            join a in _context.Employees on t.HashAccount equals a.HashAccount
+                                            join b in _context.EmployeeLeaveTypes on t.LeaveTypeId equals b.LeaveTypeId
+                                            join c in _context.EmployeeInformations on t.HashAccount equals c.HashAccount
+                                            where a.ManagerHash == hash_account && t.Review == null
+                                            orderby t.CreatedTime
+                                            select new
+                                            {
+                                                LeaveRecordId = t.LeaveRecordsId,
+                                                HashAccount = t.HashAccount,
+                                                Name = c.Name,
+                                                LeaveType = b.Name,
+                                                StartDate = t.StartDate,
+                                                EndDate = t.EndDate,
+                                                Reason = t.Reason,
+                                                Review = t.Review,
+                                                CreatedTime = t.CreatedTime,
+                                            }).ToListAsync();
+                return review_leaverecord;
+            }
+            else 
+            {
+                var customizationsReview =await( from t in _context.ManagerPermissionsCustomizations
+                                           where t.PermissionsId == result[0].CustomizationReview
+                                           select new
+                                           {
+                                               DepartmentId = t.DepartmentId,
+                                               JobtitleId = t.JobtitleId
+                                           }).ToListAsync();
+
+                List<string> passEmployee = new List<string>();
+                foreach (var department_jobtitle in customizationsReview) 
+                {
+                    var one = await (from t in _context.EmployeeInformations
+                                     where t.DepartmentId == department_jobtitle.DepartmentId && t.JobtitleId == department_jobtitle.JobtitleId
+                                     select new
+                                              {
+                                                 HashAccount = t.HashAccount
+                                              }).ToListAsync();
+                    foreach (var i in one) 
+                    {
+                        passEmployee.Add(i.HashAccount);
+                    }
+                }
+                List<LeaveRecord> leaveRecords = new List<LeaveRecord>();
+                foreach (var i in passEmployee)
+                {
+                    review_leaverecord = await (from t in _context.EmployeeLeaveRecords
+                                                join a in _context.Employees on t.HashAccount equals a.HashAccount
+                                                join b in _context.EmployeeLeaveTypes on t.LeaveTypeId equals b.LeaveTypeId
+                                                join c in _context.EmployeeInformations on t.HashAccount equals c.HashAccount
+                                                where a.HashAccount == i && t.Review == null
+                                                orderby t.CreatedTime
+                                                select new
+                                                {
+                                                    LeaveRecordId = t.LeaveRecordsId,
+                                                    HashAccount = t.HashAccount,
+                                                    Name = c.Name,
+                                                    LeaveType = b.Name,
+                                                    StartDate = t.StartDate,
+                                                    EndDate = t.EndDate,
+                                                    Reason = t.Reason,
+                                                    Review = t.Review,
+                                                    CreatedTime = t.CreatedTime,
+                                                }).ToListAsync();
+
+                    string jsonData = JsonConvert.SerializeObject(review_leaverecord);
+                    List<LeaveRecord> leaverecord = JsonConvert.DeserializeObject<List<LeaveRecord>>(jsonData);
+                    foreach (var record in leaverecord)
+                    {
+                        LeaveRecord search = new LeaveRecord()
+                        {
+                            LeaveRecordId = record.LeaveRecordId,//請假編號
+                            HashAccount = record.HashAccount,//員工編號
+                            Name = record.Name,//員工姓名
+                            LeaveType = record.LeaveType,//假別
+                            StartDate = record.StartDate,//開始時間
+                            EndDate = record.EndDate,//結束時間
+                            Reason = record.Reason,//備註(事由)
+                            Review = record.Review,//審核狀態
+                            CreatedTime = record.CreatedTime//申請時間
+                        };
+                        leaveRecords.Add(search);
+                    }
+                }
+                return leaveRecords;
+
+            }
+
+            //string jsonData = JsonConvert.SerializeObject(isManager);
+            //return jsonData;
+        }
+
+        public class LeaveRecord
+        {
+            public int LeaveRecordId { get; set; }//請假編號
+            public string HashAccount { get; set; }//員工編號
+            public string Name { get; set; }//員工姓名
+            public string LeaveType { get; set; }//假別
+            public DateTime StartDate { get; set; }//開始時間
+            public DateTime EndDate { get; set; }//結束時間
+            public string Reason { get; set; }//備註(事由)
+            public bool? Review { get; set; }//審核狀態
+            public DateTime CreatedTime { get; set; }//申請時間
+        }
 
         //// GET: api/EmployeeLeaveRecords/hash_account
         //[HttpGet("{hash_account}")] //(用來看最後一筆)

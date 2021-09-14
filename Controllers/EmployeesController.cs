@@ -28,6 +28,115 @@ namespace People_errand_api.Controllers
         //{
         //    return await _context.Employees.ToListAsync();
         //}
+        // Get: api/Employees/get_employee_manager_key
+        [HttpGet("get_employee_manager_email")]
+        public async Task<IEnumerable> employee_manager_key(string company_hash, string hash_account)
+        {
+            var employee = await (from t in _context.EmployeeInformations
+                                  join b in _context.Employees on t.HashAccount equals b.HashAccount
+                                  where t.HashAccount == hash_account
+                                select new
+                                {
+                                    ManagerHash = b.ManagerHash,
+                                    DepartmentId = t.DepartmentId,
+                                    JobtitleId = t.JobtitleId
+                                }).ToListAsync();
+            var result = await (from t in _context.ManagerAccounts
+                                join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
+                                join b in _context.Employees on t.HashAccount equals b.HashAccount
+                                where t.PermissionsId == null && b.CompanyHash==company_hash
+                                select new
+                                {
+                                    Email = a.Email
+                                }).ToListAsync();
+
+            var permissions = await (from t in _context.ManagerPermissions
+                                where t.CompanyHash.Equals(company_hash)
+                                select new
+                                {
+                                    PermissionsId = t.PermissionsId,
+                                    Name = t.Name,
+                                    EmployeeDisplay = t.EmployeeDisplay,
+                                    CustomizationDisplay = t.CustomizationDisplay,
+                                    EmployeeReview = t.EmployeeReview,
+                                    CustomizationReview = t.CustomizationReview,
+                                    SettingWorktime = t.SettingWorktime,
+                                    SettingDepartmentJobtitle = t.SettingDepartmentJobtitle,
+                                    SettingLocation = t.SettingLocation
+                                }).ToListAsync();
+
+            List<string> manager = new List<string>();
+            foreach (var i in result)
+            {
+                string email = i.Email;
+                manager.Add(email);
+            }
+            foreach (var p in permissions) 
+            {
+                if (p.EmployeeReview == 1)
+                {
+                    result = await (from t in _context.ManagerAccounts
+                                    join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
+                                    where t.PermissionsId == p.PermissionsId
+                                    select new
+                                    {
+                                        Email = a.Email
+                                    }).ToListAsync();
+                    foreach (var i in result)
+                    {
+                        string email = i.Email;
+                        manager.Add(email);
+                    }
+                }
+                else if (p.EmployeeReview == 2)
+                {
+                    result = await (from t in _context.ManagerAccounts
+                                    join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
+                                    where t.PermissionsId == p.PermissionsId && t.HashAccount.Equals(employee[0].ManagerHash) 
+                                    select new
+                                    {
+                                        Email = a.Email
+                                    }).ToListAsync();
+                    foreach (var i in result)
+                    {
+                        string email = i.Email;
+                        manager.Add(email);
+                    }
+                }
+                else 
+                {
+                    var customizationsReview = await (from t in _context.ManagerPermissionsCustomizations
+                                                      where t.PermissionsId == p.CustomizationReview
+                                                      select new
+                                                      {
+                                                          DepartmentId = t.DepartmentId,
+                                                          JobtitleId = t.JobtitleId
+                                                      }).ToListAsync();
+                    foreach (var c in customizationsReview) 
+                    {
+                        if (c.DepartmentId==employee[0].DepartmentId && c.JobtitleId==employee[0].JobtitleId) 
+                        {
+                            result = await (from t in _context.ManagerAccounts
+                                            join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
+                                            where t.PermissionsId == p.PermissionsId 
+                                            select new
+                                            {
+                                                Email = a.Email
+                                            }).ToListAsync();
+
+                            foreach (var i in result)
+                            {
+                                string email = i.Email;
+                                manager.Add(email);
+                            }
+                        }
+                    }
+                }
+                
+            }
+            return manager;
+        }
+
 
         // GET: api/Employees/phone_code
         [HttpGet("{phone_code}")]
