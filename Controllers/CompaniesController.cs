@@ -139,6 +139,49 @@ namespace People_errand_api.Controllers
             return result;
         }
 
+        [HttpGet("CompanyManagerAccountPermissions/{hash_company}")]
+        public async Task<IEnumerable> CompanyManagerAccountPermissions(string hash_company)
+        {
+            var ManagerAccountPermissions = await (from t in _context.ManagerAccounts
+                                          join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
+                                          join b in _context.Employees on t.HashAccount equals b.HashAccount
+                                          where b.CompanyHash.Equals(hash_company) 
+                                          orderby a.DepartmentId
+                                          select new
+                                          {
+                                              HashAccount = t.HashAccount,
+                                              DepartmentId = a.DepartmentId,
+                                              JobtitleId = a.JobtitleId,
+                                              PermisisonsId = t.PermissionsId
+                                          }).ToListAsync();
+
+            List<UpdateManagerAccountPermissions> managerAccountPermissions = new List<UpdateManagerAccountPermissions>();
+            foreach (var all in ManagerAccountPermissions)
+            {
+                bool result = true;
+                foreach (var x in managerAccountPermissions)
+                {
+                    if (all.DepartmentId == x.DepartmentId && all.JobtitleId == x.JobtitleId)
+                    {
+                        result = false;
+                        break;
+                    }
+                }
+                if (result)
+                {
+                    UpdateManagerAccountPermissions managerAccountPermissions1 = new UpdateManagerAccountPermissions
+                    {
+                        DepartmentId = (int)all.DepartmentId,
+                        JobtitleId = (int)all.JobtitleId,
+                        PermissionsId = all.PermisisonsId
+                    };
+                    managerAccountPermissions.Add(managerAccountPermissions1);
+                }
+            }
+            string jsonData = JsonConvert.SerializeObject(managerAccountPermissions);
+            return jsonData;
+        }
+
         [HttpGet("CompanyEmployeeWorkTime/{hash_company}")]
         public async Task<IEnumerable> CompanyEmployeeWorkTime(string hash_company)
         {
@@ -308,6 +351,51 @@ namespace People_errand_api.Controllers
                         }
                     };
                     result = _context.Database.ExecuteSqlRaw("exec update_manager_account @hash_account,@manager_password", parameters: parameters) != 0 ? true : false;
+                }
+            }
+            catch (Exception)
+            {
+                result = false;
+                throw;
+            }
+            return result;
+        }
+
+        public class UpdateManagerAccountPermissions 
+        {
+            public int DepartmentId { get; set; }
+            public int JobtitleId { get; set; }
+            public int? PermissionsId { get; set; }
+        }
+
+        // PUT: api/Companies/UpdateManagerAccountPermissions
+        [HttpPut("UpdateManagerAccountPermissions")]//變更管理員權限
+        public ActionResult<bool> update_manager_account_permissions([FromBody] List<UpdateManagerAccountPermissions> managerAccounts)
+        {
+            bool result = true;
+            try
+            {
+                foreach (UpdateManagerAccountPermissions managerAccount in managerAccounts)
+                {
+                    var parameters = new[]
+                    {
+                        new SqlParameter("@department_id",System.Data.SqlDbType.Int)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = managerAccount.DepartmentId
+                        },
+                        new SqlParameter("@jobtitle_id",System.Data.SqlDbType.Int)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = managerAccount.JobtitleId
+                        },
+                        new SqlParameter("@permissions_id",System.Data.SqlDbType.Int)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = managerAccount.PermissionsId == null ? DBNull.Value : managerAccount.PermissionsId
+                        }
+                    };
+                    result = _context.Database.ExecuteSqlRaw("exec update_manager_account_permissions @department_id,@jobtitle_id,@permissions_id", parameters: parameters) != 0 ? true : false;
                 }
             }
             catch (Exception)
