@@ -1025,6 +1025,235 @@ namespace People_errand_api.Controllers
             return jsonData;
         }
 
+        [HttpGet("GetWorkRecord2/{hash_account}")]//取得員工打卡紀錄
+        public async Task<IEnumerable> GetWorkReccord2(string hash_account)
+        {
+            var Employee_Record = await (from t in _context.EmployeeWorkRecords
+                                         join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
+                                         join b in _context.Employees on t.HashAccount equals b.HashAccount
+                                         where b.ManagerHash == hash_account && t.Enabled == true
+                                         orderby t.CreatedTime
+                                         select new
+                                         {
+                                             HashAccount = t.HashAccount,
+                                             員工姓名 = a.Name,
+                                             紀錄時間 = t.CreatedTime,
+                                             X_coordinate = t.CoordinateX,
+                                             Y_coordinate = t.CoordinateY,
+                                             Work_type = t.WorkTypeId,
+                                         }).ToListAsync();
+
+            List<WorkRecord> workRecord = new List<WorkRecord>();
+
+            //計算JSON總長度
+            int length = 0;
+            foreach (var ever in Employee_Record)
+            {
+                length++;
+            }
+
+            //recorded接已完成登入的打卡紀錄
+            List<int> recorded = new List<int>();
+            int num = 0; //編號
+
+            for (int i = 0; i < length - 1; i++) //i=JSON裡的每筆上班紀錄
+            {
+                foreach (int pass in recorded) //pass=已完成登入的紀錄
+                {
+                    if (i == pass)//如果i筆記錄已完成登入，則換查看下一筆
+                    {
+                        i++;
+                    }
+                }
+                var hashaccount = Employee_Record[i].HashAccount; //取得i筆上班紀錄的員工編號
+                var name = Employee_Record[i].員工姓名;
+
+                for (int j = 1; j <= length - 1; j++)//從第1筆紀錄開始找i筆上班紀錄的下班紀錄
+                {
+                    foreach (int pass in recorded)//pass=已完成登入的紀錄
+                    {
+                        if (j == pass)
+                        {
+                            j++;//如果i筆記錄已完成登入，則換查看下一筆
+                        }
+                    }
+                    if (hashaccount == Employee_Record[j].HashAccount && j != i)//如果第j筆資料員工編號與i筆資料相同，且與i為不同筆則登入至後台
+                    {
+                        num++;//編號
+                        var worktime = Employee_Record[i].紀錄時間;//下班時間
+                        var resttime = Employee_Record[j].紀錄時間;//上班時間
+                        recorded.Add(i);//完成登入的該筆記錄至recorded
+                        recorded.Add(j);//完成登入的該筆記錄至recorded
+
+                        for (int k = 1; k <= recorded.Count - 1; k++)
+                        {//執行的回數
+                            for (int m = 1; m <= recorded.Count - k; m++)//執行的次數
+                            {
+                                if (recorded[m] < recorded[m - 1])
+                                {
+                                    //二數交換
+                                    int temp = recorded[m];
+                                    recorded[m] = recorded[m - 1];
+                                    recorded[m - 1] = temp;
+                                }
+                            }
+                        }
+                        workRecord.Add(new WorkRecord
+                        {
+                            HashAccount = hashaccount,
+                            Num = num,
+                            Name = name,
+                            WorkTime = worktime,
+                            RestTime = resttime
+                        });
+
+                        break;
+                    }
+                }
+
+            }
+
+            string jsonData = JsonConvert.SerializeObject(workRecord);
+            return jsonData;
+        }
+
+        public class WorkRecord3
+        {
+            public string HashAccount { get; set; }
+            public string 員工姓名 { get; set; }
+            public DateTime 紀錄時間 { get; set; }
+            public double X_coordinate { get; set; }
+            public double Y_coordinate { get; set; }
+            public int Work_type { get; set; }
+        }
+        [HttpGet("GetWorkReccord3/{hash_account}")]//取得員工打卡紀錄
+        public async Task<IEnumerable> GetWorkReccord3(string hash_account)
+        {
+            var permissions_id = await _context.ManagerAccounts
+                            .Where(db => db.HashAccount == hash_account)
+                            .Select(db => db.PermissionsId).FirstOrDefaultAsync();
+
+            var customeizationDisplayId = await _context.ManagerPermissions
+                            .Where(db => db.PermissionsId == permissions_id)
+                            .Select(db => db.CustomizationDisplay).FirstOrDefaultAsync();
+
+            var customizationsDisplay = await (from t in _context.ManagerPermissionsCustomizations
+                                               where t.PermissionsId == customeizationDisplayId
+                                               select new
+                                               {
+                                                   DepartmentId = t.DepartmentId,
+                                                   JobtitleId = t.JobtitleId
+                                               }).ToListAsync();
+            List<WorkRecord3> Employee_Record = new List<WorkRecord3>();
+            foreach (var display in customizationsDisplay)
+            {
+                var work = await (from t in _context.EmployeeWorkRecords
+                                             join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
+                                             join b in _context.Employees on t.HashAccount equals b.HashAccount
+                                             where a.DepartmentId==display.DepartmentId && a.JobtitleId==display.JobtitleId && t.Enabled == true
+                                             orderby t.CreatedTime
+                                             select new
+                                             {
+                                                 HashAccount = t.HashAccount,
+                                                 員工姓名 = a.Name,
+                                                 紀錄時間 = t.CreatedTime,
+                                                 X_coordinate = t.CoordinateX,
+                                                 Y_coordinate = t.CoordinateY,
+                                                 Work_type = t.WorkTypeId,
+                                             }).ToListAsync();
+
+                string json = JsonConvert.SerializeObject(work);
+                List<WorkRecord3> works = JsonConvert.DeserializeObject<List<WorkRecord3>>(json);
+                foreach (var work1 in works)
+                {
+                    WorkRecord3 search = new WorkRecord3()
+                    {
+                        HashAccount = work1.HashAccount,
+                        員工姓名 = work1.員工姓名,
+                        紀錄時間 = work1.紀錄時間,
+                        X_coordinate = work1.X_coordinate,
+                        Y_coordinate = work1.Y_coordinate,
+                        Work_type = work1.Work_type,
+                    };
+                    Employee_Record.Add(search);
+                }
+            }
+
+            List<WorkRecord> workRecord = new List<WorkRecord>();
+
+            //計算JSON總長度
+            int length = 0;
+            foreach (var ever in Employee_Record)
+            {
+                length++;
+            }
+
+            //recorded接已完成登入的打卡紀錄
+            List<int> recorded = new List<int>();
+            int num = 0; //編號
+
+            for (int i = 0; i < length - 1; i++) //i=JSON裡的每筆上班紀錄
+            {
+                foreach (int pass in recorded) //pass=已完成登入的紀錄
+                {
+                    if (i == pass)//如果i筆記錄已完成登入，則換查看下一筆
+                    {
+                        i++;
+                    }
+                }
+                var hashaccount = Employee_Record[i].HashAccount; //取得i筆上班紀錄的員工編號
+                var name = Employee_Record[i].員工姓名;
+
+                for (int j = 1; j <= length - 1; j++)//從第1筆紀錄開始找i筆上班紀錄的下班紀錄
+                {
+                    foreach (int pass in recorded)//pass=已完成登入的紀錄
+                    {
+                        if (j == pass)
+                        {
+                            j++;//如果i筆記錄已完成登入，則換查看下一筆
+                        }
+                    }
+                    if (hashaccount == Employee_Record[j].HashAccount && j != i)//如果第j筆資料員工編號與i筆資料相同，且與i為不同筆則登入至後台
+                    {
+                        num++;//編號
+                        var worktime = Employee_Record[i].紀錄時間;//下班時間
+                        var resttime = Employee_Record[j].紀錄時間;//上班時間
+                        recorded.Add(i);//完成登入的該筆記錄至recorded
+                        recorded.Add(j);//完成登入的該筆記錄至recorded
+
+                        for (int k = 1; k <= recorded.Count - 1; k++)
+                        {//執行的回數
+                            for (int m = 1; m <= recorded.Count - k; m++)//執行的次數
+                            {
+                                if (recorded[m] < recorded[m - 1])
+                                {
+                                    //二數交換
+                                    int temp = recorded[m];
+                                    recorded[m] = recorded[m - 1];
+                                    recorded[m - 1] = temp;
+                                }
+                            }
+                        }
+                        workRecord.Add(new WorkRecord
+                        {
+                            HashAccount = hashaccount,
+                            Num = num,
+                            Name = name,
+                            WorkTime = worktime,
+                            RestTime = resttime
+                        });
+
+                        break;
+                    }
+                }
+
+            }
+
+            string jsonData = JsonConvert.SerializeObject(workRecord);
+            return jsonData;
+
+        }
+
         [HttpGet("Review_TripRecord/{hash_company}")]//取得未審核公差資料
         public async Task<IEnumerable> Review_TripRecord(string hash_company)
         {
