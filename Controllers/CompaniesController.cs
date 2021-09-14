@@ -870,8 +870,6 @@ namespace People_errand_api.Controllers
             }
 
             return passes;
-            //string jsonData = JsonConvert.SerializeObject(pass_employee);
-            //return jsonData;
         }
 
         [HttpGet("Pass_Employee/{hash_company}")]//取得已審核員工資料
@@ -1190,6 +1188,205 @@ namespace People_errand_api.Controllers
             return jsonData;
         }
 
+        [HttpGet("Get_Trip2Record2/{hash_account}")]//取得公差紀錄
+        public async Task<IEnumerable> Get_Trip2Record2(string hash_account)
+        {
+            var get_trip2Record = await (from t in _context.EmployeeTrip2Records
+                                         join a in _context.Employees on t.HashAccount equals a.HashAccount
+                                         join b in _context.EmployeeInformations on t.HashAccount equals b.HashAccount
+                                         where a.ManagerHash.Equals(hash_account) && t.Trip2TypeId != 2
+                                         orderby t.CreatedTime descending
+                                         select new
+                                         {
+                                             GroupId = t.GroupId,
+                                             Name = b.Name,
+                                             Trip2TypeId = t.Trip2TypeId,
+                                             CreatedTime = t.CreatedTime,
+                                         }).ToListAsync();
+
+            List<Trip2Record> trip2Record = new List<Trip2Record>();
+
+            //計算JSON總長度
+            int length = 0;
+            foreach (var ever in get_trip2Record)
+            {
+                length++;
+            }
+
+            //recorded接已完成登入的公差紀錄
+            List<int> recorded = new List<int>();
+            int num = 0; //編號
+
+            for (int i = 0; i < length - 1; i++) //i=JSON裡的每筆公差紀錄
+            {
+                for (int n = 0; n < recorded.Count; n++) //pass=已完成登入的紀錄
+                {
+                    if (get_trip2Record[i].GroupId == recorded[n])//如果i筆記錄已完成登入，則換查看下一筆
+                    {
+                        i++;
+                        n = -1;
+                    }
+                }
+
+                for (int j = 1; j <= length - 1; j++)//從第1筆紀錄開始找同樣的的Group_id
+                {
+                    if (get_trip2Record[i].GroupId == get_trip2Record[j].GroupId && j != i)//如果第j筆資料的Group_id與i筆相同，且與i為不同筆則登入至後台
+                    {
+                        num++;//編號
+                        recorded.Add(get_trip2Record[i].GroupId);//完成登入的Group_id記錄至recorded
+
+                        for (int k = 1; k <= recorded.Count - 1; k++)
+                        {//執行的回數
+                            for (int m = 1; m <= recorded.Count - k; m++)//執行的次數
+                            {
+                                if (recorded[m] < recorded[m - 1])
+                                {
+                                    //二數交換
+                                    int temp = recorded[m];
+                                    recorded[m] = recorded[m - 1];
+                                    recorded[m - 1] = temp;
+                                }
+                            }
+                        }
+                        trip2Record.Add(new Trip2Record
+                        {
+                            GroupId = get_trip2Record[i].GroupId,
+                            Num = num,
+                            Name = get_trip2Record[j].Name,
+                            StartTime = get_trip2Record[j].CreatedTime,//開始時間
+                            EndTime = get_trip2Record[i].CreatedTime//結束時間
+                        });
+
+                        break;
+                    }
+                }
+
+            }
+
+            string jsonData = JsonConvert.SerializeObject(trip2Record);
+            return jsonData;
+        }
+
+        public class Trip2Record3 
+        {
+            public int GroupId { get; set; }
+            public string Name { get; set; }
+            public int Trip2TypeId { get; set; }
+            public DateTime CreatedTime { get; set; }
+        }
+        [HttpGet("Get_Trip2Record3/{hash_account}")]//取得已審核員工資料
+        public async Task<IEnumerable> Get_Trip2Record3(string hash_account)
+        {
+            var permissions_id = await _context.ManagerAccounts
+                            .Where(db => db.HashAccount == hash_account)
+                            .Select(db => db.PermissionsId).FirstOrDefaultAsync();
+
+            var customeizationDisplayId = await _context.ManagerPermissions
+                            .Where(db => db.PermissionsId == permissions_id)
+                            .Select(db => db.CustomizationDisplay).FirstOrDefaultAsync();
+
+            var customizationsDisplay = await (from t in _context.ManagerPermissionsCustomizations
+                                               where t.PermissionsId == customeizationDisplayId
+                                               select new
+                                               {
+                                                   DepartmentId = t.DepartmentId,
+                                                   JobtitleId = t.JobtitleId
+                                               }).ToListAsync();
+            List<Trip2Record3> get_trip2Record = new List<Trip2Record3>();
+            foreach (var display in customizationsDisplay)
+            {
+                var trip2Records = await (from t in _context.EmployeeTrip2Records
+                                             join a in _context.Employees on t.HashAccount equals a.HashAccount
+                                             join b in _context.EmployeeInformations on t.HashAccount equals b.HashAccount
+                                             where b.DepartmentId==display.DepartmentId && b.JobtitleId==display.JobtitleId && t.Trip2TypeId != 2
+                                             orderby t.CreatedTime descending
+                                             select new
+                                             {
+                                                 GroupId = t.GroupId,
+                                                 Name = b.Name,
+                                                 Trip2TypeId = t.Trip2TypeId,
+                                                 CreatedTime = t.CreatedTime,
+                                             }).ToListAsync();
+
+                string json = JsonConvert.SerializeObject(trip2Records);
+                List<Trip2Record3> trip2Records1 = JsonConvert.DeserializeObject<List<Trip2Record3>>(json);
+                foreach (var trip in trip2Records1)
+                {
+                    Trip2Record3 search = new Trip2Record3()
+                    {
+                        GroupId = trip.GroupId,
+                        Name = trip.Name,
+                        Trip2TypeId = trip.Trip2TypeId,
+                        CreatedTime = trip.CreatedTime
+                    };
+                    get_trip2Record.Add(search);
+                }
+            }
+
+            List<Trip2Record> trip2Record = new List<Trip2Record>();
+
+            //計算JSON總長度
+            int length = 0;
+            foreach (var ever in get_trip2Record)
+            {
+                length++;
+            }
+
+            //recorded接已完成登入的公差紀錄
+            List<int> recorded = new List<int>();
+            int num = 0; //編號
+
+            for (int i = 0; i < length - 1; i++) //i=JSON裡的每筆公差紀錄
+            {
+                for (int n = 0; n < recorded.Count; n++) //pass=已完成登入的紀錄
+                {
+                    if (get_trip2Record[i].GroupId == recorded[n])//如果i筆記錄已完成登入，則換查看下一筆
+                    {
+                        i++;
+                        n = -1;
+                    }
+                }
+
+                for (int j = 1; j <= length - 1; j++)//從第1筆紀錄開始找同樣的的Group_id
+                {
+                    if (get_trip2Record[i].GroupId == get_trip2Record[j].GroupId && j != i)//如果第j筆資料的Group_id與i筆相同，且與i為不同筆則登入至後台
+                    {
+                        num++;//編號
+                        recorded.Add(get_trip2Record[i].GroupId);//完成登入的Group_id記錄至recorded
+
+                        for (int k = 1; k <= recorded.Count - 1; k++)
+                        {//執行的回數
+                            for (int m = 1; m <= recorded.Count - k; m++)//執行的次數
+                            {
+                                if (recorded[m] < recorded[m - 1])
+                                {
+                                    //二數交換
+                                    int temp = recorded[m];
+                                    recorded[m] = recorded[m - 1];
+                                    recorded[m - 1] = temp;
+                                }
+                            }
+                        }
+                        trip2Record.Add(new Trip2Record
+                        {
+                            GroupId = get_trip2Record[i].GroupId,
+                            Num = num,
+                            Name = get_trip2Record[j].Name,
+                            StartTime = get_trip2Record[j].CreatedTime,//開始時間
+                            EndTime = get_trip2Record[i].CreatedTime//結束時間
+                        });
+
+                        break;
+                    }
+                }
+
+            }
+
+            string jsonData = JsonConvert.SerializeObject(trip2Record);
+            return jsonData;
+
+        }
+
         [HttpGet("Review_LeaveRecord/{hash_company}")]//取得未審核請假資料
         public async Task<IEnumerable> Review_LeaveRecord(string hash_company)
         {
@@ -1239,6 +1436,107 @@ namespace People_errand_api.Controllers
 
             string jsonData = JsonConvert.SerializeObject(pass_leaverecord);
             return jsonData;
+        }
+
+        [HttpGet("Pass_LeaveRecord2/{hash_account}")]//取得已審核請假資料
+        public async Task<IEnumerable> Pass_LeaveRecord2(string hash_account)
+        {
+            var pass_leaverecord = await (from t in _context.EmployeeLeaveRecords
+                                          join a in _context.Employees on t.HashAccount equals a.HashAccount
+                                          join b in _context.EmployeeLeaveTypes on t.LeaveTypeId equals b.LeaveTypeId
+                                          join c in _context.EmployeeInformations on t.HashAccount equals c.HashAccount
+                                          where a.ManagerHash.Equals(hash_account) && t.Review != null
+                                          orderby t.CreatedTime
+                                          select new
+                                          {
+                                              LeaveRecordId = t.LeaveRecordsId,
+                                              HashAccount = t.HashAccount,
+                                              Name = c.Name,
+                                              LeaveType = b.Name,
+                                              StartDate = t.StartDate,
+                                              EndDate = t.EndDate,
+                                              Reason = t.Reason,
+                                              Review = t.Review,
+                                              CreatedTime = t.CreatedTime,
+                                          }).ToListAsync();
+
+            string jsonData = JsonConvert.SerializeObject(pass_leaverecord);
+            return jsonData;
+        }
+        public class LeaveRecord
+        {
+            public int LeaveRecordId { get; set; }//請假編號
+            public string HashAccount { get; set; }//員工編號
+            public string Name { get; set; }//員工姓名
+            public string LeaveType { get; set; }//假別
+            public DateTime StartDate { get; set; }//開始時間
+            public DateTime EndDate { get; set; }//結束時間
+            public string Reason { get; set; }//備註(事由)
+            public bool? Review { get; set; }//審核狀態
+            public DateTime CreatedTime { get; set; }//申請時間
+        }
+
+        [HttpGet("Pass_LeaveRecord3/{hash_account}")]//取得已審核請假資料
+        public async Task<IEnumerable> Pass_LeaveRecord3(string hash_account)
+        {
+            var permissions_id = await _context.ManagerAccounts
+                            .Where(db => db.HashAccount == hash_account)
+                            .Select(db => db.PermissionsId).FirstOrDefaultAsync();
+
+            var customeizationDisplayId = await _context.ManagerPermissions
+                            .Where(db => db.PermissionsId == permissions_id)
+                            .Select(db => db.CustomizationDisplay).FirstOrDefaultAsync();
+
+            var customizationsDisplay = await (from t in _context.ManagerPermissionsCustomizations
+                                               where t.PermissionsId == customeizationDisplayId
+                                               select new
+                                               {
+                                                   DepartmentId = t.DepartmentId,
+                                                   JobtitleId = t.JobtitleId
+                                               }).ToListAsync();
+            List<LeaveRecord> leaveRecords = new List<LeaveRecord>();
+            foreach (var display in customizationsDisplay)
+            {
+                var pass_leaverecord = await (from t in _context.EmployeeLeaveRecords
+                                              join a in _context.Employees on t.HashAccount equals a.HashAccount
+                                              join b in _context.EmployeeLeaveTypes on t.LeaveTypeId equals b.LeaveTypeId
+                                              join c in _context.EmployeeInformations on t.HashAccount equals c.HashAccount
+                                              where c.DepartmentId==display.DepartmentId && c.JobtitleId==display.JobtitleId && t.Review != null
+                                              orderby t.CreatedTime
+                                              select new
+                                              {
+                                                  LeaveRecordId = t.LeaveRecordsId,
+                                                  HashAccount = t.HashAccount,
+                                                  Name = c.Name,
+                                                  LeaveType = b.Name,
+                                                  StartDate = t.StartDate,
+                                                  EndDate = t.EndDate,
+                                                  Reason = t.Reason,
+                                                  Review = t.Review,
+                                                  CreatedTime = t.CreatedTime,
+                                              }).ToListAsync();
+
+                string jsonData = JsonConvert.SerializeObject(pass_leaverecord);
+                List<LeaveRecord> leaveRecords1 = JsonConvert.DeserializeObject<List<LeaveRecord>>(jsonData);
+                foreach (var leaveRecord in leaveRecords1)
+                {
+                    LeaveRecord search = new LeaveRecord()
+                    {
+                        LeaveRecordId = leaveRecord.LeaveRecordId,//請假編號
+                        HashAccount = leaveRecord.HashAccount,//員工編號
+                        Name = leaveRecord.Name,//員工姓名
+                        LeaveType = leaveRecord.LeaveType,//假別
+                        StartDate = leaveRecord.StartDate,//開始時間
+                        EndDate = leaveRecord.EndDate,//結束時間
+                        Reason = leaveRecord.Reason,//備註(事由)
+                        Review = leaveRecord.Review,//審核狀態
+                        CreatedTime = leaveRecord.CreatedTime//申請時間
+                    };
+                    leaveRecords.Add(search);
+                }
+            }
+
+            return leaveRecords;
         }
 
         private bool CompanyExists(string id)
