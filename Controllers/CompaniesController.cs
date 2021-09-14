@@ -1126,8 +1126,8 @@ namespace People_errand_api.Controllers
             public double Y_coordinate { get; set; }
             public int Work_type { get; set; }
         }
-        [HttpGet("GetWorkReccord3/{hash_account}")]//取得員工打卡紀錄
-        public async Task<IEnumerable> GetWorkReccord3(string hash_account)
+        [HttpGet("GetWorkRecord3/{hash_account}")]//取得員工打卡紀錄
+        public async Task<IEnumerable> GetWorkRecord3(string hash_account)
         {
             var permissions_id = await _context.ManagerAccounts
                             .Where(db => db.HashAccount == hash_account)
