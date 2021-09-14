@@ -934,7 +934,7 @@ namespace People_errand_api.Controllers
         }//打卡紀錄Model
 
         [HttpGet("GetWorkRecord/{hash_company}")]//取得員工打卡紀錄
-        public async Task<IEnumerable> GetWorkReccord(string hash_company)
+        public async Task<IEnumerable> GetWorkRecord(string hash_company)
         {
             var Employee_Record = await (from t in _context.EmployeeWorkRecords
                                          join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
