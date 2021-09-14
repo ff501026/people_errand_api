@@ -119,6 +119,26 @@ namespace People_errand_api.Controllers
             return result;
         }
 
+        [HttpGet("GetManagerRolePermissions/{hash_account}")]
+        public async Task<IEnumerable> GetManagerRolePermissions(string hash_account)
+        {
+            var result = await (from t in _context.ManagerAccounts
+                                join a in _context.ManagerPermissions on t.PermissionsId equals a.PermissionsId
+                                where t.HashAccount.Equals(hash_account)
+                                select new
+                                {
+                                    PermissionsId = t.PermissionsId,
+                                    EmployeeDisplay = a.EmployeeDisplay,
+                                    CustomizationDisplay = a.CustomizationDisplay,
+                                    EmployeeReview = a.EmployeeReview,
+                                    CustomizationReview = a.CustomizationReview,
+                                    SettingWorktime = a.SettingWorktime,
+                                    SettingDepartmentJobtitle = a.SettingDepartmentJobtitle,
+                                    SettingLocation = a.SettingLocation
+                                }).ToListAsync();
+            return result;
+        }
+
         [HttpGet("Get_Manager_Permissions")]
         public async Task<IEnumerable> GetManagerPermissions(string company_hash)
         {
@@ -367,6 +387,7 @@ namespace People_errand_api.Controllers
             public int JobtitleId { get; set; }
             public int? PermissionsId { get; set; }
         }
+
 
         // PUT: api/Companies/UpdateManagerAccountPermissions
         [HttpPut("UpdateManagerAccountPermissions")]//變更管理員權限
