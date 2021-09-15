@@ -1819,14 +1819,15 @@ namespace People_errand_api.Controllers
                             .Select(db => db.HashAccount).FirstOrDefaultAsync();
             if (bossHash == null)
             {
+                List<BossSettingPermissions> bossPermission = new List<BossSettingPermissions>();
                 BossSettingPermissions bossSetting = new BossSettingPermissions()
                 {
                     SettingWorktime = false,
                     SettingDepartmentJobtitle = false,
                     SettingLocation = false
                 };
-                string permissions = JsonConvert.SerializeObject(bossSetting);
-                return permissions;
+                bossPermission.Add(bossSetting);
+                return bossPermission;
             }
 
             var boss_permissions = await (from t in _context.ManagerAccounts
@@ -1870,7 +1871,7 @@ namespace People_errand_api.Controllers
                             .OrderByDescending(db => db.CreatedTime)
                             .Select(db => db.Trip2TypeId).FirstOrDefaultAsync();
 
-                result = trip2Records != 3 ? true : false;
+                result = trip2Records == 1 || trip2Records == 2 ? true : false;
 
                 if (result == false)
                 {
@@ -1881,14 +1882,15 @@ namespace People_errand_api.Controllers
                     result = Enabled == false ? true : false;
                     if (result == false)
                     {
+                        List<BossSettingPermissions> bossPermission = new List<BossSettingPermissions>();
                         BossSettingPermissions bossSetting = new BossSettingPermissions()
                         {
                             SettingWorktime = false,
                             SettingDepartmentJobtitle = false,
                             SettingLocation = false
                         };
-                        string permissions = JsonConvert.SerializeObject(bossSetting);
-                        return permissions;
+                        bossPermission.Add(bossSetting);
+                        return bossPermission;
                     }
                 }
             }
