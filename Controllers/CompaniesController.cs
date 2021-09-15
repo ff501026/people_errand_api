@@ -429,6 +429,39 @@ namespace People_errand_api.Controllers
             return result;
         }
 
+        // PUT: api/Companies/UpdateManagerAgent
+        [HttpPut("UpdateManagerAgent")]//變更管理員職務代理人
+        public ActionResult<bool> update_manager_agent([FromBody] List<ManagerAccount> managerAccounts)
+        {
+            bool result = true;
+            try
+            {
+                foreach (ManagerAccount managerAccount in managerAccounts)
+                {
+                    var parameters = new[]
+                    {
+                        new SqlParameter("@hash_account",System.Data.SqlDbType.VarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = managerAccount.HashAccount
+                        },
+                        new SqlParameter("@hash_agent",System.Data.SqlDbType.VarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = managerAccount.HashAgent
+                        }
+                    };
+                    result = _context.Database.ExecuteSqlRaw("exec update_manager_account_agent @hash_account,@hash_agent", parameters: parameters) != 0 ? true : false;
+                }
+            }
+            catch (Exception)
+            {
+                result = false;
+                throw;
+            }
+            return result;
+        }
+
         // PUT: api/Companies/UpdateManagerEnabled
         [HttpPut("UpdateManagerEnabled")]//啟用或停用管理員
         public ActionResult<bool> update_manager_enabled([FromBody] List<ManagerAccount> managerAccounts)
@@ -914,6 +947,7 @@ namespace People_errand_api.Controllers
                                        select new
                                        {
                                            ManagerHash = t.HashAccount,
+                                           AgentHash = t.HashAgent,
                                            Name = a.Name,
                                            Email = a.Email,
                                            Department = b.Name,

@@ -705,6 +705,11 @@ namespace People_errand_api.Models
                     .IsUnicode(false)
                     .HasColumnName("hash_account");
 
+                entity.Property(e => e.HashAgent)
+                    .HasMaxLength(256)
+                    .IsUnicode(false)
+                    .HasColumnName("hash_agent");
+
                 entity.Property(e => e.Password)
                     .IsRequired()
                     .HasMaxLength(256)
