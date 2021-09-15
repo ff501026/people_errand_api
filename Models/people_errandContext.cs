@@ -240,6 +240,11 @@ namespace People_errand_api.Models
 
                 entity.Property(e => e.BreakTime).HasColumnName("break_time");
 
+                entity.Property(e => e.Color)
+                    .HasMaxLength(7)
+                    .HasColumnName("color")
+                    .IsFixedLength(true);
+
                 entity.Property(e => e.CompanyHash)
                     .IsRequired()
                     .HasMaxLength(256)
@@ -293,6 +298,11 @@ namespace People_errand_api.Models
                     .IsFixedLength(true);
 
                 entity.Property(e => e.BreakTime).HasColumnName("break_time");
+
+                entity.Property(e => e.Color)
+                    .HasMaxLength(7)
+                    .HasColumnName("color")
+                    .IsFixedLength(true);
 
                 entity.Property(e => e.CompanyHash)
                     .IsRequired()

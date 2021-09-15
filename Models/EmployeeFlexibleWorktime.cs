@@ -15,6 +15,7 @@ namespace People_errand_api.Models
         public TimeSpan RestTimeStart { get; set; }
         public TimeSpan RestTimeEnd { get; set; }
         public int? BreakTime { get; set; }
+        public string Color { get; set; }
         public DateTime CreatedTime { get; set; }
 
         public virtual Company CompanyHashNavigation { get; set; }

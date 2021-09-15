@@ -13,6 +13,7 @@ namespace People_errand_api.Models
         public TimeSpan WorkTime { get; set; }
         public TimeSpan RestTime { get; set; }
         public int? BreakTime { get; set; }
+        public string Color { get; set; }
         public DateTime CreatedTime { get; set; }
 
         public virtual Company CompanyHashNavigation { get; set; }

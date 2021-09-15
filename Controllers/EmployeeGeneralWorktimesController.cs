@@ -77,9 +77,14 @@ namespace People_errand_api.Controllers
                         {
                             Direction = System.Data.ParameterDirection.Input,
                             Value = GeneralWorktime.BreakTime
+                        },
+                        new SqlParameter("@color",System.Data.SqlDbType.NChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = GeneralWorktime.Color
                         }
                     };
-                    result = _context.Database.ExecuteSqlRaw("exec update_employee_general_worktime @general_worktime_id,@name,@work_time,@rest_time,@break_time", parameters: parameters) != 0 ? true : false;
+                    result = _context.Database.ExecuteSqlRaw("exec update_employee_general_worktime @general_worktime_id,@name,@work_time,@rest_time,@break_time,@color", parameters: parameters) != 0 ? true : false;
                 }
             }
             catch (Exception)
@@ -98,6 +103,7 @@ namespace People_errand_api.Controllers
             public string WorkTime { get; set; }
             public string RestTime { get; set; }
             public int? BreakTime { get; set; }
+            public string Color { get; set; }
         }
 
         // POST: api/add_general_worktime
@@ -135,10 +141,15 @@ namespace People_errand_api.Controllers
                         {
                             Direction = System.Data.ParameterDirection.Input,
                             Value = GeneralWorktime.BreakTime
+                        },
+                        new SqlParameter("@color",System.Data.SqlDbType.NChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = GeneralWorktime.Color
                         }
                     };
                     var get_company = await(_context.EmployeeGeneralWorktimes
-                        .FromSqlRaw("EXECUTE dbo.add_employee_general_worktime @company_hash,@name,@work_time,@rest_time,@break_time", parameters: parameters)
+                        .FromSqlRaw("EXECUTE dbo.add_employee_general_worktime @company_hash,@name,@work_time,@rest_time,@break_time,@color", parameters: parameters)
                         ).ToListAsync();
                     id = get_company[0].GeneralWorktimeId;
                 }

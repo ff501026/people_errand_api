@@ -87,9 +87,14 @@ namespace People_errand_api.Controllers
                         {
                             Direction = System.Data.ParameterDirection.Input,
                             Value = FlexibleWorktime.BreakTime
+                        },
+                        new SqlParameter("@color",System.Data.SqlDbType.NChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = FlexibleWorktime.Color
                         }
                     };
-                    result = _context.Database.ExecuteSqlRaw("exec update_employee_flexible_worktime @flexible_worktime_id,@name,@work_time_start,@work_time_end,@rest_time_start,@rest_time_end,@break_time", parameters: parameters) != 0 ? true : false;
+                    result = _context.Database.ExecuteSqlRaw("exec update_employee_flexible_worktime @flexible_worktime_id,@name,@work_time_start,@work_time_end,@rest_time_start,@rest_time_end,@break_time,@color", parameters: parameters) != 0 ? true : false;
                 }
             }
             catch (Exception)
@@ -110,6 +115,7 @@ namespace People_errand_api.Controllers
             public string RestTimeStart { get; set; }
             public string RestTimeEnd { get; set; }
             public int? BreakTime { get; set; }
+            public string Color { get; set; }
         }
 
         // POST: api/add_flexible_worktime
@@ -157,10 +163,15 @@ namespace People_errand_api.Controllers
                         {
                             Direction = System.Data.ParameterDirection.Input,
                             Value = flexibleWorkTime.BreakTime
+                        },
+                        new SqlParameter("@color",System.Data.SqlDbType.NChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = flexibleWorkTime.Color
                         }
                     };
                     var get_company = await (_context.EmployeeFlexibleWorktimes
-                        .FromSqlRaw("EXECUTE dbo.add_employee_flexible_worktime @company_hash,@name,@work_time_start,@work_time_end,@rest_time_start,@rest_time_end,@break_time", parameters: parameters)
+                        .FromSqlRaw("EXECUTE dbo.add_employee_flexible_worktime @company_hash,@name,@work_time_start,@work_time_end,@rest_time_start,@rest_time_end,@break_time,@color", parameters: parameters)
                         ).ToListAsync();
                     id = get_company[0].FlexibleWorktimeId;
                 }

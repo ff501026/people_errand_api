@@ -298,7 +298,8 @@ namespace People_errand_api.Controllers
                                                   Name = t.Name,
                                                   WorkTime = t.WorkTime, 
                                                   RestTime = t.RestTime,
-                                                  BreakTime = t.BreakTime
+                                                  BreakTime = t.BreakTime,
+                                                  Color = t.Color
                                               }).ToListAsync();
             string jsonData = JsonConvert.SerializeObject(get_general_worktime);
             return jsonData;
@@ -318,7 +319,8 @@ namespace People_errand_api.Controllers
                                                    WorkTimeEnd = t.WorkTimeEnd,
                                                    RestTimeStart = t.RestTimeStart,
                                                    RestTimeEnd = t.RestTimeEnd,
-                                                   BreakTime = t.BreakTime
+                                                   BreakTime = t.BreakTime,
+                                                   Color = t.Color
                                                }).ToListAsync();
             string jsonData = JsonConvert.SerializeObject(get_flexible_worktime);
             return jsonData;
