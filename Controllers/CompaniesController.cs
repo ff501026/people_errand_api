@@ -803,7 +803,7 @@ namespace People_errand_api.Controllers
         }
 
         [HttpGet("Manager_GetPassEmployee2/{hash_account}")]//取得已審核員工資料
-        public async Task<IEnumerable> Manager_GetPassEmployee2(string hash_account)
+        public async Task<List<PassEmployee>> Manager_GetPassEmployee2(string hash_account)
         {
             var pass_employee = await (from t in _context.Employees
                                        join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
@@ -826,7 +826,82 @@ namespace People_errand_api.Controllers
                                        }).ToListAsync();
 
             string jsonData = JsonConvert.SerializeObject(pass_employee);
-            return jsonData;
+            List<PassEmployee> passEmployees = JsonConvert.DeserializeObject<List<PassEmployee>>(jsonData);
+            if (await BoolAgent(hash_account))//需要代理
+            {
+                var bossHash = await _context.ManagerAccounts
+                            .Where(db => db.HashAgent == hash_account)
+                            .Select(db => db.HashAccount).FirstOrDefaultAsync();//找到要代理的人
+                var bossCompany = await _context.Employees
+                           .Where(db => db.HashAccount == bossHash)
+                           .Select(db => db.CompanyHash).FirstOrDefaultAsync();//找到要代理的人
+
+                var boss_permissions = await (from t in _context.ManagerAccounts
+                                              join a in _context.ManagerPermissions on t.PermissionsId equals a.PermissionsId
+                                              where t.HashAccount.Equals(bossHash)
+                                              select new
+                                              {
+                                                  EmployeeDisplay = a.EmployeeDisplay
+                                              }).ToListAsync();
+
+                var boss_display_id = boss_permissions[0].EmployeeDisplay;
+
+                switch (boss_display_id)
+                {
+                    case 1:
+                        List<PassEmployee> passEmployees1 = await Pass_employee(bossCompany);
+                        passEmployees = passEmployees1;
+                        break;
+                    case 2:
+                        List<PassEmployee> passEmployees2 = await Manager_GetPassEmployee2(bossHash);
+                        foreach (var pass in passEmployees2)
+                        {
+                            if (passEmployees.FindIndex(item => item.HashAccount == pass.HashAccount) == -1)
+                            {
+                                PassEmployee search = new PassEmployee()
+                                {
+                                    HashAccount = pass.HashAccount,//員工編號
+                                    Name = pass.Name,//員工姓名
+                                    Phone = pass.Phone,//員工電話
+                                    Department = pass.Department,//員工部門
+                                    JobTitle = pass.JobTitle,//員工職稱
+                                    Email = pass.Email, //員工電子郵件
+                                    PhoneCode = pass.PhoneCode,//員工驗證碼(phone_code)
+                                    Enabled = pass.Enabled,
+                                    WorktimeId = pass.WorktimeId,
+                                    ManagerHash = pass.ManagerHash
+                                };
+                                passEmployees.Add(search);
+                            }
+                        }
+                        break;
+                    case 3:
+                        List<PassEmployee> passEmployees3 = await Manager_GetPassEmployee3(bossHash);
+                        foreach (var pass in passEmployees3)
+                        {
+                            if (passEmployees.FindIndex(item => item.HashAccount == pass.HashAccount) == -1)
+                            {
+                                PassEmployee search = new PassEmployee()
+                                {
+                                    HashAccount = pass.HashAccount,//員工編號
+                                    Name = pass.Name,//員工姓名
+                                    Phone = pass.Phone,//員工電話
+                                    Department = pass.Department,//員工部門
+                                    JobTitle = pass.JobTitle,//員工職稱
+                                    Email = pass.Email, //員工電子郵件
+                                    PhoneCode = pass.PhoneCode,//員工驗證碼(phone_code)
+                                    Enabled = pass.Enabled,
+                                    WorktimeId = pass.WorktimeId,
+                                    ManagerHash = pass.ManagerHash
+                                };
+                                passEmployees.Add(search);
+                            }
+                        }
+                        break;
+                }
+
+            }
+            return passEmployees;
         }
         public class PassEmployee
         {
@@ -843,7 +918,7 @@ namespace People_errand_api.Controllers
         }//已審核員工資料
 
         [HttpGet("Manager_GetPassEmployee3/{hash_account}")]//取得已審核員工資料
-        public async Task<IEnumerable> Manager_GetPassEmployee3(string hash_account)
+        public async Task<List<PassEmployee>> Manager_GetPassEmployee3(string hash_account)
         {
             var permissions_id = await _context.ManagerAccounts
                             .Where(db => db.HashAccount == hash_account)
@@ -903,12 +978,85 @@ namespace People_errand_api.Controllers
                     passes.Add(search);
                 }
             }
+            if (await BoolAgent(hash_account))//需要代理
+            {
+                var bossHash = await _context.ManagerAccounts
+                            .Where(db => db.HashAgent == hash_account)
+                            .Select(db => db.HashAccount).FirstOrDefaultAsync();//找到要代理的人
+                var bossCompany = await _context.Employees
+                           .Where(db => db.HashAccount == bossHash)
+                           .Select(db => db.CompanyHash).FirstOrDefaultAsync();//找到要代理的人
 
+                var boss_permissions = await (from t in _context.ManagerAccounts
+                                              join a in _context.ManagerPermissions on t.PermissionsId equals a.PermissionsId
+                                              where t.HashAccount.Equals(bossHash)
+                                              select new
+                                              {
+                                                  EmployeeDisplay = a.EmployeeDisplay
+                                              }).ToListAsync();
+
+                var boss_display_id = boss_permissions[0].EmployeeDisplay;
+
+                switch (boss_display_id)
+                {
+                    case 1:
+                        List<PassEmployee> passEmployees = await Pass_employee(bossCompany);
+                        passes = passEmployees;
+                        break;
+                    case 2:
+                        List<PassEmployee> passEmployees2 = await Manager_GetPassEmployee2(bossHash);
+                        foreach (var pass in passEmployees2)
+                        {
+                            if (passes.FindIndex(item => item.HashAccount == pass.HashAccount) == -1)
+                            {
+                                PassEmployee search = new PassEmployee()
+                                {
+                                    HashAccount = pass.HashAccount,//員工編號
+                                    Name = pass.Name,//員工姓名
+                                    Phone = pass.Phone,//員工電話
+                                    Department = pass.Department,//員工部門
+                                    JobTitle = pass.JobTitle,//員工職稱
+                                    Email = pass.Email, //員工電子郵件
+                                    PhoneCode = pass.PhoneCode,//員工驗證碼(phone_code)
+                                    Enabled = pass.Enabled,
+                                    WorktimeId = pass.WorktimeId,
+                                    ManagerHash = pass.ManagerHash
+                                };
+                                passes.Add(search);
+                            }
+                        }
+                        break;
+                    case 3:
+                        List<PassEmployee> passEmployees3 = await Manager_GetPassEmployee3(bossHash);
+                        foreach (var pass in passEmployees3)
+                        {
+                            if (passes.FindIndex(item => item.HashAccount == pass.HashAccount) == -1)
+                            {
+                                PassEmployee search = new PassEmployee()
+                                {
+                                    HashAccount = pass.HashAccount,//員工編號
+                                    Name = pass.Name,//員工姓名
+                                    Phone = pass.Phone,//員工電話
+                                    Department = pass.Department,//員工部門
+                                    JobTitle = pass.JobTitle,//員工職稱
+                                    Email = pass.Email, //員工電子郵件
+                                    PhoneCode = pass.PhoneCode,//員工驗證碼(phone_code)
+                                    Enabled = pass.Enabled,
+                                    WorktimeId = pass.WorktimeId,
+                                    ManagerHash = pass.ManagerHash
+                                };
+                                passes.Add(search);
+                            }
+                        }
+                        break;
+                }
+
+            }
             return passes;
         }
 
         [HttpGet("Pass_Employee/{hash_company}")]//取得已審核員工資料
-        public async Task<IEnumerable> Pass_employee(string hash_company)
+        public async Task<List<PassEmployee>> Pass_employee(string hash_company)
         {
             var pass_employee = await (from t in _context.Employees
                                          join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
@@ -931,7 +1079,8 @@ namespace People_errand_api.Controllers
                                          }).ToListAsync();
 
             string jsonData = JsonConvert.SerializeObject(pass_employee);
-            return jsonData;
+            List<PassEmployee> passEmployees = JsonConvert.DeserializeObject<List<PassEmployee>>(jsonData);
+            return passEmployees;
         }
 
         [HttpGet("Get_All_Manager/{hash_company}")]//取得公司全部管理員資料
@@ -967,10 +1116,11 @@ namespace People_errand_api.Controllers
             public string Name { get; set; }
             public DateTime WorkTime { get; set; }
             public DateTime RestTime { get; set; }
+            public int WorkRecordId { get; set; }
         }//打卡紀錄Model
 
         [HttpGet("GetWorkRecord/{hash_company}")]//取得員工打卡紀錄
-        public async Task<IEnumerable> GetWorkRecord(string hash_company)
+        public async Task<List<WorkRecord>> GetWorkRecord(string hash_company)
         {
             var Employee_Record = await (from t in _context.EmployeeWorkRecords
                                          join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
@@ -1056,13 +1206,11 @@ namespace People_errand_api.Controllers
                 }
 
             }
-
-            string jsonData = JsonConvert.SerializeObject(workRecord);
-            return jsonData;
+            return workRecord;
         }
 
         [HttpGet("GetWorkRecord2/{hash_account}")]//取得員工打卡紀錄
-        public async Task<IEnumerable> GetWorkReccord2(string hash_account)
+        public async Task<List<WorkRecord>> GetWorkReccord2(string hash_account)
         {
             var Employee_Record = await (from t in _context.EmployeeWorkRecords
                                          join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
@@ -1077,6 +1225,7 @@ namespace People_errand_api.Controllers
                                              X_coordinate = t.CoordinateX,
                                              Y_coordinate = t.CoordinateY,
                                              Work_type = t.WorkTypeId,
+                                             WorkRecordId = t.WorkRecordsId
                                          }).ToListAsync();
 
             List<WorkRecord> workRecord = new List<WorkRecord>();
@@ -1140,7 +1289,8 @@ namespace People_errand_api.Controllers
                             Num = num,
                             Name = name,
                             WorkTime = worktime,
-                            RestTime = resttime
+                            RestTime = resttime,
+                            WorkRecordId = Employee_Record[j].WorkRecordId
                         });
 
                         break;
@@ -1148,9 +1298,73 @@ namespace People_errand_api.Controllers
                 }
 
             }
+            if (await BoolAgent(hash_account))//需要代理
+            {
+                var bossHash = await _context.ManagerAccounts
+                            .Where(db => db.HashAgent == hash_account)
+                            .Select(db => db.HashAccount).FirstOrDefaultAsync();//找到要代理的人
+                var bossCompany = await _context.Employees
+                           .Where(db => db.HashAccount == bossHash)
+                           .Select(db => db.CompanyHash).FirstOrDefaultAsync();//找到要代理的人
 
-            string jsonData = JsonConvert.SerializeObject(workRecord);
-            return jsonData;
+                var boss_permissions = await (from t in _context.ManagerAccounts
+                                              join a in _context.ManagerPermissions on t.PermissionsId equals a.PermissionsId
+                                              where t.HashAccount.Equals(bossHash)
+                                              select new
+                                              {
+                                                  EmployeeDisplay = a.EmployeeDisplay
+                                              }).ToListAsync();
+
+                var boss_display_id = boss_permissions[0].EmployeeDisplay;
+
+                switch (boss_display_id)
+                {
+                    case 1:
+                        List<WorkRecord> workRecords = await GetWorkRecord(bossCompany);
+                        workRecord = workRecords;
+                        break;
+                    case 2:
+                        List<WorkRecord> workRecords2 = await GetWorkReccord2(bossHash);
+                        foreach (var work in workRecords2)
+                        {
+                            if (workRecord.FindIndex(item => item.WorkRecordId == work.WorkRecordId) == -1)
+                            {
+                                WorkRecord search = new WorkRecord()
+                                {
+                                    HashAccount = work.HashAccount,
+                                    Num = work.Num,
+                                    Name = work.Name,
+                                    WorkTime = work.WorkTime,
+                                    RestTime = work.RestTime,
+                                    WorkRecordId = work.WorkRecordId
+                                };
+                                workRecord.Add(search);
+                            }
+                        }
+                        break;
+                    case 3:
+                        List<WorkRecord> workRecords3 = await GetWorkRecord3(bossHash);
+                        foreach (var work in workRecords3)
+                        {
+                            if (workRecord.FindIndex(item => item.WorkRecordId == work.WorkRecordId) == -1)
+                            {
+                                WorkRecord search = new WorkRecord()
+                                {
+                                    HashAccount = work.HashAccount,
+                                    Num = work.Num,
+                                    Name = work.Name,
+                                    WorkTime = work.WorkTime,
+                                    RestTime = work.RestTime,
+                                    WorkRecordId = work.WorkRecordId
+                                };
+                                workRecord.Add(search);
+                            }
+                        }
+                        break;
+                }
+
+            }
+            return workRecord;
         }
 
         public class WorkRecord3
@@ -1161,9 +1375,10 @@ namespace People_errand_api.Controllers
             public double X_coordinate { get; set; }
             public double Y_coordinate { get; set; }
             public int Work_type { get; set; }
+            public int WorkRecordId { get; set; }
         }
         [HttpGet("GetWorkRecord3/{hash_account}")]//取得員工打卡紀錄
-        public async Task<IEnumerable> GetWorkRecord3(string hash_account)
+        public async Task<List<WorkRecord>> GetWorkRecord3(string hash_account)
         {
             var permissions_id = await _context.ManagerAccounts
                             .Where(db => db.HashAccount == hash_account)
@@ -1196,6 +1411,7 @@ namespace People_errand_api.Controllers
                                                  X_coordinate = t.CoordinateX,
                                                  Y_coordinate = t.CoordinateY,
                                                  Work_type = t.WorkTypeId,
+                                                 WorkRecordId = t.WorkRecordsId
                                              }).ToListAsync();
 
                 string json = JsonConvert.SerializeObject(work);
@@ -1210,6 +1426,7 @@ namespace People_errand_api.Controllers
                         X_coordinate = work1.X_coordinate,
                         Y_coordinate = work1.Y_coordinate,
                         Work_type = work1.Work_type,
+                        WorkRecordId = work1.WorkRecordId
                     };
                     Employee_Record.Add(search);
                 }
@@ -1276,7 +1493,8 @@ namespace People_errand_api.Controllers
                             Num = num,
                             Name = name,
                             WorkTime = worktime,
-                            RestTime = resttime
+                            RestTime = resttime,
+                            WorkRecordId = Employee_Record[j].WorkRecordId
                         });
 
                         break;
@@ -1284,10 +1502,73 @@ namespace People_errand_api.Controllers
                 }
 
             }
+            if (await BoolAgent(hash_account))//需要代理
+            {
+                var bossHash = await _context.ManagerAccounts
+                            .Where(db => db.HashAgent == hash_account)
+                            .Select(db => db.HashAccount).FirstOrDefaultAsync();//找到要代理的人
+                var bossCompany = await _context.Employees
+                           .Where(db => db.HashAccount == bossHash)
+                           .Select(db => db.CompanyHash).FirstOrDefaultAsync();//找到要代理的人
 
-            string jsonData = JsonConvert.SerializeObject(workRecord);
-            return jsonData;
+                var boss_permissions = await (from t in _context.ManagerAccounts
+                                              join a in _context.ManagerPermissions on t.PermissionsId equals a.PermissionsId
+                                              where t.HashAccount.Equals(bossHash)
+                                              select new
+                                              {
+                                                  EmployeeDisplay = a.EmployeeDisplay
+                                              }).ToListAsync();
 
+                var boss_display_id = boss_permissions[0].EmployeeDisplay;
+
+                switch (boss_display_id)
+                {
+                    case 1:
+                        List<WorkRecord> workRecords = await GetWorkRecord(bossCompany);
+                        workRecord = workRecords;
+                        break;
+                    case 2:
+                        List<WorkRecord> workRecords2 = await GetWorkReccord2(bossHash);
+                        foreach (var work in workRecords2)
+                        {
+                            if (workRecord.FindIndex(item => item.WorkRecordId == work.WorkRecordId) == -1)
+                            {
+                                WorkRecord search = new WorkRecord()
+                                {
+                                    HashAccount = work.HashAccount,
+                                    Num = work.Num,
+                                    Name = work.Name,
+                                    WorkTime = work.WorkTime,
+                                    RestTime = work.RestTime,
+                                    WorkRecordId = work.WorkRecordId
+                                };
+                                workRecord.Add(search);
+                            }
+                        }
+                        break;
+                    case 3:
+                        List<WorkRecord> workRecords3 = await GetWorkRecord3(bossHash);
+                        foreach (var work in workRecords3)
+                        {
+                            if (workRecord.FindIndex(item => item.WorkRecordId == work.WorkRecordId) == -1)
+                            {
+                                WorkRecord search = new WorkRecord()
+                                {
+                                    HashAccount = work.HashAccount,
+                                    Num = work.Num,
+                                    Name = work.Name,
+                                    WorkTime = work.WorkTime,
+                                    RestTime = work.RestTime,
+                                    WorkRecordId = work.WorkRecordId
+                                };
+                                workRecord.Add(search);
+                            }
+                        }
+                        break;
+                }
+
+            }
+            return workRecord;
         }
 
         [HttpGet("Review_TripRecord/{hash_company}")]//取得未審核公差資料
@@ -1375,7 +1656,7 @@ namespace People_errand_api.Controllers
         }//公差紀錄Model
 
         [HttpGet("Get_Trip2Record/{hash_company}")]//取得公差紀錄
-        public async Task<IEnumerable> Get_Trip2Record(string hash_company)
+        public async Task<List<Trip2Record>> Get_Trip2Record(string hash_company)
         {
             var get_trip2Record = await (from t in _context.EmployeeTrip2Records
                                             join a in _context.Employees on t.HashAccount equals a.HashAccount
@@ -1449,12 +1730,11 @@ namespace People_errand_api.Controllers
 
             }
 
-            string jsonData = JsonConvert.SerializeObject(trip2Record);
-            return jsonData;
+            return trip2Record;
         }
 
         [HttpGet("Get_Trip2Record2/{hash_account}")]//取得公差紀錄
-        public async Task<IEnumerable> Get_Trip2Record2(string hash_account)
+        public async Task<List<Trip2Record>> Get_Trip2Record2(string hash_account)
         {
             var get_trip2Record = await (from t in _context.EmployeeTrip2Records
                                          join a in _context.Employees on t.HashAccount equals a.HashAccount
@@ -1527,9 +1807,71 @@ namespace People_errand_api.Controllers
                 }
 
             }
+            if (await BoolAgent(hash_account))//需要代理
+            {
+                var bossHash = await _context.ManagerAccounts
+                            .Where(db => db.HashAgent == hash_account)
+                            .Select(db => db.HashAccount).FirstOrDefaultAsync();//找到要代理的人
+                var bossCompany = await _context.Employees
+                           .Where(db => db.HashAccount == bossHash)
+                           .Select(db => db.CompanyHash).FirstOrDefaultAsync();//找到要代理的人
 
-            string jsonData = JsonConvert.SerializeObject(trip2Record);
-            return jsonData;
+                var boss_permissions = await (from t in _context.ManagerAccounts
+                                              join a in _context.ManagerPermissions on t.PermissionsId equals a.PermissionsId
+                                              where t.HashAccount.Equals(bossHash)
+                                              select new
+                                              {
+                                                  EmployeeDisplay = a.EmployeeDisplay
+                                              }).ToListAsync();
+
+                var boss_display_id = boss_permissions[0].EmployeeDisplay;
+
+                switch (boss_display_id)
+                {
+                    case 1:
+                        List<Trip2Record> trip2Records = await Get_Trip2Record(bossCompany);
+                        trip2Record = trip2Records;
+                        break;
+                    case 2:
+                        List<Trip2Record> trip2Records2 = await Get_Trip2Record2(bossHash);
+                        foreach (var trip in trip2Records2)
+                        {
+                            if (trip2Record.FindIndex(item => item.GroupId == trip.GroupId) == -1)
+                            {
+                                Trip2Record search = new Trip2Record()
+                                {
+                                    GroupId = trip.GroupId,
+                                    Num = trip.Num,
+                                    Name = trip.Name,
+                                    StartTime = trip.StartTime,//開始時間
+                                    EndTime = trip.EndTime//結束時間
+                                };
+                                trip2Record.Add(search);
+                            }
+                        }
+                        break;
+                    case 3:
+                        List<Trip2Record> trip2Records3 = await Get_Trip2Record3(bossHash);
+                        foreach (var trip in trip2Records3)
+                        {
+                            if (trip2Record.FindIndex(item => item.GroupId == trip.GroupId) == -1)
+                            {
+                                Trip2Record search = new Trip2Record()
+                                {
+                                    GroupId = trip.GroupId,
+                                    Num = trip.Num,
+                                    Name = trip.Name,
+                                    StartTime = trip.StartTime,//開始時間
+                                    EndTime = trip.EndTime//結束時間
+                                };
+                                trip2Record.Add(search);
+                            }
+                        }
+                        break;
+                }
+
+            }
+            return trip2Record;
         }
 
         public class Trip2Record3 
@@ -1540,7 +1882,7 @@ namespace People_errand_api.Controllers
             public DateTime CreatedTime { get; set; }
         }
         [HttpGet("Get_Trip2Record3/{hash_account}")]//取得已審核員工資料
-        public async Task<IEnumerable> Get_Trip2Record3(string hash_account)
+        public async Task<List<Trip2Record>> Get_Trip2Record3(string hash_account)
         {
             var permissions_id = await _context.ManagerAccounts
                             .Where(db => db.HashAccount == hash_account)
@@ -1646,9 +1988,71 @@ namespace People_errand_api.Controllers
                 }
 
             }
+            if (await BoolAgent(hash_account))//需要代理
+            {
+                var bossHash = await _context.ManagerAccounts
+                            .Where(db => db.HashAgent == hash_account)
+                            .Select(db => db.HashAccount).FirstOrDefaultAsync();//找到要代理的人
+                var bossCompany = await _context.Employees
+                           .Where(db => db.HashAccount == bossHash)
+                           .Select(db => db.CompanyHash).FirstOrDefaultAsync();//找到要代理的人
 
-            string jsonData = JsonConvert.SerializeObject(trip2Record);
-            return jsonData;
+                var boss_permissions = await (from t in _context.ManagerAccounts
+                                              join a in _context.ManagerPermissions on t.PermissionsId equals a.PermissionsId
+                                              where t.HashAccount.Equals(bossHash)
+                                              select new
+                                              {
+                                                  EmployeeDisplay = a.EmployeeDisplay
+                                              }).ToListAsync();
+
+                var boss_display_id = boss_permissions[0].EmployeeDisplay;
+
+                switch (boss_display_id)
+                {
+                    case 1:
+                        List<Trip2Record> trip2Records = await Get_Trip2Record(bossCompany);
+                        trip2Record = trip2Records;
+                        break;
+                    case 2:
+                        List<Trip2Record> trip2Records2 = await Get_Trip2Record2(bossHash);
+                        foreach (var trip in trip2Records2)
+                        {
+                            if (trip2Record.FindIndex(item => item.GroupId == trip.GroupId) == -1)
+                            {
+                                Trip2Record search = new Trip2Record()
+                                {
+                                    GroupId = trip.GroupId,
+                                    Num = trip.Num,
+                                    Name = trip.Name,
+                                    StartTime = trip.StartTime,//開始時間
+                                    EndTime = trip.EndTime//結束時間
+                                };
+                                trip2Record.Add(search);
+                            }
+                        }
+                        break;
+                    case 3:
+                        List<Trip2Record> trip2Records3 = await Get_Trip2Record3(bossHash);
+                        foreach (var trip in trip2Records3)
+                        {
+                            if (trip2Record.FindIndex(item => item.GroupId == trip.GroupId) == -1)
+                            {
+                                Trip2Record search = new Trip2Record()
+                                {
+                                    GroupId = trip.GroupId,
+                                    Num = trip.Num,
+                                    Name = trip.Name,
+                                    StartTime = trip.StartTime,//開始時間
+                                    EndTime = trip.EndTime//結束時間
+                                };
+                                trip2Record.Add(search);
+                            }
+                        }
+                        break;
+                }
+
+            }
+            return trip2Record;
 
         }
 
@@ -1678,7 +2082,7 @@ namespace People_errand_api.Controllers
             return jsonData;
         }
         [HttpGet("Pass_LeaveRecord/{hash_company}")]//取得已審核請假資料
-        public async Task<IEnumerable> Pass_LeaveRecord(string hash_company)
+        public async Task<List<LeaveRecord>> Pass_LeaveRecord(string hash_company)
         {
             var pass_leaverecord = await (from t in _context.EmployeeLeaveRecords
                                            join a in _context.Employees on t.HashAccount equals a.HashAccount
@@ -1700,11 +2104,12 @@ namespace People_errand_api.Controllers
                                            }).ToListAsync();
 
             string jsonData = JsonConvert.SerializeObject(pass_leaverecord);
-            return jsonData;
+            List<LeaveRecord> leaveRecords = JsonConvert.DeserializeObject<List<LeaveRecord>>(jsonData);
+            return leaveRecords;
         }
 
         [HttpGet("Pass_LeaveRecord2/{hash_account}")]//取得已審核請假資料
-        public async Task<IEnumerable> Pass_LeaveRecord2(string hash_account)
+        public async Task<List<LeaveRecord>> Pass_LeaveRecord2(string hash_account)
         {
             var pass_leaverecord = await (from t in _context.EmployeeLeaveRecords
                                           join a in _context.Employees on t.HashAccount equals a.HashAccount
@@ -1726,7 +2131,80 @@ namespace People_errand_api.Controllers
                                           }).ToListAsync();
 
             string jsonData = JsonConvert.SerializeObject(pass_leaverecord);
-            return jsonData;
+            List<LeaveRecord> leaveRecords = JsonConvert.DeserializeObject<List<LeaveRecord>>(jsonData);
+            if (await BoolAgent(hash_account))//需要代理
+            {
+                var bossHash = await _context.ManagerAccounts
+                            .Where(db => db.HashAgent == hash_account)
+                            .Select(db => db.HashAccount).FirstOrDefaultAsync();//找到要代理的人
+                var bossCompany = await _context.Employees
+                           .Where(db => db.HashAccount == bossHash)
+                           .Select(db => db.CompanyHash).FirstOrDefaultAsync();//找到要代理的人
+
+                var boss_permissions = await (from t in _context.ManagerAccounts
+                                              join a in _context.ManagerPermissions on t.PermissionsId equals a.PermissionsId
+                                              where t.HashAccount.Equals(bossHash)
+                                              select new
+                                              {
+                                                  EmployeeDisplay = a.EmployeeDisplay
+                                              }).ToListAsync();
+
+                var boss_display_id = boss_permissions[0].EmployeeDisplay;
+
+                switch (boss_display_id)
+                {
+                    case 1:
+                        List<LeaveRecord> leaveRecords1 = await Pass_LeaveRecord(bossCompany);
+                        leaveRecords = leaveRecords1;
+                        break;
+                    case 2:
+                        List<LeaveRecord> leaveRecords2 = await Pass_LeaveRecord2(bossHash);
+                        foreach (var leaveRecord in leaveRecords2)
+                        {
+                            if (leaveRecords.FindIndex(item => item.LeaveRecordId == leaveRecord.LeaveRecordId) == -1)
+                            {
+                                LeaveRecord search = new LeaveRecord()
+                                {
+                                    LeaveRecordId = leaveRecord.LeaveRecordId,//請假編號
+                                    HashAccount = leaveRecord.HashAccount,//員工編號
+                                    Name = leaveRecord.Name,//員工姓名
+                                    LeaveType = leaveRecord.LeaveType,//假別
+                                    StartDate = leaveRecord.StartDate,//開始時間
+                                    EndDate = leaveRecord.EndDate,//結束時間
+                                    Reason = leaveRecord.Reason,//備註(事由)
+                                    Review = leaveRecord.Review,//審核狀態
+                                    CreatedTime = leaveRecord.CreatedTime//申請時間
+                                };
+                                leaveRecords.Add(search);
+                            }
+                        }
+                        break;
+                    case 3:
+                        List<LeaveRecord> leaveRecords3 = await Pass_LeaveRecord3(bossHash);
+                        foreach (var leaveRecord in leaveRecords3)
+                        {
+                            if (leaveRecords.FindIndex(item => item.LeaveRecordId == leaveRecord.LeaveRecordId) == -1)
+                            {
+                                LeaveRecord search = new LeaveRecord()
+                                {
+                                    LeaveRecordId = leaveRecord.LeaveRecordId,//請假編號
+                                    HashAccount = leaveRecord.HashAccount,//員工編號
+                                    Name = leaveRecord.Name,//員工姓名
+                                    LeaveType = leaveRecord.LeaveType,//假別
+                                    StartDate = leaveRecord.StartDate,//開始時間
+                                    EndDate = leaveRecord.EndDate,//結束時間
+                                    Reason = leaveRecord.Reason,//備註(事由)
+                                    Review = leaveRecord.Review,//審核狀態
+                                    CreatedTime = leaveRecord.CreatedTime//申請時間
+                                };
+                                leaveRecords.Add(search);
+                            }
+                        }
+                        break;
+                }
+
+            }
+            return leaveRecords;
         }
         public class LeaveRecord
         {
@@ -1742,7 +2220,7 @@ namespace People_errand_api.Controllers
         }
 
         [HttpGet("Pass_LeaveRecord3/{hash_account}")]//取得已審核請假資料
-        public async Task<IEnumerable> Pass_LeaveRecord3(string hash_account)
+        public async Task<List<LeaveRecord>> Pass_LeaveRecord3(string hash_account)
         {
             var permissions_id = await _context.ManagerAccounts
                             .Where(db => db.HashAccount == hash_account)
@@ -1801,6 +2279,79 @@ namespace People_errand_api.Controllers
                 }
             }
 
+            if (await BoolAgent(hash_account))//需要代理
+            {
+                var bossHash = await _context.ManagerAccounts
+                            .Where(db => db.HashAgent == hash_account)
+                            .Select(db => db.HashAccount).FirstOrDefaultAsync();//找到要代理的人
+                var bossCompany = await _context.Employees
+                           .Where(db => db.HashAccount == bossHash)
+                           .Select(db => db.CompanyHash).FirstOrDefaultAsync();//找到要代理的人
+
+                var boss_permissions = await( from t in _context.ManagerAccounts
+                                       join a in _context.ManagerPermissions on t.PermissionsId equals a.PermissionsId
+                                       where t.HashAccount.Equals(bossHash) 
+                                       select new 
+                                       {
+                                           EmployeeDisplay = a.EmployeeDisplay
+                                       }).ToListAsync();
+
+                var boss_display_id = boss_permissions[0].EmployeeDisplay;
+
+                switch (boss_display_id) 
+                {
+                    case 1:
+                        List<LeaveRecord> leaveRecords1 = await Pass_LeaveRecord(bossCompany);
+                        leaveRecords = leaveRecords1;
+                        break;
+                    case 2:
+                        List<LeaveRecord> leaveRecords2 = await Pass_LeaveRecord2(bossHash);
+                        foreach (var leaveRecord in leaveRecords2)
+                        {
+                            if (leaveRecords.FindIndex(item=>item.LeaveRecordId==leaveRecord.LeaveRecordId)==-1) 
+                            {
+                                LeaveRecord search = new LeaveRecord()
+                                {
+                                    LeaveRecordId = leaveRecord.LeaveRecordId,//請假編號
+                                    HashAccount = leaveRecord.HashAccount,//員工編號
+                                    Name = leaveRecord.Name,//員工姓名
+                                    LeaveType = leaveRecord.LeaveType,//假別
+                                    StartDate = leaveRecord.StartDate,//開始時間
+                                    EndDate = leaveRecord.EndDate,//結束時間
+                                    Reason = leaveRecord.Reason,//備註(事由)
+                                    Review = leaveRecord.Review,//審核狀態
+                                    CreatedTime = leaveRecord.CreatedTime//申請時間
+                                };
+                                leaveRecords.Add(search);
+                            }
+                        }
+                        break;
+                    case 3:
+                        List<LeaveRecord> leaveRecords3 = await Pass_LeaveRecord3(bossHash);
+                        foreach (var leaveRecord in leaveRecords3)
+                        {
+                            if (leaveRecords.FindIndex(item => item.LeaveRecordId == leaveRecord.LeaveRecordId) == -1)
+                            {
+                                LeaveRecord search = new LeaveRecord()
+                                {
+                                    LeaveRecordId = leaveRecord.LeaveRecordId,//請假編號
+                                    HashAccount = leaveRecord.HashAccount,//員工編號
+                                    Name = leaveRecord.Name,//員工姓名
+                                    LeaveType = leaveRecord.LeaveType,//假別
+                                    StartDate = leaveRecord.StartDate,//開始時間
+                                    EndDate = leaveRecord.EndDate,//結束時間
+                                    Reason = leaveRecord.Reason,//備註(事由)
+                                    Review = leaveRecord.Review,//審核狀態
+                                    CreatedTime = leaveRecord.CreatedTime//申請時間
+                                };
+                                leaveRecords.Add(search);
+                            }
+                        }
+                        break;
+                }
+
+            }
+
             return leaveRecords;
         }
         public class BossSettingPermissions 
@@ -1808,6 +2359,51 @@ namespace People_errand_api.Controllers
             public bool SettingWorktime { get; set; }
             public bool SettingDepartmentJobtitle { get; set; }
             public bool SettingLocation { get; set; }
+        }
+
+        [HttpGet]
+        public async Task<bool> BoolAgent(string hash_account) //判斷是否需要代理
+        {
+            bool result = false;
+            var bossHash = await _context.ManagerAccounts
+                            .Where(db => db.HashAgent == hash_account)
+                            .Select(db => db.HashAccount).FirstOrDefaultAsync();//找到要代理的人
+            if (bossHash == null)
+            {
+                return false;
+            }
+
+            var pass_leaverecord = from t in _context.EmployeeLeaveRecords
+                                   where t.HashAccount.Equals(bossHash) && t.Review == true && t.StartDate <= DateTime.Now && t.EndDate >= DateTime.Now
+                                   orderby t.CreatedTime
+                                   select t;//找到要代理的人現在是否請假
+
+            result = pass_leaverecord.Count() != 0 ? true : false; 
+
+            if (result == false)//沒請假
+            {
+                var trip2Records = await _context.EmployeeTrip2Records
+                            .Where(db => db.HashAccount == bossHash)
+                            .OrderByDescending(db => db.CreatedTime)
+                            .Select(db => db.Trip2TypeId).FirstOrDefaultAsync();//現在是否在公差
+
+                result = trip2Records == 1 || trip2Records == 2 ? true : false;
+
+                if (result == false)//沒公差
+                {
+                    var Enabled = await _context.ManagerAccounts
+                            .Where(db => db.HashAccount == bossHash)
+                            .Select(db => db.Enabled).FirstOrDefaultAsync();//管理員權限是否被停用
+
+                    result = Enabled == false ? true : false;
+                    if (result == false)//沒停用
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return result;
         }
 
         [HttpGet("GetbossSettingPermissions/{hash_account}")]//取得職務代理人的setting權限
