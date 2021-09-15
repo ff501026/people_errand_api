@@ -1803,6 +1803,99 @@ namespace People_errand_api.Controllers
 
             return leaveRecords;
         }
+        public class BossSettingPermissions 
+        {
+            public bool SettingWorktime { get; set; }
+            public bool SettingDepartmentJobtitle { get; set; }
+            public bool SettingLocation { get; set; }
+        }
+
+        [HttpGet("GetbossSettingPermissions/{hash_account}")]//取得職務代理人的setting權限
+        public async Task<IEnumerable> GetAgentSettingPermissions(string hash_account)
+        {
+            bool result = false;
+            var bossHash = await _context.ManagerAccounts
+                            .Where(db => db.HashAgent == hash_account)
+                            .Select(db => db.HashAccount).FirstOrDefaultAsync();
+            if (bossHash == null)
+            {
+                BossSettingPermissions bossSetting = new BossSettingPermissions()
+                {
+                    SettingWorktime = false,
+                    SettingDepartmentJobtitle = false,
+                    SettingLocation = false
+                };
+                string permissions = JsonConvert.SerializeObject(bossSetting);
+                return permissions;
+            }
+
+            var boss_permissions = await (from t in _context.ManagerAccounts
+                                          join a in _context.ManagerPermissions on t.PermissionsId equals a.PermissionsId
+                                          where t.HashAccount.Equals(bossHash)
+                                          select new
+                                          {
+                                              SettingWorktime = a.SettingWorktime,
+                                              SettingDepartmentJobtitle = a.SettingDepartmentJobtitle,
+                                              SettingLocation = a.SettingLocation
+                                          }).ToListAsync();
+
+            string json = JsonConvert.SerializeObject(boss_permissions);
+            List<BossSettingPermissions> bossPermissions = JsonConvert.DeserializeObject<List<BossSettingPermissions>>(json);
+
+            if (boss_permissions.Count == 0)
+            {
+                List<BossSettingPermissions> bossPermission = new List<BossSettingPermissions>();
+                BossSettingPermissions bossSetting = new BossSettingPermissions()
+                {
+                    SettingWorktime = true,
+                    SettingDepartmentJobtitle = true,
+                    SettingLocation = true
+                };
+                bossPermission.Add(bossSetting);
+                bossPermissions = bossPermission;
+            }
+
+
+            var pass_leaverecord = from t in _context.EmployeeLeaveRecords
+                                   where t.HashAccount.Equals(bossHash) && t.Review == true && t.StartDate <= DateTime.Now && t.EndDate >= DateTime.Now
+                                   orderby t.CreatedTime
+                                   select t;
+
+            result = pass_leaverecord.Count() != 0 ? true : false;
+
+            if (result == false)
+            {
+                var trip2Records = await _context.EmployeeTrip2Records
+                            .Where(db => db.HashAccount == bossHash)
+                            .OrderByDescending(db => db.CreatedTime)
+                            .Select(db => db.Trip2TypeId).FirstOrDefaultAsync();
+
+                result = trip2Records != 3 ? true : false;
+
+                if (result == false)
+                {
+                    var Enabled = await _context.ManagerAccounts
+                            .Where(db => db.HashAccount == bossHash)
+                            .Select(db => db.Enabled).FirstOrDefaultAsync();
+
+                    result = Enabled == false ? true : false;
+                    if (result == false)
+                    {
+                        BossSettingPermissions bossSetting = new BossSettingPermissions()
+                        {
+                            SettingWorktime = false,
+                            SettingDepartmentJobtitle = false,
+                            SettingLocation = false
+                        };
+                        string permissions = JsonConvert.SerializeObject(bossSetting);
+                        return permissions;
+                    }
+                }
+            }
+
+            return bossPermissions;
+        }
+        
 
         private bool CompanyExists(string id)
         {
