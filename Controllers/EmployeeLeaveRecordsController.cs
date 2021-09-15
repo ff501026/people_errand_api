@@ -130,26 +130,26 @@ namespace People_errand_api.Controllers
                 }
                 return leaveRecords1;
             }
-            else 
+            else if (result[0].EmployeeReview == 3)
             {
-                var customizationsReview =await( from t in _context.ManagerPermissionsCustomizations
-                                           where t.PermissionsId == result[0].CustomizationReview
-                                           select new
-                                           {
-                                               DepartmentId = t.DepartmentId,
-                                               JobtitleId = t.JobtitleId
-                                           }).ToListAsync();
+                var customizationsReview = await (from t in _context.ManagerPermissionsCustomizations
+                                                  where t.PermissionsId == result[0].CustomizationReview
+                                                  select new
+                                                  {
+                                                      DepartmentId = t.DepartmentId,
+                                                      JobtitleId = t.JobtitleId
+                                                  }).ToListAsync();
 
                 List<string> passEmployee = new List<string>();
-                foreach (var department_jobtitle in customizationsReview) 
+                foreach (var department_jobtitle in customizationsReview)
                 {
                     var one = await (from t in _context.EmployeeInformations
                                      where t.DepartmentId == department_jobtitle.DepartmentId && t.JobtitleId == department_jobtitle.JobtitleId
                                      select new
-                                              {
-                                                 HashAccount = t.HashAccount
-                                              }).ToListAsync();
-                    foreach (var i in one) 
+                                     {
+                                         HashAccount = t.HashAccount
+                                     }).ToListAsync();
+                    foreach (var i in one)
                     {
                         passEmployee.Add(i.HashAccount);
                     }
@@ -226,6 +226,11 @@ namespace People_errand_api.Controllers
                     }
                 }
                 return leaveRecords;
+            }
+            else 
+            {
+                List<LeaveRecord> leaveRecords1 = new List<LeaveRecord>();
+                return leaveRecords1;
             }
         }
 
