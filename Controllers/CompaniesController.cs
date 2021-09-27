@@ -34,6 +34,24 @@ namespace People_errand_api.Controllers
             return result;
         }
 
+        [HttpGet("Forget_Manager")]//忘記密碼
+        public async Task<ActionResult<string>> ForgetManager(string code, string email)
+        {
+            var get_hashaccount = await (from t in _context.Employees
+                                         join a in _context.EmployeeInformations on t.HashAccount equals a.HashAccount
+                                         join b in _context.Companies on t.CompanyHash equals b.CompanyHash
+                                         where b.Code.Equals(code) && a.Email.Equals(email) 
+                                         select new
+                                         {
+                                             HashAccount = t.HashAccount
+                                         }).ToListAsync();
+            var managerhash = await _context.ManagerAccounts
+                .Where(db_manageraccount => db_manageraccount.HashAccount == get_hashaccount[0].HashAccount)
+                .Select(db_manageraccount => db_manageraccount.HashAccount).FirstOrDefaultAsync();
+
+            return managerhash;
+        }
+
         [HttpGet("Login_Manager")]//管理員登入
         public async Task<ActionResult<bool>> LoginManager(string code, string email,string password)
         {
