@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +22,55 @@ namespace People_errand_api.Controllers
         public CompaniesController(people_errandContext context)
         {
             _context = context;
+        }
+
+        [HttpGet("sendGmailAsync")]//公司登入
+        public async Task<ActionResult<bool>> sendGmailAsync(string to_email, string email_subject, string email_body)//寄EMAIL
+        {
+            try
+            {
+                MailMessage mail = new MailMessage();
+                //前面是發信email後面是顯示的名稱
+                mail.From = new MailAddress("C108118221@nkust.edu.tw", "差勤打卡");
+
+                //收信者email
+                mail.To.Add(to_email);
+
+                //設定優先權
+                mail.Priority = MailPriority.Normal;
+
+                //標題
+                mail.Subject = email_subject;
+
+                //內容
+                mail.Body = email_body;
+
+                //內容使用html
+                mail.IsBodyHtml = true;
+
+                //設定gmail的smtp (這是google的)
+                SmtpClient MySmtp = new SmtpClient("smtp.gmail.com", 587);
+
+                //您在gmail的帳號密碼
+                MySmtp.Credentials = new System.Net.NetworkCredential("like3yy@gmail.com", "nkust.edu.tw");
+
+                //開啟ssl
+                MySmtp.EnableSsl = true;
+
+                //發送郵件
+                await MySmtp.SendMailAsync(mail);
+
+                //放掉宣告出來的MySmtp
+                MySmtp = null;
+
+                //放掉宣告出來的mail
+                mail.Dispose();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         [HttpGet("Login_Company")]//公司登入
@@ -743,16 +793,21 @@ namespace People_errand_api.Controllers
         //    {
         //        foreach (Company company in companies)
         //        {
-        //                //設定放入查詢的值
-        //                var parameters = new[]
-        //            {
+        //            //設定放入查詢的值
+        //            var parameters = new[]
+        //        {
         //                new SqlParameter("@company_name",System.Data.SqlDbType.NVarChar)
         //                {
         //                    Direction = System.Data.ParameterDirection.Input,
         //                    Value = company.Name
+        //                },
+        //                new SqlParameter("@company_password",System.Data.SqlDbType.VarChar)
+        //                {
+        //                    Direction = System.Data.ParameterDirection.Input,
+        //                    Value = company.ManagerPassword
         //                }
         //            };
-        //            result = _context.Database.ExecuteSqlRaw("exec regist_company @company_name", parameters: parameters) != 0 ? true : false;
+        //            result = _context.Database.ExecuteSqlRaw("exec regist_company @company_name,@company_password", parameters: parameters) != 0 ? true : false;
         //        }
         //    }
         //    catch (Exception)
@@ -761,9 +816,9 @@ namespace People_errand_api.Controllers
         //        throw;
         //    }
 
-            
+
         //    //輸出成功與否
-        //    return result ;
+        //    return result;
         //}
 
         // DELETE: api/Companies/5
@@ -2107,7 +2162,7 @@ namespace People_errand_api.Controllers
                                            join b in _context.EmployeeLeaveTypes on t.LeaveTypeId equals b.LeaveTypeId
                                            join c in _context.EmployeeInformations on t.HashAccount equals c.HashAccount
                                            where a.CompanyHash == hash_company && t.Review != null
-                                           orderby t.CreatedTime
+                                           orderby t.StartDate descending
                                            select new
                                            {
                                                LeaveRecordId = t.LeaveRecordsId,
