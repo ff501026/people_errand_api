@@ -22,8 +22,20 @@ namespace People_errand_api.Controllers
         {
             _context = context;
         }
+        [HttpGet("LeaveRecordId_Get_HashAccount")]
+        public async Task<string> Manager_GetReviewLeaveRecord(int leaveRecordId)
+        {
+            var hashaccount = await (from t in _context.EmployeeLeaveRecords
+                                            where t.LeaveRecordsId == leaveRecordId
+                                            orderby t.CreatedTime
+                                            select new
+                                            {
+                                                HashAccount = t.HashAccount
+                                            }).ToListAsync();
+            return hashaccount.Count != 0 ? hashaccount[0].HashAccount : null;
+        }
 
-        [HttpGet("Review_LeaveRecord")]//取得未審核請假資料
+            [HttpGet("Review_LeaveRecord")]//取得未審核請假資料
         public async Task<IEnumerable> Manager_GetReviewLeaveRecord(string hash_company, string hash_account)
         {
             var review_leaverecord = await (from t in _context.EmployeeLeaveRecords
