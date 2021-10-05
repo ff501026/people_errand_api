@@ -784,42 +784,42 @@ namespace People_errand_api.Controllers
             return result;
         }
 
-        // POST: api/Companies/regist_company
-        [HttpPost("regist_company")]//註冊公司
-        public ActionResult<bool> regist_company([FromBody] List<Company> companies)
-        {
-            bool result = true;
-            try
-            {
-                foreach (Company company in companies)
-                {
-                    //設定放入查詢的值
-                    var parameters = new[]
-                {
-                        new SqlParameter("@company_name",System.Data.SqlDbType.NVarChar)
-                        {
-                            Direction = System.Data.ParameterDirection.Input,
-                            Value = company.Name
-                        },
-                        new SqlParameter("@company_password",System.Data.SqlDbType.VarChar)
-                        {
-                            Direction = System.Data.ParameterDirection.Input,
-                            Value = company.ManagerPassword
-                        }
-                    };
-                    result = _context.Database.ExecuteSqlRaw("exec regist_company @company_name,@company_password", parameters: parameters) != 0 ? true : false;
-                }
-            }
-            catch (Exception)
-            {
-                result = false;
-                throw;
-            }
+        //// POST: api/Companies/regist_company
+        //[HttpPost("regist_company")]//註冊公司
+        //public ActionResult<bool> regist_company([FromBody] List<Company> companies)
+        //{
+        //    bool result = true;
+        //    try
+        //    {
+        //        foreach (Company company in companies)
+        //        {
+        //            //設定放入查詢的值
+        //            var parameters = new[]
+        //        {
+        //                new SqlParameter("@company_name",System.Data.SqlDbType.NVarChar)
+        //                {
+        //                    Direction = System.Data.ParameterDirection.Input,
+        //                    Value = company.Name
+        //                },
+        //                new SqlParameter("@company_password",System.Data.SqlDbType.VarChar)
+        //                {
+        //                    Direction = System.Data.ParameterDirection.Input,
+        //                    Value = company.ManagerPassword
+        //                }
+        //            };
+        //            result = _context.Database.ExecuteSqlRaw("exec regist_company @company_name,@company_password", parameters: parameters) != 0 ? true : false;
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //        result = false;
+        //        throw;
+        //    }
 
 
-            //輸出成功與否
-            return result;
-        }
+        //    //輸出成功與否
+        //    return result;
+        //}
 
         // DELETE: api/Companies/5
         [HttpDelete("{id}")]
