@@ -139,12 +139,13 @@ namespace People_errand_api.Controllers
 
 
         // GET: api/Employees/phone_code
-        [HttpGet("{phone_code}")]
-        public async Task<ActionResult<string>> GetEmployee(string phone_code)
+        [HttpGet]
+        public async Task<ActionResult<string>> GetEmployee(string phone_code,string company_hash)
         {
             //去employee資料表比對phone_code，並回傳資料行
             var employee = await _context.Employees
                 .Where(db_employee => db_employee.PhoneCode == phone_code)
+                .Where(db_employee => db_employee.CompanyHash == company_hash)
                 .Select(db_employee => db_employee.HashAccount).FirstOrDefaultAsync();
 
             if (phone_code == null)
