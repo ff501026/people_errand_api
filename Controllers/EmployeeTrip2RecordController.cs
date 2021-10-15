@@ -90,6 +90,8 @@ namespace People_errand_api.Controllers
             {
                 foreach (EmployeeTrip2Record employeeTrip2Record in employeeTrip2Records)
                 {
+                    string location = AttendanceManagement.Models.GoogleMapApiModel.latLngToChineseAddress((double)employeeTrip2Record.CoordinateX, (double)employeeTrip2Record.CoordinateY);
+
                     //設定放入查詢的值
                     var parameters = new[]
                     {
@@ -112,10 +114,15 @@ namespace People_errand_api.Controllers
                         {
                             Direction = System.Data.ParameterDirection.Input,
                             Value = employeeTrip2Record.CoordinateY
+                        },
+                        new SqlParameter("@address",System.Data.SqlDbType.NVarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = location
                         }
                     };
                     //執行預存程序
-                    result = _context.Database.ExecuteSqlRaw("exec add_trip2Record @hash_account,@trip2_type_id,@coordinate_X,@coordinate_Y", parameters: parameters) != 0 ? true : false;
+                    result = _context.Database.ExecuteSqlRaw("exec add_trip2Record @hash_account,@trip2_type_id,@coordinate_X,@coordinate_Y,@address", parameters: parameters) != 0 ? true : false;
                 }
             }
             catch (Exception)

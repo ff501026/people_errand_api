@@ -1712,6 +1712,7 @@ namespace People_errand_api.Controllers
                                                 Trip2Type = t.Trip2TypeId,
                                                 CoordinateX = t.CoordinateX,
                                                 CoordinateY = t.CoordinateY,
+                                                Address = t.Address,
                                                 CreatedTime = t.CreatedTime,
                                             }).ToListAsync();
 

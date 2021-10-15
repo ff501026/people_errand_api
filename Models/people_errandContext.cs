@@ -532,6 +532,10 @@ namespace People_errand_api.Models
 
                 entity.Property(e => e.Trip2RecordsId).HasColumnName("trip2Records_id");
 
+                entity.Property(e => e.Address)
+                    .HasMaxLength(256)
+                    .HasColumnName("address");
+
                 entity.Property(e => e.CoordinateX)
                     .HasColumnType("numeric(18, 6)")
                     .HasColumnName("coordinate_X");
