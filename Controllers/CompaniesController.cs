@@ -563,6 +563,49 @@ namespace People_errand_api.Controllers
             return result;
         }
 
+        // Post: api/Companies/AddLog
+        [HttpPost("AddLog")]//新增管理員
+        public ActionResult<bool> add_log([FromBody] List<Log> log)
+        {
+            bool result = true;
+            try
+            {
+                foreach (Log log1 in log)
+                {
+                    var parameters = new[]
+                    {
+                        new SqlParameter("@url",System.Data.SqlDbType.NVarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = log1.Url
+                        },
+                        new SqlParameter("@input",System.Data.SqlDbType.NVarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = log1.Input == null ? DBNull.Value : log1.Input
+                        },
+                        new SqlParameter("@response",System.Data.SqlDbType.NVarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = log1.Response
+                        },
+                        new SqlParameter("@output",System.Data.SqlDbType.NVarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = log1.Output == null ? DBNull.Value : log1.Output
+                        }
+                    };
+                    result = _context.Database.ExecuteSqlRaw("exec add_log @url,@input,@response,@output", parameters: parameters) != 0 ? true : false;
+                }
+            }
+            catch (Exception)
+            {
+                result = false;
+                throw;
+            }
+            return result;
+        }
+
         // Post: api/Companies/AddManagerAccount
         [HttpPost("AddManagerAccount")]//新增管理員
         public ActionResult<bool> add_manager_account([FromBody] List<ManagerAccount> managerAccounts)
@@ -1702,7 +1745,6 @@ namespace People_errand_api.Controllers
                                             join a in _context.Employees on t.HashAccount equals a.HashAccount
                                             join b in _context.EmployeeInformations on t.HashAccount equals b.HashAccount
                                             where a.CompanyHash.Equals(hash_company)
-                                            orderby t.GroupId
                                             select new
                                             {
                                                 Trip2RecordId = t.Trip2RecordsId,

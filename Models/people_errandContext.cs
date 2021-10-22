@@ -32,6 +32,7 @@ namespace People_errand_api.Models
         public virtual DbSet<EmployeeTripRecord> EmployeeTripRecords { get; set; }
         public virtual DbSet<EmployeeWorkRecord> EmployeeWorkRecords { get; set; }
         public virtual DbSet<EmployeeWorkType> EmployeeWorkTypes { get; set; }
+        public virtual DbSet<Log> Logs { get; set; }
         public virtual DbSet<ManagerAccount> ManagerAccounts { get; set; }
         public virtual DbSet<ManagerPermission> ManagerPermissions { get; set; }
         public virtual DbSet<ManagerPermissionsCustomization> ManagerPermissionsCustomizations { get; set; }
@@ -691,6 +692,30 @@ namespace People_errand_api.Models
                     .HasMaxLength(8)
                     .IsUnicode(false)
                     .HasColumnName("name");
+            });
+
+            modelBuilder.Entity<Log>(entity =>
+            {
+                entity.ToTable("log");
+
+                entity.Property(e => e.LogId).HasColumnName("log_id");
+
+                entity.Property(e => e.CreatedTime)
+                    .HasColumnType("datetime")
+                    .HasColumnName("created_time")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.Input).HasColumnName("input");
+
+                entity.Property(e => e.Output).HasColumnName("output");
+
+                entity.Property(e => e.Response)
+                    .IsRequired()
+                    .HasColumnName("response");
+
+                entity.Property(e => e.Url)
+                    .IsRequired()
+                    .HasColumnName("url");
             });
 
             modelBuilder.Entity<ManagerAccount>(entity =>
