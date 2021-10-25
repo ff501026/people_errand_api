@@ -188,12 +188,12 @@ namespace People_errand_api.Controllers
             return get_employee;
         }
 
-        // Get: api/Employees/update_employee_manager_key
-        [HttpGet("get_employee_enabled/{phonecode}")]
-        public async Task<bool?> get_employee_enabled(string phonecode)
+        // Get: api/Employees/get_employee_enabled
+        [HttpGet("get_employee_enabled/{hashaccount}")]
+        public async Task<bool?> get_employee_enabled(string hash_account)
         {
             var enabled = await _context.Employees
-                            .Where(db => db.PhoneCode == phonecode)
+                            .Where(db => db.HashAccount == hash_account)
                             .Select(db => db.Enabled).FirstOrDefaultAsync();
 
             return enabled;
