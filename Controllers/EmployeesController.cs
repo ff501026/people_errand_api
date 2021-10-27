@@ -189,7 +189,7 @@ namespace People_errand_api.Controllers
         }
 
         // Get: api/Employees/get_employee_enabled
-        [HttpGet("get_employee_enabled/{hashaccount}")]
+        [HttpGet("get_employee_enabled/{hash_account}")]
         public async Task<bool?> get_employee_enabled(string hash_account)
         {
             var enabled = await _context.Employees
