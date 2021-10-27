@@ -418,6 +418,57 @@ namespace People_errand_api.Controllers
             return company_hash + "\n" + coordinate_X + "\n" + coordinate_Y;
         }
 
+        // GET: api/Companies/GetCompanyPositionDifference/company_hash
+        [HttpGet("GetCompanyPositionDifference/{company_hash}")]//定位誤差值
+        public async Task<ActionResult<int>> GetCompanyPositionDifference(string company_hash)
+        {
+            //去company資料表比對company_code，並回傳資料行
+            var position_difference = await _context.Companies
+                .Where(db_company => db_company.CompanyHash == company_hash)
+                .Select(db_company => db_company.PositionDifference).FirstOrDefaultAsync();
+
+            if (company_hash == null)
+            {
+                return NotFound();
+            }
+
+            return position_difference;
+        }
+
+        // GET: api/Companies/GetCompanySettingTrip2Enabled/company_hash
+        [HttpGet("GetCompanySettingTrip2Enabled/{company_hash}")]//是否開啟到站
+        public async Task<ActionResult<bool>> GetCompanySettingTrip2Enabled(string company_hash)
+        {
+            //去company資料表比對company_code，並回傳資料行
+            var setting_trip2_enabled = await _context.Companies
+                .Where(db_company => db_company.CompanyHash == company_hash)
+                .Select(db_company => db_company.SettingTrip2Enabled).FirstOrDefaultAsync();
+
+            if (company_hash == null)
+            {
+                return NotFound();
+            }
+
+            return setting_trip2_enabled;
+        }
+
+        // GET: api/Companies/GetCompanySettingWorkRecordEnabled/company_hash
+        [HttpGet("GetCompanySettingWorkRecordEnabled/{company_hash}")]//是否開啟定位打卡
+        public async Task<ActionResult<bool>> GetCompanySettingWorkRecordEnabled(string company_hash)
+        {
+            //去company資料表比對company_code，並回傳資料行
+            var setting_workrecord_enabled = await _context.Companies
+                .Where(db_company => db_company.CompanyHash == company_hash)
+                .Select(db_company => db_company.SettingWorkrecordEnabled).FirstOrDefaultAsync();
+
+            if (company_hash == null)
+            {
+                return NotFound();
+            }
+
+            return setting_workrecord_enabled;
+        }
+
         // PUT: api/Companies/UpdateManagerPassword
         [HttpPut("UpdateManagerPassword")]//更新管理員密碼
         public ActionResult<bool> update_manager_password([FromBody] List<ManagerAccount> managerAccounts)

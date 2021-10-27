@@ -119,9 +119,15 @@ namespace People_errand_api.Models
                     .IsUnicode(false)
                     .HasColumnName("phone");
 
+                entity.Property(e => e.PositionDifference).HasColumnName("position_difference");
+
                 entity.Property(e => e.RestTime)
                     .HasColumnType("time(4)")
                     .HasColumnName("rest_time");
+
+                entity.Property(e => e.SettingTrip2Enabled).HasColumnName("setting_trip2_enabled");
+
+                entity.Property(e => e.SettingWorkrecordEnabled).HasColumnName("setting_workrecord_enabled");
 
                 entity.Property(e => e.WorkTime)
                     .HasColumnType("time(4)")

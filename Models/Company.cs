@@ -27,6 +27,9 @@ namespace People_errand_api.Models
         public string Address { get; set; }
         public decimal? CoordinateX { get; set; }
         public decimal? CoordinateY { get; set; }
+        public int PositionDifference { get; set; }
+        public bool SettingTrip2Enabled { get; set; }
+        public bool SettingWorkrecordEnabled { get; set; }
         public TimeSpan? WorkTime { get; set; }
         public TimeSpan? RestTime { get; set; }
         public string ManagerPassword { get; set; }
