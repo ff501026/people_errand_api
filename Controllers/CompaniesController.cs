@@ -435,6 +435,39 @@ namespace People_errand_api.Controllers
             return position_difference;
         }
 
+        // PUT: api/Companies/UpdateCompanyPositionDifference
+        [HttpPut("UpdateCompanyPositionDifference")]//更新公司打卡誤差值
+        public ActionResult<bool> UpdateCompanyPositionDifference([FromBody] List<Company> companies)
+        {
+            bool result = true;
+            try
+            {
+                foreach (Company company in companies)
+                {
+                    var parameters = new[]
+                    {
+                        new SqlParameter("@company_hash",System.Data.SqlDbType.VarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = company.CompanyHash
+                        },
+                        new SqlParameter("@position_difference",System.Data.SqlDbType.Int)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = company.PositionDifference
+                        }
+                    };
+                    result = _context.Database.ExecuteSqlRaw("exec update_company_position_difference @company_hash,@position_difference", parameters: parameters) != 0 ? true : false;
+                }
+            }
+            catch (Exception)
+            {
+                result = false;
+                throw;
+            }
+            return result;
+        }
+
         // GET: api/Companies/GetCompanySettingTrip2Enabled/company_hash
         [HttpGet("GetCompanySettingTrip2Enabled/{company_hash}")]//是否開啟到站
         public async Task<ActionResult<bool>> GetCompanySettingTrip2Enabled(string company_hash)
@@ -452,6 +485,39 @@ namespace People_errand_api.Controllers
             return setting_trip2_enabled;
         }
 
+        // PUT: api/Companies/UpdateCompanySettingTrip2Enabled
+        [HttpPut("UpdateCompanySettingTrip2Enabled")]//更新公司是否開啟到站
+        public ActionResult<bool> UpdateCompanySettingTrip2Enabled([FromBody] List<Company> companies)
+        {
+            bool result = true;
+            try
+            {
+                foreach (Company company in companies)
+                {
+                    var parameters = new[]
+                    {
+                        new SqlParameter("@company_hash",System.Data.SqlDbType.VarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = company.CompanyHash
+                        },
+                        new SqlParameter("@setting_trip2_enabled",System.Data.SqlDbType.Bit)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = company.SettingTrip2Enabled
+                        }
+                    };
+                    result = _context.Database.ExecuteSqlRaw("exec update_company_setting_trip2_enabled @company_hash,@setting_trip2_enabled", parameters: parameters) != 0 ? true : false;
+                }
+            }
+            catch (Exception)
+            {
+                result = false;
+                throw;
+            }
+            return result;
+        }
+
         // GET: api/Companies/GetCompanySettingWorkRecordEnabled/company_hash
         [HttpGet("GetCompanySettingWorkRecordEnabled/{company_hash}")]//是否開啟定位打卡
         public async Task<ActionResult<bool>> GetCompanySettingWorkRecordEnabled(string company_hash)
@@ -467,6 +533,39 @@ namespace People_errand_api.Controllers
             }
 
             return setting_workrecord_enabled;
+        }
+
+        // PUT: api/Companies/UpdateCompanySettingWorkRecordEnabled
+        [HttpPut("UpdateCompanySettingWorkRecordEnabled")]//更新公司打卡定位是否開啟
+        public ActionResult<bool> UpdateCompanySettingWorkRecordEnabled([FromBody] List<Company> companies)
+        {
+            bool result = true;
+            try
+            {
+                foreach (Company company in companies)
+                {
+                    var parameters = new[]
+                    {
+                        new SqlParameter("@company_hash",System.Data.SqlDbType.VarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = company.CompanyHash
+                        },
+                        new SqlParameter("@setting_workrecord_enabled",System.Data.SqlDbType.Bit)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = company.SettingWorkrecordEnabled
+                        }
+                    };
+                    result = _context.Database.ExecuteSqlRaw("exec update_company_setting_workrecord_enabled @company_hash,@setting_workrecord_enabled", parameters: parameters) != 0 ? true : false;
+                }
+            }
+            catch (Exception)
+            {
+                result = false;
+                throw;
+            }
+            return result;
         }
 
         // PUT: api/Companies/UpdateManagerPassword
