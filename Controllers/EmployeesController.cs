@@ -199,6 +199,52 @@ namespace People_errand_api.Controllers
             return enabled;
         }
 
+        // PUT: api/Employees/update_employee_login_number
+        [HttpPut("update_employee_login_number")]
+        public async Task<bool> update_employee_login_number([FromBody] List<Employee> employees)
+        {
+            bool result = true;
+            try
+            {
+                foreach (Employee employee in employees)
+                //foreach用來讀取多筆資料，假設一個JSON有很多{}
+                {
+                    var login_number = await _context.Employees
+                            .Where(db => db.HashAccount == employee.HashAccount)
+                            .Select(db => db.LoginNumber).FirstOrDefaultAsync();
+                    var true_number = login_number + 1;
+                    if (true_number != employee.LoginNumber)
+                    {
+                        return false;
+                    }
+                    else 
+                    {
+                        var parameters = new[]
+                       {
+                            new SqlParameter("@hashaccount", System.Data.SqlDbType.VarChar)
+                            {
+                                Direction = System.Data.ParameterDirection.Input,
+                                Value = employee.HashAccount
+                            },
+                            new SqlParameter("@login_number", System.Data.SqlDbType.Int)
+                            {
+                                Direction = System.Data.ParameterDirection.Input,
+                                Value = employee.LoginNumber
+                            }
+                        };
+
+                        result = _context.Database.ExecuteSqlRaw("exec update_employee_login_number @hashaccount,@login_number", parameters: parameters) != 0 ? true : false;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                result = false;
+                throw;
+            }
+            return result;
+        }
+
         // PUT: api/Employees/enabled_employee
         [HttpPut("enabled_employee")]
         public ActionResult<bool> enabled_employee([FromBody] List<Employee> employees)

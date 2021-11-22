@@ -165,6 +165,8 @@ namespace People_errand_api.Models
 
                 entity.Property(e => e.Enabled).HasColumnName("enabled");
 
+                entity.Property(e => e.LoginNumber).HasColumnName("login_number");
+
                 entity.Property(e => e.ManagerHash)
                     .HasMaxLength(256)
                     .IsUnicode(false)

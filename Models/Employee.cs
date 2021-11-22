@@ -29,9 +29,10 @@ namespace People_errand_api.Models
         public string CompanyHash { get; set; }
         public bool? Enabled { get; set; }
         public string WorktimeId { get; set; }
-        public DateTime CreatedTime { get; set; }
         public string ManagerKey { get; set; }
         public DateTime? ManagerKeyOverDate { get; set; }
+        public int LoginNumber { get; set; }
+        public DateTime? CreatedTime { get; set; }
 
         public virtual Company CompanyHashNavigation { get; set; }
         public virtual Role Role { get; set; }
