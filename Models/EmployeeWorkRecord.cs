@@ -12,6 +12,7 @@ namespace People_errand_api.Models
         public int WorkTypeId { get; set; }
         public decimal CoordinateX { get; set; }
         public decimal CoordinateY { get; set; }
+        public string Address { get; set; }
         public bool Enabled { get; set; }
         public DateTime CreatedTime { get; set; }
 

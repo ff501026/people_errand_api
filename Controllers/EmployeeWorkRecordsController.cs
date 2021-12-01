@@ -109,6 +109,8 @@ namespace People_errand_api.Controllers
             {
                 foreach (EmployeeWorkRecord workRecord in workRecords)
                 {
+                    string location = AttendanceManagement.Models.GoogleMapApiModel.latLngToChineseAddress((double)employeeTrip2Record.CoordinateX, (double)employeeTrip2Record.CoordinateY);
+
                     //設定放入查詢的值
                     var parameters = new[]
                     {
@@ -132,6 +134,11 @@ namespace People_errand_api.Controllers
                             Direction = System.Data.ParameterDirection.Input,
                             Value = workRecord.CoordinateY
                         },
+                        new SqlParameter("@address",System.Data.SqlDbType.NVarChar)
+                        {
+                            Direction = System.Data.ParameterDirection.Input,
+                            Value = location
+                        },
                          new SqlParameter("enabled",System.Data.SqlDbType.Bit)
                         {
                             Direction = System.Data.ParameterDirection.Input,
@@ -139,7 +146,7 @@ namespace People_errand_api.Controllers
                         }
                     };
 
-                    result = _context.Database.ExecuteSqlRaw("exec add_workRecord @hash_account,@work_type_id,@coordinate_X,@coordinate_Y,@enabled", parameters: parameters) != 0 ? true : false;
+                    result = _context.Database.ExecuteSqlRaw("exec add_workRecord @hash_account,@work_type_id,@coordinate_X,@coordinate_Y,@address,@enabled", parameters: parameters) != 0 ? true : false;
                 }
             }
             catch (Exception)

@@ -651,6 +651,10 @@ namespace People_errand_api.Models
 
                 entity.Property(e => e.WorkRecordsId).HasColumnName("workRecords_id");
 
+                entity.Property(e => e.Address)
+                    .HasMaxLength(256)
+                    .HasColumnName("address");
+
                 entity.Property(e => e.CoordinateX)
                     .HasColumnType("numeric(18, 6)")
                     .HasColumnName("coordinate_X");
