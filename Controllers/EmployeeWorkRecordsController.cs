@@ -109,7 +109,7 @@ namespace People_errand_api.Controllers
             {
                 foreach (EmployeeWorkRecord workRecord in workRecords)
                 {
-                    string location = AttendanceManagement.Models.GoogleMapApiModel.latLngToChineseAddress((double)employeeTrip2Record.CoordinateX, (double)employeeTrip2Record.CoordinateY);
+                    string location = AttendanceManagement.Models.GoogleMapApiModel.latLngToChineseAddress((double)workRecord.CoordinateX, (double)workRecord.CoordinateY);
 
                     //設定放入查詢的值
                     var parameters = new[]
