@@ -42,6 +42,26 @@ namespace People_errand_api.Controllers
             return employee_work_record;
         }
 
+        // GET: api/GetEmployeeLastFalseWorkRecords/hash_account
+        [HttpGet("GetEmployeeLastFalseWorkRecords/{hash_account}")] //(用來看最後一筆的位置)
+        public async Task<ActionResult<EmployeeWorkRecord>> GetEmployeeLastFalseWorkRecords(string hash_account)
+        {
+            //去employee_work_record資料表比對hash_account，並回傳資料行
+            //找到使用者最後一筆資料
+            var employee_work_record = await _context.EmployeeWorkRecords
+                .Where(db_employee_work_record => db_employee_work_record.HashAccount == hash_account
+                && db_employee_work_record.Enabled.Equals(false))
+                .OrderBy(db_employee_work_record => db_employee_work_record.WorkRecordsId)
+                .Select(db_employee_work_record => db_employee_work_record).LastOrDefaultAsync();
+
+            if (hash_account == null)
+            {
+                return NotFound();
+            }
+
+            return employee_work_record;
+        }
+
         // GET: api/EmployeeWorkRecords/GetEmployeeAllWorkRecords/hash_account
         [HttpGet("GetEmployeeAllWorkRecords/{hash_account}")] //(用來看全部的上班下班)
         public async Task<ActionResult<IEnumerable<EmployeeWorkRecord>>> GetEmployeeAllWorkRecords(string hash_account)
