@@ -13,7 +13,7 @@ namespace AttendanceManagement.Models
     {
         public static string ConvertAddressToJsonString(string address)//地址轉JSON
         {
-            string url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + HttpUtility.UrlEncode(address, Encoding.UTF8) + "&language=zh-TW&key=AIzaSyAnwBmNoOCbLM69TsWonLV-i134H4Y3o70";
+            string url = "https://maps.googleapis.com/maps/api/geocode/json?address=" + HttpUtility.UrlEncode(address, Encoding.UTF8) + "&language=zh-TW&key=AIzaSyBszSMAkbpQjbZrUSRiouvAnDlY3HZpreY";
             string result = "";//回傳結果 
             try
             {
@@ -59,7 +59,7 @@ namespace AttendanceManagement.Models
         public static string latLngToChineseAddress(params double[] latLng)
         {
             string url =
-                "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + string.Join(",", latLng) + "&language=zh-TW&key=AIzaSyAnwBmNoOCbLM69TsWonLV-i134H4Y3o70";
+                "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + string.Join(",", latLng) + "&language=zh-TW&key=AIzaSyBszSMAkbpQjbZrUSRiouvAnDlY3HZpreY";
             string json = String.Empty;
             HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
             //指定語言，否則Google預設回傳英文 
